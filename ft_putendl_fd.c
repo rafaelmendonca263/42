@@ -1,28 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   libft.h                                            :+:      :+:    :+:   */
+/*   ft_putendl_fd.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/16 15:22:04 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/16 20:46:21 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/10/21 19:01:22 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/10/24 21:55:57 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_H
-# define LIBFT_H
+#include "libft.h"
 
-# include <unistd.h>
-# include <stdlib.h>
-# include <stddef.h>
+void	ft_putendl_fd(char *s, int fd)
+{
+	int	i;
 
-//Utilities
-
-int	ft_atoi(char *str);
-
-//Memory
-
-void ft_bzero(void *s, size_t n);
-
-#endif
+	i = 0;
+	while (s[i] != '\0')
+	{
+		ft_putchar_fd(s[i],fd);
+		i++;
+	}
+	write(fd, "\n", 1);
+}

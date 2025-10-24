@@ -3,16 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strlcpy.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/06 12:47:20 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/16 18:48:02 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/10/21 15:06:55 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/10/24 16:40:20 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-unsigned int	ft_strlcpy(char *dest, char *src, unsigned int size)
+/// @brief The strlcpy() function copies up to size
+/// - 1 characters from the NUL-ter‐
+/// minated string src to dst, NUL-terminating the result.
+/// @param dest
+/// @param src
+/// @param size
+/// @return
+size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 {
 	unsigned int	i;
 
@@ -25,10 +32,10 @@ unsigned int	ft_strlcpy(char *dest, char *src, unsigned int size)
 	}
 	while (src[i] != '\0' && i < size - 1)
 	{
-		dest[i] = src[i];
+		dst[i] = src[i];
 		i++;
 	}
-	dest[i] = '\0';
+	dst[i] = '\0';
 	while (src[i])
 		i++;
 	return (i);

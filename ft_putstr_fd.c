@@ -1,13 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_isprint.c                                       :+:      :+:    :+:   */
+/*   ft_putstr_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/15 20:39:14 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/16 16:43:44 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/10/21 19:01:06 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/10/24 16:40:00 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
+
+void	ft_putstr_fd(char *s, int fd)
+{
+	int	i;
+
+	i = 0;
+	if (!s)
+		return ;
+	while (s[i] != '\0')
+	{
+		ft_putchar_fd(s[i], fd);
+		i++;
+	}
+	return ;
+}

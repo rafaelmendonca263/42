@@ -3,39 +3,33 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strdup.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/13 20:34:40 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/16 18:46:00 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/10/21 15:04:34 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/10/24 16:40:08 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int	ft_strlen(char *str)
-{
-	int	i;
-
-	i = 0;
-	while (str[i] != '\0')
-		i++;
-	return (i);
-}
-
-char	*ft_strdup(char *src)
+/// @brief The  strdup() function returns a pointer to a new string which is a duplicate of the string s.  Memory for the new string  is  obtained  with malloc(3),
+/// and can be freed with free(3).
+/// @param src
+/// @return mem
+char	*ft_strdup(const char *s)
 {
 	char	*mem;
 	int		i;
 	int		len;
 
-	len = ft_strlen(src);
+	len = ft_strlen(s);
 	mem = malloc(sizeof(char) * (len + 1));
 	if (!mem)
 		return (NULL);
 	i = 0;
 	while (i < len)
 	{
-		mem[i] = src[i];
+		mem[i] = s[i];
 		i++;
 	}
 	mem[i] = '\0';
