@@ -26,40 +26,36 @@ static int isset(char c, char const *set)
     return(0);
 }
 
+static int get_trim_indices(const char *s1, const char *set, int *start, int *end)
+{
+    *start = 0;
+    while (s1[*start] && isset(s1[*start], set))
+        (*start)++;
+    *end = ft_strlen(s1) - 1;
+    while (*end >= *start && isset(s1[*end], set))
+        (*end)--;
+    return (*end < *start);
+}
+
 char *ft_strtrim(char const *s1, char const *set)
 {
     char *ptr;
-    int i;
-    int start;
-    int end;
-
-    if(!s1 || !set)
-        return(NULL);
-    i = 0;
-    while(s1[i] && isset(s1[i], set))
-        i++;
-    start = i;
-    i = ft_strlen(s1) - 1;
-    while (s1[i] && isset(s1[i], set))
-        i--;
-    end = i;
-    ptr = malloc(sizeof(char) * (end - start + 1));
-    if (!ptr)
-		return (NULL);
-    i = 0;
-    while(start <= end)
+    int start, end, i;
+    if (!s1 || !set)
+        return NULL;
+    if (get_trim_indices(s1, set, &start, &end))
     {
-        ptr[i] = s1[start];
-        start++;
-        i++;
+        ptr = malloc(1);
+        if (!ptr) return NULL;
+        ptr[0] = '\0';
+        return ptr;
     }
+    ptr = malloc(sizeof(char) * (end - start + 2));
+    if (!ptr)
+        return NULL;
+    i = 0;
+    while (start <= end)
+        ptr[i++] = s1[start++];
     ptr[i] = '\0';
-    return(ptr);
-}
-int main()
-{
-    char *s1 = "/?GAYNILO//";
-    char *set = "?//";
-    printf("%s", ft_strtrim(s1,set));
-    return(0);
+    return ptr;
 }
