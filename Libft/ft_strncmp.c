@@ -6,15 +6,15 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 20:42:18 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/24 16:40:28 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/28 13:39:18 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-/// @brief The  strcmp()  function  compares the two strings s1 and s2.  The locale is not taken into ac‐
-/// count (for a locale-aware comparison,
-/// see strcoll(3)).  The comparison is done using  unsigned characters.
+/// @brief The  strcmp()  function  compares the two 
+/// strings s1 and s2.  The locale is not taken into account. 
+/// The comparison is done using  unsigned characters.
 /// @param s1
 /// @param s2
 /// @param n

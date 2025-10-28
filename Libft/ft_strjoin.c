@@ -6,12 +6,16 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 18:59:25 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/24 16:40:14 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/28 13:59:18 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
+/// @brief Creates a new string with s1 + s2.
+/// @param s1 
+/// @param s2 
+/// @return dest
 char	*ft_strjoin(char const *s1, char const *s2)
 {
 	char	*dest;

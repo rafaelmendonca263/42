@@ -6,7 +6,7 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 18:59:56 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/24 17:38:10 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/28 13:28:43 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,9 @@ int	nmb_len(int n)
 	}
 	return (size);
 }
+
 /// @brief Integer to Ascii.
-/// @param n 
+/// @param n
 /// @return ptr
 char	*ft_itoa(int n)
 {

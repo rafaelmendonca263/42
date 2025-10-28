@@ -6,13 +6,14 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 20:40:40 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/24 16:39:46 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/28 13:33:59 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-/// @brief Do a print bit by bit from src to dest with size n. It solved if the memory areas do overlap.
+/// @brief Do a print bit by bit from src to dest with
+/// size n. It solved if the memory areas do overlap.
 /// @param dest
 /// @param src
 /// @param n
@@ -28,20 +29,20 @@ void	*ft_memmove(void *dest, const void *src, size_t n)
 	i = 0;
 	if (ptr_dest < ptr_src)
 	{
-        while(i < n)
+		while (i < n)
 		{
-            ptr_dest[i] = ptr_src[i];
-		    i++;
-        }
+			ptr_dest[i] = ptr_src[i];
+			i++;
+		}
 	}
-	else if(ptr_dest > ptr_src)
+	else if (ptr_dest > ptr_src)
 	{
-        i = n;
-        while(i > 0)
-        {
-            i--;
-		    ptr_dest[i] = ptr_src[i];
-        }
-    }
+		i = n;
+		while (i > 0)
+		{
+			i--;
+			ptr_dest[i] = ptr_src[i];
+		}
+	}
 	return (dest);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 22:13:08 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/21 18:26:03 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/28 13:22:34 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 /// @brief Converts a str into a number: ex "-48" -> -48.
 /// @param str
 /// @return result
-int ft_atoi(const char *nptr)
+int	ft_atoi(const char *nptr)
 {
 	int	i;
 	int	sign;

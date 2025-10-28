@@ -6,13 +6,14 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 20:40:20 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/24 16:39:44 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/28 14:40:25 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-/// @brief Do a print bit by bit from src to dest with size n. Use memmove if the memory areas do overlap.
+/// @brief Do a print bit by bit from src to dest with
+/// size n. Use memmove if the memory areas do overlap.
 /// @param dest
 /// @param src
 /// @param n
@@ -23,6 +24,8 @@ void	*ft_memcpy(void *dest, const void *src, size_t n)
 	unsigned char		*ptr_dest;
 	const unsigned char	*ptr_src;
 
+	if (!dest && !src)
+		return (NULL);
 	ptr_dest = (unsigned char *)dest;
 	ptr_src = (const unsigned char *)src;
 	i = 0;
