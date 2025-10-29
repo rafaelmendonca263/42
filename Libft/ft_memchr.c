@@ -6,7 +6,7 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 20:42:32 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/28 13:32:06 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/28 17:19:37 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 /// @param s
 /// @param c
 /// @param n
-/// @return &ptr or NULL
+/// @return &ptr
 void	*ft_memchr(const void *s, int c, size_t n)
 {
 	size_t				i;

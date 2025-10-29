@@ -6,7 +6,7 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 18:59:47 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/28 14:55:11 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/29 16:41:43 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,3 +104,21 @@ char	**ft_split(char const *s, char c)
 	words[word_count] = NULL;
 	return (words);
 }
+
+/* int main()
+{
+	int i;
+
+	i = 0;
+	char **a = ft_split("isto  e   um   teste   de   split", ' ');
+	while(a[i])
+	{
+		printf("%s\n",a[i]);
+		i++;
+	}
+	i = 0;
+	while (a[i])
+		free(a[i++]);
+	free(a);
+	return (0);
+} */

@@ -1,23 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strcpy.c                                        :+:      :+:    :+:   */
+/*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/19 18:21:32 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/08/19 18:27:17 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/10/29 17:20:26 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/10/29 17:52:18 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-char    *ft_strcpy(char *s1, char *s2)
-{
-    int i;
+#ifndef GET_NEXT_LINE_H
+# define GET_NEXT_LINE_H
 
-    i = 0;
-    while(s2 != '\0')
-        s1[i] = s2[i];
-        i++;
-    s1[i] = '\0';
-    return(s1);
-}
+# include <fcntl.h>
+# include <stdlib.h>
+# include <unistd.h>
+
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 42
+
+# endif
+
+#endif

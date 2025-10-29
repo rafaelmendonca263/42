@@ -6,20 +6,20 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 15:07:25 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/28 13:38:02 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/29 20:08:50 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-/// @brief The strlen() function calculates the 
-/// length of the string pointed to by s, excluding 
+/// @brief The strlen() function calculates the
+/// length of the string pointed to by s, excluding
 /// the terminating null byte ('\0').
 /// @param str
 /// @return
 size_t	ft_strlen(const char *s)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
 	while (s[i] != '\0')

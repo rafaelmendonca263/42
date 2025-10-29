@@ -6,7 +6,7 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 20:40:01 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/24 16:39:11 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/29 20:12:09 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ void	ft_bzero(void *s, size_t n)
 	size_t			i;
 	unsigned char	*ptr;
 
+	if (!s && n < 0)
+		return ;
 	ptr = (unsigned char *)s;
 	i = 0;
 	while (i < n)

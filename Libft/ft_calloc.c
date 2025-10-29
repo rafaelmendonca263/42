@@ -6,7 +6,7 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 20:43:22 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/28 13:23:45 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/29 20:29:56 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,14 @@
 /// @return ptr
 void	*ft_calloc(size_t nmemb, size_t size)
 {
-	int	*ptr;
+	void	*ptr;
 
+	if (nmemb == 0 || size == 0)
+	{
+		return (malloc(0));
+	}
+	if (nmemb > __SIZE_MAX__ / size)
+		return (NULL);
 	ptr = malloc(nmemb * size);
 	if (!ptr)
 		return (NULL);

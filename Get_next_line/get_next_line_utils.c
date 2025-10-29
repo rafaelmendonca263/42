@@ -1,23 +1,14 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_div_mod.c                                       :+:      :+:    :+:   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/03 23:14:34 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/08/03 23:59:26 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/10/29 17:20:09 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/10/29 17:32:42 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
-#include <stdio.h>
+#include "get_next_line.h"
 
-void	ft_div_mod(int a, int b, int *div, int *mod)
-{
-	if (b != 0)
-	{
-		*div = a / b;
-		*mod = a % b;
-	}
-}

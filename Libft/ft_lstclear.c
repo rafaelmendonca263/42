@@ -6,7 +6,7 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 13:30:05 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/28 13:47:42 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/29 18:46:41 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,18 @@
 void	ft_lstclear(t_list **lst, void (*del)(void *))
 {
 	t_list	*tmp;
+	t_list	*next;
 
 	if (!lst || !del)
 		return ;
-	while (*lst != NULL)
+	tmp = *lst;
+	while (tmp)
 	{
-		tmp = (*lst)->next;
-		del((*lst)->content);
-		free(*lst);
-		*lst = tmp;
+		next = tmp->next;
+		if (tmp->content)
+			del(tmp->content);
+		free(tmp);
+		tmp = next;
 	}
 	*lst = NULL;
-	return ;
 }

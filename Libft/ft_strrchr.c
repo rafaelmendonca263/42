@@ -6,14 +6,14 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 20:42:01 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/28 14:19:13 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/28 17:26:50 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
 /// @brief The  strrchr()  function  returns  a
-/// pointer to the first occurrence of the character
+/// pointer to the last occurrence of the character
 /// c in the string s.
 /// @param s
 /// @param c

@@ -6,14 +6,14 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 20:42:18 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/28 13:39:18 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/10/29 19:36:23 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-/// @brief The  strcmp()  function  compares the two 
-/// strings s1 and s2.  The locale is not taken into account. 
+/// @brief The  strcmp()  function  compares the two
+/// strings s1 and s2.  The locale is not taken into account.
 /// The comparison is done using  unsigned characters.
 /// @param s1
 /// @param s2
@@ -21,18 +21,16 @@
 /// @return
 int	ft_strncmp(const char *s1, const char *s2, const unsigned int n)
 {
-	unsigned int	i;
+	size_t	i;
 
 	i = 0;
-	if (n == 0)
-		return (0);
-	while (i < n && s1[i] != '\0' && s2[i] != '\0')
+	while (i < n && s1[i] && s2[i])
 	{
-		if (s1[i] != s2[i])
+		if ((unsigned char)s1[i] != (unsigned char)s2[i])
 			return ((unsigned char)s1[i] - (unsigned char)s2[i]);
 		i++;
 	}
-	if (i == n)
-		return (0);
-	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
+	if (i < n)
+		return ((unsigned char)s1[i] - (unsigned char)s2[i]);
+	return (0);
 }
