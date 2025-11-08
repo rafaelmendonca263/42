@@ -6,38 +6,59 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/29 17:19:47 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/29 18:27:12 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/11/07 21:36:24 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*get_next_line(int fd)
+int	fill_buf(int fd, char *buf)
 {
-	int		total;
-	char	*buf;
-	char	*buffer;
+	int	b;
 
-	buf = malloc(BUFFER_SIZE + 1);
-	if (!buffer)
-		return (NULL);
-	total = read(fd, buffer, BUFFER_SIZE);
-	write(fd, buf, BUFFER_SIZE);
-	close(fd);
-	return (NULL);
+	b = read(fd, buf, BUFFER_SIZE);
+	if (b <= 0)
+	{
+		buf[0] = '\0';
+		return (b);
+	}
+	buf[b] = '\0';
+	return (b);
 }
 
-int	main(void)
+char	*append_line(char *line, char *buf)
 {
-	int	fd;
+	char	*temp;
 
-	fd = open("read.md", O_RDONLY);
-	if (fd < 0)
-		return (1);
-	while (fd > 0)
+	temp = extract_until_newline(buf);
+	line = ft_strjoin(line, temp);
+	free(temp);
+	return (line);
+}
+
+char	*get_next_line(int fd)
+{
+	static char	buf[BUFFER_SIZE + 1];
+	char		*line;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	line = NULL;
+	while (1)
 	{
-		fd = write(2, "Erro: falha ao abrir o ficheiro\n", 32);
-		get_next_line(fd);
+		if (!buf[0] && fill_buf(fd, buf) <= 0)
+		{
+			if (!line || !line[0])
+				return (free(line), NULL);
+			break ;
+		}
+		line = append_line(line, buf);
+		if (have_newline(buf))
+		{
+			cut_line(buf);
+			break ;
+		}
+		buf[0] = '\0';
 	}
-	return (1);
+	return (line);
 }

@@ -1,25 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   ft_div_mod.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/29 17:20:26 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/29 17:52:18 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/08/03 23:14:34 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/08/03 23:59:26 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#include <unistd.h>
+#include <stdio.h>
 
-# include <fcntl.h>
-# include <stdlib.h>
-# include <unistd.h>
-
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 42
-
-# endif
-
-#endif
+void	ft_div_mod(int a, int b, int *div, int *mod)
+{
+	if (b != 0)
+	{
+		*div = a / b;
+		*mod = a % b;
+	}
+}

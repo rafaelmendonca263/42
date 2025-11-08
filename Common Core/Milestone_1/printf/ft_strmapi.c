@@ -1,47 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_memmove.c                                       :+:      :+:    :+:   */
+/*   ft_strmapi.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/15 20:40:40 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/29 19:29:03 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/10/21 19:00:14 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/10/29 19:13:28 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-/// @brief Do a print bit by bit from src to dest with
-/// size n. It solved if the memory areas do overlap.
-/// @param dest
-/// @param src
-/// @param n
+/// @brief Create a new str based on s but passing
+/// by f function.
+/// @param s
+/// @param f
 /// @return dest
-void	*ft_memmove(void *dest, const void *src, size_t n)
+char	*ft_strmapi(char const *s, char (*f)(unsigned int, char))
 {
-	unsigned char		*d;
-	const unsigned char	*s = src;
-	size_t				i;
+	char	*dest;
+	size_t	i;
+	size_t	len;
 
-	d = dest;
-	if (!dest && !src)
+	if (!s || !f)
 		return (NULL);
-	if (d < s)
+	len = ft_strlen(s);
+	dest = malloc(len + 1);
+	if (!dest)
+		return (NULL);
+	i = 0;
+	while (i < len)
 	{
-		i = 0;
-		while (i < n)
-		{
-			d[i] = s[i];
-			i++;
-		}
-		return (dest);
+		dest[i] = f((unsigned int)i, s[i]);
+		i++;
 	}
-	i = n;
-	while (i > 0)
-	{
-		i--;
-		d[i] = s[i];
-	}
+	dest[i] = '\0';
 	return (dest);
 }

@@ -1,32 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_substr.c                                        :+:      :+:    :+:   */
+/*   ft_isdigit.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/21 18:59:07 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/29 19:41:13 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/10/15 20:38:15 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/10/24 16:39:29 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	*ft_substr(char const *s, unsigned int start, size_t len)
+/// @brief If it encounters a number returns 1, else returns 0.
+/// @param c
+/// @return 1 or 0.
+int	ft_isdigit(int c)
 {
-	size_t	i;
-	char	*dest;
-
-	if (!s)
-		return (NULL);
-	if (start >= ft_strlen(s))
-		return (ft_strdup(""));
-	i = ft_strlen(s + start);
-	if (i < len)
-		len = i;
-	dest = malloc(sizeof(char) * (len + 1));
-	if (!dest)
-		return (NULL);
-	ft_strlcpy(dest, s + start, len + 1);
-	return (dest);
+	if (c >= '0' && c <= '9')
+		return (1);
+	else
+		return (0);
 }
