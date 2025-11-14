@@ -12,6 +12,13 @@
 
 #include "libft.h"
 
+static int	no_condition(const char *format, int i)
+{
+	ft_putchar_fd('%', 1);
+	ft_putchar_fd(format[i + 1], 1);
+	return (2);
+}
+
 static int	condition_p(va_list args)
 {
 	void	*ptr;
@@ -21,7 +28,24 @@ static int	condition_p(va_list args)
 	if (!ptr)
 		return (ft_putstr_fd("(nil)", 1));
 	count = ft_putstr_fd("0x", 1);
-	count += ft_putnbr_base_fd((unsigned long long)ptr, "0123456789abcdef", 1);
+	count += ft_putnbr_base_fd((unsigned long long)ptr,
+			"0123456789abcdef", 1);
+	return (count);
+}
+
+static int	condition_d_i(va_list args)
+{
+	long	n;
+	int		count;
+
+	n = va_arg(args, int);
+	count = 0;
+	if (n < 0)
+	{
+		count += ft_putchar_fd('-', 1);
+		n = -n;
+	}
+	count += ft_putnbr_base_fd((unsigned long long)n, "0123456789", 1);
 	return (count);
 }
 
@@ -33,13 +57,14 @@ static int	conditions(int i, va_list args, const char *format)
 	if (format[i + 1] == 'c')
 		count += ft_putchar_fd(va_arg(args, int), 1);
 	else if (format[i + 1] == 's')
-		count += ft_putstr_printf(va_arg(args, char *), 1);
+		count += ft_putstr_fd_printf(va_arg(args, char *), 1);
 	else if (format[i + 1] == 'p')
 		count += condition_p(args);
 	else if (format[i + 1] == 'd' || format[i + 1] == 'i')
-		count += ft_putnbr_base_fd(va_arg(args, int), "0123456789", 1);
+		count += condition_d_i(args);
 	else if (format[i + 1] == 'u')
-		count += ft_putnbr_base_fd(va_arg(args, unsigned int), "0123456789", 1);
+		count += ft_putnbr_base_fd(va_arg(args, unsigned int),
+				"0123456789", 1);
 	else if (format[i + 1] == 'x')
 		count += ft_putnbr_base_fd(va_arg(args, unsigned int),
 				"0123456789abcdef", 1);
@@ -48,6 +73,8 @@ static int	conditions(int i, va_list args, const char *format)
 				"0123456789ABCDEF", 1);
 	else if (format[i + 1] == '%')
 		count += ft_putchar_fd('%', 1);
+	else
+		count += no_condition(format, i);
 	return (count);
 }
 
@@ -57,60 +84,135 @@ int	ft_printf(const char *format, ...)
 	int		i;
 	int		count;
 
-	va_start(args, format);
 	if (!format)
 		return (0);
+	va_start(args, format);
 	i = 0;
 	count = 0;
 	while (format[i])
 	{
 		if (format[i] == '%')
-			count += conditions(i++, args, format);
-		else
 		{
-			ft_putchar_fd(format[i], 1);
-			count++;
+			if (!format[i + 1])
+			{
+				va_end(args);
+				return (-1);
+			}
+			count += conditions(i, args, format);
+			i++;
 		}
+		else
+			count += ft_putchar_fd(format[i], 1);
 		i++;
 	}
 	va_end(args);
 	return (count);
 }
 
- #include <stdio.h>
+#include "libft.h"
+#include <stdio.h>
+#include <limits.h>
+#include <stdint.h>
 
-int	main(void)
+int main(void)
 {
-	int	ret2;
-	int	*nbr;
+    int ret1, ret2;
 
-	// int	ret1;
-	char ***************cleaned;
-	nbr = &ret2;
-			printf("   %p\n", cleaned);
-	return (ft_printf("%p\n", cleaned));
+    /* -------------------- Ponteiros -------------------- */
+    ret1 = ft_printf("Pointer NULL: %p\n", (void *)NULL);
+    ret2 = printf("Pointer NULL: %p\n", (void *)NULL);
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("Pointer zero: %p\n", (void *)0x0);
+    ret2 = printf("Pointer zero: %p\n", (void *)0x0);
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("Pointer max: %p\n", (void *)UINT64_MAX);
+    ret2 = printf("Pointer max: %p\n", (void *)UINT64_MAX);
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    /* -------------------- Strings -------------------- */
+    ret1 = ft_printf("Empty string: '%s'\n", "");
+    ret2 = printf("Empty string: '%s'\n", "");
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("NULL string: '%s'\n", (char *)NULL);
+    ret2 = printf("NULL string: '%s'\n", (char *)NULL);
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("Special string: '%s'\n", "Line1\nLine2\tTab %");
+    ret2 = printf("Special string: '%s'\n", "Line1\nLine2\tTab %");
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("Symbols string: %s\n", "(#!$%%&/=?»«*++^~n");
+    ret2 = printf("Symbols string: %s\n", "(#!$%%&/=?»«*++^~n");
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    /* -------------------- Inteiros -------------------- */
+    ret1 = ft_printf("Zero int: %d\n", 0);
+    ret2 = printf("Zero int: %d\n", 0);
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("INT_MAX: %d\n", INT_MAX);
+    ret2 = printf("INT_MAX: %d\n", INT_MAX);
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("INT_MIN: %d\n", INT_MIN);
+    ret2 = printf("INT_MIN: %d\n", INT_MIN);
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    /* -------------------- Unsigned -------------------- */
+    ret1 = ft_printf("Unsigned zero: %u\n", 0U);
+    ret2 = printf("Unsigned zero: %u\n", 0U);
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("Unsigned max: %u\n", UINT_MAX);
+    ret2 = printf("Unsigned max: %u\n", UINT_MAX);
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    /* -------------------- Hexadecimal -------------------- */
+    ret1 = ft_printf("Hex zero: %x\n", 0U);
+    ret2 = printf("Hex zero: %x\n", 0U);
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("Hex max: %X\n", UINT_MAX);
+    ret2 = printf("Hex max: %X\n", UINT_MAX);
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("Hex mix: %x %X\n", 305419896U, 305419896U);
+    ret2 = printf("Hex mix: %x %X\n", 305419896U, 305419896U);
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    /* -------------------- Caractere -------------------- */
+    ret1 = ft_printf("Char normal: %c\n", 'A');
+    ret2 = printf("Char normal: %c\n", 'A');
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("Char newline: %c\n", '\n');
+    ret2 = printf("Char newline: %c\n", '\n');
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("Char null: %c\n", '\0');
+    ret2 = printf("Char null: %c\n", '\0');
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    /* -------------------- Percentagem -------------------- */
+    ret1 = ft_printf("Percent: %%\n");
+    ret2 = printf("Percent: %%\n");
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("Multiple percent: %%%% %%\n");
+    ret2 = printf("Multiple percent: %%%% %%\n");
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    ret1 = ft_printf("Percent end: %%");
+    ret2 = printf("Percent end: %%"); // evita warning
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    /* -------------------- Unknown specifier -------------------- */
+    ret1 = ft_printf("Unknown specifier: %%q\n");
+    ret2 = printf("Unknown specifier: %%q\n"); // imprime literal
+    printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
+
+    return (0);
 }
-	// printf("%p\n", NULL);/*
-	// ret1 = ft_printf("Olá, mundo!\n");
-	// ret2 = printf("Olá, mundo!\n");
-	// printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
-	// ret1 = ft_printf("Número: %d\n", 42);
-	// ret2 = printf("Número: %d\n", 42);
-	// printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
-	// ret1 = ft_printf("Hexadecimal: %x\n", 255);
-	// ret2 = printf("Hexadecimal: %x\n", 255);
-	// printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
-	// ret1 = ft_printf("Caractere: %c\n", 'A');
-	// ret2 = printf("Caractere: %c\n", 'A');
-	// printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
-	// ret1 = ft_printf("String: %s\n", "teste");
-	// ret2 = printf("String: %s\n", "teste");
-	// printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
-	// ret1 = ft_printf("Ponteiro: %p\n", (void *)0x1234abcd);
-	// ret2 = printf("Ponteiro: %p\n", (void *)0x1234abcd);
-	// printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
-	// ret1 = ft_printf("Percentagem: %%\n");
-	// ret2 = printf("Percentagem: %%\n");
-	// printf("ret1 = %d | ret2 = %d\n\n", ret1, ret2);
-	// return (0);
-// }

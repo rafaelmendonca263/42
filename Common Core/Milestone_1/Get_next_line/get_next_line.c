@@ -29,11 +29,16 @@ int	fill_buf(int fd, char *buf)
 char	*append_line(char *line, char *buf)
 {
 	char	*temp;
+	char	*new_line;
 
 	temp = extract_until_newline(buf);
-	line = ft_strjoin(line, temp);
+	if (!temp)
+		return (free(line), NULL);
+	new_line = ft_strjoin(line, temp);
 	free(temp);
-	return (line);
+	if (!new_line)
+		return (NULL);
+	return (new_line);
 }
 
 char	*get_next_line(int fd)
@@ -50,13 +55,15 @@ char	*get_next_line(int fd)
 		{
 			if (!line || !line[0])
 				return (free(line), NULL);
-			break ;
+			break;
 		}
 		line = append_line(line, buf);
+		if (!line)
+			return (NULL);
 		if (have_newline(buf))
 		{
 			cut_line(buf);
-			break ;
+			break;
 		}
 		buf[0] = '\0';
 	}

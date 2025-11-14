@@ -15,13 +15,13 @@
 /// @brief Write a string in fd, without "\n".
 /// @param s
 /// @param fd
-int ft_putstr_printf(char *s, int fd)
+int ft_putstr_fd_printf(char *s, int fd)
 {
 	int i;
 
 	i = 0;
 	if (!s)
-		return (write(1, "(null)", 6), 0);
+		return (write(fd, "(null)", 6), 6);
 	while (s[i] != '\0')
 	{
 		ft_putchar_fd(s[i], fd);

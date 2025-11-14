@@ -11,8 +11,7 @@
 # **************************************************************************** #
 
 CC      = cc
-# CFLAGS  = -Wall -Wextra -Werror
-
+CFLAGS  = -Wall -Wextra -Werror
 NAME    = libftprintf.a
 
 SRCS    = ft_atoi.c \
@@ -59,7 +58,7 @@ SRCS    = ft_atoi.c \
           ft_strtrim.c \
           ft_substr.c \
           ft_tolower.c \
-          ft_toupper.c
+          ft_toupper.c \
 
 OBJS    = $(SRCS:.c=.o)
 
@@ -72,10 +71,10 @@ $(NAME): $(OBJS)
 	@ar rcs $(NAME) $(OBJS)
 
 %.o: %.c
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC)  -c $< -o $@
 
 test: $(NAME) $(TEST)
-	@$(CC) $(CFLAGS) $(TEST) -L. -lftprintf -o $(TEST_OUT)
+	@$(CC)  $(TEST) -L. -lftprintf -o $(TEST_OUT)
 
 clean:
 	@rm -f $(OBJS)

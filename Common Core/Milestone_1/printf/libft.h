@@ -55,7 +55,8 @@ int					ft_putchar_fd(char c, int fd);
 void				ft_putendl_fd(char *s, int fd);
 int					ft_putstr_fd(char *s, int fd);
 void				ft_putnbr_fd(int n, int fd);
-int					ft_putnbr_base_fd(long long nbr, char *base, int fd);
+int	ft_putnbr_base_fd(unsigned long long nbr, char *base, int fd);
+int ft_putstr_fd_printf(char *s, int fd);
 
 // Strings
 size_t				ft_strlen(const char *s);

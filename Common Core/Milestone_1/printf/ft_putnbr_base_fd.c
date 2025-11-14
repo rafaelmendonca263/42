@@ -34,11 +34,10 @@ static int	confirm_base(char *base)
 	return (i >= 2);
 }
 
-int	ft_putnbr_base_fd(long long nbr, char *base, int fd)
+int	ft_putnbr_base_fd(unsigned long long nbr, char *base, int fd)
 {
-	unsigned long long	n;
-	int	count;
 	size_t	base_len;
+	int		count;
 
 	if (!confirm_base(base))
 		return (0);
@@ -46,15 +45,8 @@ int	ft_putnbr_base_fd(long long nbr, char *base, int fd)
 	base_len = 0;
 	while (base[base_len])
 		base_len++;
-	if (nbr < 0)
-	{
-		count += ft_putchar_fd('-', fd);
-		n = (unsigned long long)(-nbr);
-	}
-	else
-		n = (unsigned long long)nbr;
-	if (n >= base_len)
-		count += ft_putnbr_base_fd(n / base_len, base, fd);
-	count += ft_putchar_fd(base[n % base_len], fd);
+	if (nbr >= base_len)
+		count += ft_putnbr_base_fd(nbr / base_len, base, fd);
+	count += ft_putchar_fd(base[nbr % base_len], fd);
 	return (count);
 }
