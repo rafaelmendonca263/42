@@ -6,11 +6,11 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 22:03:06 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/11/07 23:04:16 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/11/19 19:40:26 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "ft_printf.h"
 
 static int	confirm_base(char *base)
 {
@@ -47,6 +47,6 @@ int	ft_putnbr_base_fd(unsigned long long nbr, char *base, int fd)
 		base_len++;
 	if (nbr >= base_len)
 		count += ft_putnbr_base_fd(nbr / base_len, base, fd);
-	count += ft_putchar_fd(base[nbr % base_len], fd);
+	count += ft_putchar_fd((base[nbr % base_len]), fd);
 	return (count);
 }

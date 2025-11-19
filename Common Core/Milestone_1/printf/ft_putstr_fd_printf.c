@@ -1,28 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstnew.c                                        :+:      :+:    :+:   */
+/*   ft_putstr_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/24 22:57:32 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/28 13:51:55 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/10/21 19:01:06 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/11/19 22:18:00 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "ft_printf.h"
 
-/// @brief Create a new node.
-/// @param content 
-/// @return node
-t_list	*ft_lstnew(void *content)
+/// @brief Write a string in fd, without "\n".
+/// @param s
+/// @param fd
+int	ft_putstr_fd_printf(char *s, int fd)
 {
-	t_list	*node;
+	int	i;
 
-	node = malloc(sizeof(t_list));
-	if (!node)
-		return (NULL);
-	node->content = content;
-	node->next = NULL;
-	return (node);
+	i = 0;
+	if (!s)
+		return (write(fd, "(null)", 6), 6);
+	while (s[i] != '\0')
+	{
+		ft_putchar_fd(s[i], fd);
+		i++;
+	}
+	return (i);
 }

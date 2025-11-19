@@ -6,7 +6,7 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/29 17:19:47 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/11/19 17:03:12 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/11/19 17:33:06 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ char	*get_next_line(int fd)
 }
 
 /* #include <stdio.h>
+#include <fcntl.h>
 
 int	main(void)
 {

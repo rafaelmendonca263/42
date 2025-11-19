@@ -6,15 +6,15 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 19:01:22 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/29 19:04:19 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/11/19 22:17:56 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "ft_printf.h"
 
 /// @brief Write a string in fd. With "\n".
-/// @param s 
-/// @param fd 
+/// @param s
+/// @param fd
 void	ft_putendl_fd(char *s, int fd)
 {
 	int	i;
