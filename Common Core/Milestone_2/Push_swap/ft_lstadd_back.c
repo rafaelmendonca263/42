@@ -1,21 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstadd_front.c                                  :+:      :+:    :+:   */
+/*   ft_lstadd_back.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/28 13:29:42 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/12/17 17:01:03 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/10/28 13:28:54 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/12/17 17:00:50 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
 
-/// @brief Add the node in the begining of the list
+/// @brief Add node on the final of the list
 /// @param lst
 /// @param
-void	ft_lstadd_front(t_stack *stack, int i)
+void	ft_lstadd_back(t_stack *stack, int i)
 {
 	t_node	*node;
 
@@ -27,6 +27,7 @@ void	ft_lstadd_front(t_stack *stack, int i)
 	node->content = i;
 	if (stack->size == 0)
 	{
+		stack->top = node;
 		node->next = node;
 		node->previous = node;
 	}
@@ -34,9 +35,8 @@ void	ft_lstadd_front(t_stack *stack, int i)
 	{
 		node->next = stack->top;
 		node->previous = stack->top->previous;
-		stack->top->previous = node;
 		node->previous->next = node;
-		stack->top = node;
+		stack->top->previous = node;
 	}
 	stack->size++;
 }

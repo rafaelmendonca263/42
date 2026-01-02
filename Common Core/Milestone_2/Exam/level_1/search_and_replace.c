@@ -1,29 +1,52 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   push_swap.c                                        :+:      :+:    :+:   */
+/*   search_and_replace.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/16 06:43:16 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/12/17 18:06:12 by rmedonca         ###   ########.fr       */
+/*   Created: 2026/01/02 23:07:40 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/01/02 23:19:42 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "push_swap.h"
+#include <unistd.h>
+
+void	ft_putchar(char c)
+{
+	write(1, &c, 1);
+}
+
+int	ft_strlen(char *str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i])
+	{
+		i++;
+	}
+	return (i);
+}
 
 int	main(int argc, char *argv[])
 {
-	t_stack	stack_a;
-	t_stack	stack_b;
+	int	i;
 
-	stack_a.top = NULL;
-	stack_a.size = 0;
-	stack_b.top = NULL;
-	stack_b.size = 0;
-	if (check(argc, argv) != 1)
-		return (1);
-	put_stack(argc, argv, &stack_a);
-	if(is_sorted(stack_a))
+	i = 0;
+	if (argc != 4 || ft_strlen(argv[2]) > 1 || ft_strlen(argv[3]) > 1)
+	{
+		ft_putchar('\n');
+		return (0);
+	}
+	while (argv[1][i])
+	{
+		if (argv[1][i] == argv[2][0])
+			ft_putchar(argv[3][0]);
+		else
+			ft_putchar(argv[1][i]);
+		i++;
+	}
+    ft_putchar('\n');
 	return (0);
 }

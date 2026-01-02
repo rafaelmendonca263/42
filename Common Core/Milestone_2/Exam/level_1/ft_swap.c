@@ -1,29 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   push_swap.c                                        :+:      :+:    :+:   */
+/*   ft_swap.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/16 06:43:16 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/12/17 18:06:12 by rmedonca         ###   ########.fr       */
+/*   Created: 2026/01/02 18:34:10 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/01/02 18:40:59 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "push_swap.h"
+#include <stdio.h>
 
-int	main(int argc, char *argv[])
+void	ft_swap(int *a, int *b)
 {
-	t_stack	stack_a;
-	t_stack	stack_b;
+	int	tmp;
 
-	stack_a.top = NULL;
-	stack_a.size = 0;
-	stack_b.top = NULL;
-	stack_b.size = 0;
-	if (check(argc, argv) != 1)
-		return (1);
-	put_stack(argc, argv, &stack_a);
-	if(is_sorted(stack_a))
-	return (0);
+	tmp = *a;
+	*a = *b;
+	*b = tmp;
+	return ;
 }
+
+/* int	main(void)
+{
+	int	a;
+	int	b;
+
+	a = 10;
+	b = 2;
+	ft_swap(&a, &b);
+	printf("A = %d\n", a);
+	printf("B = %d\n", b);
+} */

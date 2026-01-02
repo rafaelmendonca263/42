@@ -1,29 +1,46 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   push_swap.c                                        :+:      :+:    :+:   */
+/*   first_word.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/16 06:43:16 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/12/17 18:06:12 by rmedonca         ###   ########.fr       */
+/*   Created: 2026/01/02 15:41:43 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/01/02 23:10:53 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "push_swap.h"
+#include <unistd.h>
+
+void	ft_putchar(char c)
+{
+	write(1, &c, 1);
+}
 
 int	main(int argc, char *argv[])
 {
-	t_stack	stack_a;
-	t_stack	stack_b;
+	int	i;
 
-	stack_a.top = NULL;
-	stack_a.size = 0;
-	stack_b.top = NULL;
-	stack_b.size = 0;
-	if (check(argc, argv) != 1)
-		return (1);
-	put_stack(argc, argv, &stack_a);
-	if(is_sorted(stack_a))
+	i = 0;
+	if (argc != 2)
+	{
+		write(1, "\n", 1);
+		return (0);
+	}
+	while (argv[1][0] == 32 || argv[1][0] == 9)
+	{
+		i++;
+	}
+	while (argv[1][i])
+	{
+		if (argv[1][i] == 32 || argv[1][i] == 9 || argv[1][i] == '\0')
+		{
+			break ;
+		}
+		else
+			ft_putchar(argv[1][i]);
+		i++;
+	}
+	ft_putchar('\n');
 	return (0);
 }

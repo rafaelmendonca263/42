@@ -275,7 +275,7 @@ $ sudo crontab -u root -l
 ```text
           +---------------------+
           |      Host OS        |
-          | (Windows/macOS/Linux)|
+          |(Windows/macOS/Linux)|
           +---------------------+
                     |
                     v

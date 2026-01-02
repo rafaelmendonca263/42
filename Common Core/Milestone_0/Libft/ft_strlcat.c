@@ -6,7 +6,7 @@
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 15:05:59 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/29 19:34:58 by rmedonca         ###   ########.fr       */
+/*   Updated: 2025/12/17 17:43:34 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 /// @param src
 /// @param size
 /// @return
-
 size_t	ft_strlcat(char *dst, const char *src, size_t size)
 {
 	size_t	dst_len;

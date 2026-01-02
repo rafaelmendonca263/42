@@ -1,29 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   push_swap.c                                        :+:      :+:    :+:   */
+/*   ft_strcpy.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/16 06:43:16 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/12/17 18:06:12 by rmedonca         ###   ########.fr       */
+/*   Created: 2026/01/02 18:25:39 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/01/02 18:30:36 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "push_swap.h"
-
-int	main(int argc, char *argv[])
+char    *ft_strcpy(char *s1, char *s2)
 {
-	t_stack	stack_a;
-	t_stack	stack_b;
+    int i;
 
-	stack_a.top = NULL;
-	stack_a.size = 0;
-	stack_b.top = NULL;
-	stack_b.size = 0;
-	if (check(argc, argv) != 1)
-		return (1);
-	put_stack(argc, argv, &stack_a);
-	if(is_sorted(stack_a))
-	return (0);
+    i = 0;
+    while(s2[i])
+    {
+        s1[i] = s2[i];
+        i++;
+    }
+    s1[i] = '\0';
+    return(s1);
 }

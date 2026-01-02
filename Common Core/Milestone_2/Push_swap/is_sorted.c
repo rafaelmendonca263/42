@@ -1,29 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   push_swap.c                                        :+:      :+:    :+:   */
+/*   is_sorted.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/16 06:43:16 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/12/17 18:06:12 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/12/17 17:06:05 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/12/17 18:27:47 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
 
-int	main(int argc, char *argv[])
+int	get_order(t_stack *stack)
 {
-	t_stack	stack_a;
-	t_stack	stack_b;
+	t_node	*cur;
+	int		asc;
+	int		desc;
 
-	stack_a.top = NULL;
-	stack_a.size = 0;
-	stack_b.top = NULL;
-	stack_b.size = 0;
-	if (check(argc, argv) != 1)
+	asc = 1;
+	desc = 1;
+	if (stack->size < 2)
 		return (1);
-	put_stack(argc, argv, &stack_a);
-	if(is_sorted(stack_a))
+	cur = stack->top;
+	while (cur->next != stack->top)
+	{
+		if (cur->content > cur->next->content)
+			asc = 0;
+		if (cur->content < cur->next->content)
+			desc = 0;
+		cur = cur->next;
+	}
+	if (asc)
+		return (1);
+	if (desc)
+		return (2);
 	return (0);
 }
