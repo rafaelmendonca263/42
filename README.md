@@ -32,10 +32,10 @@ Projects are organized by **programming language**, and each project follows the
 
 | Project Name | Language | Status |
 |--------------|---------|--------|
-| [Libft](./42/Common_Core/Milestone_0/Libft)        | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
-| [Get_Next_Line](./42/Common_Core/Milestone_1/Get_Next_Line) | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
-| [ft_printf](./42/Common_Core/Milestone_1/Printf)    | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
-| [Push_Swap](./42/Common_Core/Milestone_1/Push_Swap) | ![C](https://img.shields.io/badge/Language-C-blue) | ![In Progress](https://img.shields.io/badge/Status-In%20Progress-orange) |
+| [Libft](./Common_Core/Milestone_0/Libft)        | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
+| [Get_Next_Line](./Common_Core/Milestone_1/Get_Next_Line) | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
+| [ft_printf](./Common_Core/Milestone_1/Printf)    | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
+| [Push_Swap](./Common_Core/Milestone_1/Push_Swap) | ![C](https://img.shields.io/badge/Language-C-blue) | ![In Progress](https://img.shields.io/badge/Status-In%20Progress-orange) |
 | [Python Mini-Projects](./python) | ![Python](https://img.shields.io/badge/Language-Python-yellow) | ![In Progress](https://img.shields.io/badge/Status-In%20Progress-orange) |
 
 
