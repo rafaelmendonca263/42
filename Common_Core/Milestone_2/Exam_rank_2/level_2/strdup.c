@@ -1,4 +1,6 @@
 
+#include <stdlib.h>
+
 char    *ft_strdup(char *src)
 {
     char *tmp;
@@ -7,7 +9,7 @@ char    *ft_strdup(char *src)
 
     while(src[len])
         len++;
-    *tmp = malloc(sizeof(char) * len + 1)
+    *tmp = malloc(sizeof(char) * len + 1);
     if(!tmp)
         return(NULL);
     while(src[i])
