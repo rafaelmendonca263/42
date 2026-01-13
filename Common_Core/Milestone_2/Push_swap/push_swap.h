@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   push_swap.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 00:32:35 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/12/17 17:33:51 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/01/13 17:49:14 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 typedef struct s_node
 {
 	int				content;
+	int				idx;
 	struct s_node	*next;
 	struct s_node	*previous;
 }					t_node;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_lstadd_back.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 13:28:54 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/12/17 17:00:50 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/01/13 17:53:32 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ void	ft_lstadd_back(t_stack *stack, int i)
 	if (!node)
 		return ;
 	node->content = i;
+	node->idx = 0;
 	if (stack->size == 0)
 	{
 		stack->top = node;

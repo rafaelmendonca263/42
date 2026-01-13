@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+         #
+#    By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/16 00:27:45 by rmedonca          #+#    #+#              #
-#    Updated: 2025/12/16 00:34:04 by rmedonca         ###   ########.fr        #
+#    Updated: 2026/01/13 14:47:51 by rmedonca         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC      = cc
 CFLAGS  = -Wall -Wextra -Werror
-NAME    = push_swap.a
+NAME    = push_swap
 
 SRCS    = push_swap.c \
 
@@ -30,7 +30,7 @@ $(NAME): $(OBJS)
 	@$(CC)  -c $< -o $@
 
 test: $(NAME) $(TEST)
-	@$(CC)  $(TEST) -L. -lftprintf -o $(TEST_OUT)
+	@$(CC)  $(TEST) -L. -libftprintf -o $(TEST_OUT)
 
 clean:
 	@rm -f $(OBJS)
