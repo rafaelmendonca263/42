@@ -36,7 +36,7 @@ Projects are organized by **programming language**, and each project follows the
 | [Get_Next_Line](./Common_Core/Milestone_1/Get_next_line) | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
 | [ft_printf](./Common_Core/Milestone_1/Printf)    | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
 | [Push_Swap](./Common_Core/Milestone_2/Push_swap) | ![C](https://img.shields.io/badge/Language-C-blue) | ![In Progress](https://img.shields.io/badge/Status-In%20Progress-orange) |
-| [Python Mini-Projects](./python) | ![Python](https://img.shields.io/badge/Language-Python-yellow) | ![In Progress](https://img.shields.io/badge/Status-In%20Progress-orange) |
+| [Python_Modules](./Common_Core/Milestone_2/Python_Modules) | ![Python](https://img.shields.io/badge/Language-Python-yellow) | ![In Progress](https://img.shields.io/badge/Status-In%20Progress-orange) |
 
 
 ## Key Skills
