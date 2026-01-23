@@ -1,39 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strchr.c                                        :+:      :+:    :+:   */
+/*   ft_isdigit.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/15 20:41:47 by rmedonca          #+#    #+#             */
-/*   Updated: 2025/10/28 13:35:41 by rmedonca         ###   ########.fr       */
+/*   Created: 2025/10/15 20:38:15 by rmedonca          #+#    #+#             */
+/*   Updated: 2025/10/24 16:39:29 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-/// @brief The  strchr() function returns a pointer 
-/// to the first occurrence of the character c in the 
-/// string s.
-/// @param s
+/// @brief If it encounters a number returns 1, else returns 0.
 /// @param c
-/// @return
-char	*ft_strchr(const char *s, int c)
+/// @return 1 or 0.
+int	ft_isdigit(int c)
 {
-	int		i;
-	char	*str;
-
-	i = 0;
-	str = (char *)s;
-	while (str[i] != '\0')
-	{
-		if (str[i] == (char)c)
-		{
-			return (&str[i]);
-		}
-		i++;
-	}
-	if ((char)c == '\0')
-		return (&str[i]);
-	return (NULL);
+	if (c >= '0' && c <= '9')
+		return (1);
+	else
+		return (0);
 }

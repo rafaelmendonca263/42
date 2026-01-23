@@ -6,13 +6,16 @@
 /*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 00:32:35 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/01/13 17:49:14 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/01/23 10:25:27 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT_PUSH_SWAP_H
+#ifndef PUSH_SWAP_H
 # define PUSH_SWAP_H
 
+# include "ft_printf.h"
+# include "libft.h"
+# include <limits.h>
 # include <stdarg.h>
 # include <stddef.h>
 # include <stdio.h>
@@ -33,17 +36,26 @@ typedef struct s_stack
 	int				size;
 }					t_stack;
 
-// Libft
-long				ft_atol(const char *nptr);
-int					ft_isdigit(int c);
-
 // Lists
-void				ft_lstadd_front(t_stack **stack, int i);
-void				*push_top(t_stack *stack, t_node *node);
+void				ps_lstadd_front(t_stack *stack, int i);
+t_node				*push_top(t_stack *stack, t_node *node);
 t_node				*pop_top(t_stack *stack);
+int					ps_lstadd_back(t_stack *stack, int i);
 
 // Helper
-int					check(int argc, char *argv[]);
+int					check_arguments(int argc, char **argv, t_stack *stack_a,
+						t_stack *stack_b);
+void				push_chunk(t_stack *stack_a, t_stack *stack_b, int start,
+						int end);
+int					is_sorted(t_stack *stack);
+void				order_3(t_stack *stack_a);
+void				order_5(t_stack *stack_a, t_stack *stack_b);
+void				chunks(t_stack *stack_a, t_stack *stack_b);
+int					build_stack_a(t_stack *a, int argc, char **argv);
+void				push_back_to_a(t_stack *stack_a, t_stack *stack_b);
+void				order_5(t_stack *stack_a, t_stack *stack_b);
+void				order_less_than_five(t_stack *a, t_stack *b);
+void				sort_all(t_stack *stack_a, t_stack *stack_b);
 
 // Operaters push_swap
 void				sa(t_stack *a);
@@ -57,5 +69,14 @@ void				rr(t_stack *a, t_stack *b);
 void				rra(t_stack *a);
 void				rrb(t_stack *b);
 void				rrr(t_stack *a, t_stack *b);
+
+// Clean
+void				exit_with_error(t_stack *a, t_stack *b, long *nums,
+						char **words);
+void				clean(t_stack *a, t_stack *b, long *nums, char **words);
+void				just_exit(t_stack *a, t_stack *b, long *nums, char **words);
+
+// Tester
+void				print_stack(t_node *head_a, t_node *head_b);
 
 #endif
