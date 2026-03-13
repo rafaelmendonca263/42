@@ -11,9 +11,11 @@ if __name__ == "__main__":
             score = int(arg)
             scores.append(score)
         except ValueError:
-            print(f"Warning: '{arg}' is not a valid score and will be ignored.")
+            print(f"Warning: '{arg}' is not a valid score "
+                  "and will be ignored.")
     if len(scores) == 0:
-        print("No scores provided. Usage: python3 ft_score_analytics.py <score1> <score2> ...")
+        print("No scores provided. Usage: python3 ft_score_analytics.py "
+              "<score1> <score2> ...")
     else:
         print(f"Scores procced: {scores}")
         print(f"Total Players: {len(scores)}")

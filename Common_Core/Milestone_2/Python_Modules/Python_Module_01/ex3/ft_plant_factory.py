@@ -4,7 +4,7 @@ class Plant:
         self.name = name
         self.height = height
         self.age = age
-        self.initial_height = height  
+        self.initial_height = height
 
     def grow(self, cm):
         self.height += cm
@@ -14,6 +14,7 @@ class Plant:
 
     def get_info(self):
         return f"{self.name}: {self.height}cm, {self.age} days old"
+
 
 plant_data = [
     ("Rose", 25, 30),

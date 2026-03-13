@@ -3,18 +3,20 @@ def check_plant_health(plant_name, water_level, sunlight_hours):
 
     if plant_name is None or plant_name == "":
         raise ValueError("Plant name cannot be empty!")
-    
     if water_level < 1:
-        raise ValueError(f"Error: Water level {water_level} is too low (min 1)")
+        raise ValueError(f"Error: Water level {water_level} "
+                         "is too low (min 1)")
     if water_level > 10:
-        raise ValueError(f"Error: Water level {water_level} is too high (max 10)")
-    
+        raise ValueError(f"Error: Water level {water_level} "
+                         "is too high (max 10)")
     if sunlight_hours < 2:
-        raise ValueError(f"Sunlight hours {sunlight_hours} is too low (min 2)")
+        raise ValueError(f"Sunlight hours {sunlight_hours} "
+                         "is too low (min 2)")
     if sunlight_hours > 12:
-        raise ValueError(f"Sunlight hours {sunlight_hours} is too high (max 12)")
-    
+        raise ValueError(f"Sunlight hours {sunlight_hours} "
+                         "is too high (max 12)")
     return f"Plant '{plant_name}' is healthy!"
+
 
 def test_plant_checks():
     print("Testing good values...")
@@ -23,38 +25,33 @@ def test_plant_checks():
         print(result + "\n")
     except ValueError as e:
         print(f"Error: {e}\n")
-    
     print("Testing empty plant name...")
     try:
         check_plant_health("", 5, 6)
     except ValueError as e:
         print(f"Error: {e}\n")
-    
     print("Testing high water level...")
     try:
         check_plant_health("tulip", 15, 6)
     except ValueError as e:
         print(f"Error: {e}\n")
-    
     print("Testing low water level...")
     try:
         check_plant_health("daisy", 0, 6)
     except ValueError as e:
         print(f"Error: {e}\n")
-    
     print("Testing low sunlight hours...")
     try:
         check_plant_health("fern", 5, 1)
     except ValueError as e:
         print(f"Error: {e}\n")
-    
     print("Testing high sunlight hours...")
     try:
         check_plant_health("sunflower", 5, 15)
     except ValueError as e:
         print(f"Error: {e}\n")
-    
     print("All error raising tests completed!")
+
 
 if __name__ == "__main__":
     print("=== Garden Plant Health Checker ===\n")

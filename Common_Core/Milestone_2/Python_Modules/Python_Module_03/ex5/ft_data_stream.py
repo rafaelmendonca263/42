@@ -21,6 +21,7 @@ def fibonacci():
         yield a
         a, b = b, a + b
 
+
 def prime_generator():
     primes = []
     num = 2
@@ -40,7 +41,7 @@ def prime_generator():
 
 if __name__ == "__main__":
     print("=== Game Data Stream Processor ===")
-    
+
     print("\nProcessing 1000 game events...\n")
 
     total = 0

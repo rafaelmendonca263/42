@@ -16,7 +16,11 @@ class DataStream(ABC):
         """Processa os dados e retorna estatísticas internas"""
         pass
 
-    def filter_data(self, data_batch: List[Any], criteria: Optional[str] = None):
+    def filter_data(
+        self,
+        data_batch: List[Any],
+        criteria: Optional[str] = None
+    ):
         return data_batch
 
     def get_stats(self) -> Dict[str, Any]:
@@ -29,13 +33,21 @@ class SensorStream(DataStream):
         self.processed_count = 0
         self.total_temp = 0.0
 
-    def process_batch(self, data_batch: List[Dict[str, float]]) -> Dict[str, Any]:
+    def process_batch(
+        self,
+        data_batch: List[Dict[str, float]]
+    ) -> Dict[str, Any]:
         print(f"Processing sensor batch: {data_batch}")
         count = len(data_batch)
         self.processed_count += count
         self.total_temp += sum(d.get("temp", 0) for d in data_batch)
-        avg_temp = self.total_temp / self.processed_count if self.processed_count else 0
-        print(f"Sensor analysis: {count} readings processed, avg temp: {avg_temp:.2f}°C")
+        avg_temp = (
+            self.total_temp / self.processed_count
+            if self.processed_count
+            else 0
+        )
+        print(f"Sensor analysis: {count} readings processed, avg "
+              f"temp: {avg_temp:.2f}°C")
         return {"processed": count, "avg_temp": avg_temp}
 
     def filter_data(self, data_batch, criteria=None):
@@ -44,7 +56,14 @@ class SensorStream(DataStream):
         return data_batch
 
     def get_stats(self):
-        return {"processed": self.processed_count, "avg_temp": self.total_temp / self.processed_count if self.processed_count else 0}
+        return {
+            "processed": self.processed_count,
+            "avg_temp": (
+                self.total_temp / self.processed_count
+                if self.processed_count
+                else 0
+            )
+        }
 
 
 class TransactionStream(DataStream):
@@ -53,12 +72,21 @@ class TransactionStream(DataStream):
         self.processed_count = 0
         self.net_flow = 0.0
 
-    def process_batch(self, data_batch: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def process_batch(
+        self,
+        data_batch: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         print(f"Processing transaction batch: {data_batch}")
         count = len(data_batch)
         self.processed_count += count
-        self.net_flow += sum(d.get("value", 0) if d.get("type") == "buy" else -d.get("value", 0) for d in data_batch)
-        print(f"Transaction analysis: {count} operations, net flow: {self.net_flow:+.0f} units")
+        self.net_flow += sum(
+            d.get("value", 0)
+            if d.get("type") == "buy"
+            else -d.get("value", 0)
+            for d in data_batch
+        )
+        print(f"Transaction analysis: {count} operations, net "
+              f"flow: {self.net_flow:+.0f} units")
         return {"processed": count, "net_flow": self.net_flow}
 
     def filter_data(self, data_batch, criteria=None):
@@ -109,16 +137,19 @@ class StreamProcessor:
         print("Batch 1 Results:")
         for stream, batch in zip(self.streams, batches):
             stats = stream.process_batch(batch)
-            name = stream.stream_id
+            _ = stream.stream_id
             if isinstance(stream, SensorStream):
-                print(f"- Sensor data: {stats['processed']} readings processed")
+                print(f"- Sensor data: {stats['processed']} readings"
+                      " processed")
             elif isinstance(stream, TransactionStream):
-                print(f"- Transaction data: {stats['processed']} operations processed")
+                print(f"- Transaction data:"
+                      f" {stats['processed']} operations processed")
             elif isinstance(stream, EventStream):
                 print(f"- Event data: {stats['processed']} events processed")
 
         print("Stream filtering active: High-priority data only")
-        print("Filtered results: 2 critical sensor alerts, 1 large transaction")
+        print("Filtered results: 2 critical sensor alerts, "
+              "1 large transaction")
         print()
         print("All streams processed successfully. Nexus throughput optimal.")
 
@@ -128,7 +159,9 @@ if __name__ == "__main__":
     print()
 
     sensor_data = [{"temp": 22.5}, {"temp": 23}, {"temp": 21}]
-    transaction_data = [{"type": "buy", "value": 100}, {"type": "sell", "value": 150}, {"type": "buy", "value": 75}]
+    transaction_data = [{"type": "buy", "value": 100},
+                        {"type": "sell", "value": 150},
+                        {"type": "buy", "value": 75}]
     event_data = ["login", "error", "logout"]
 
     sensor = SensorStream("SENSOR_001")

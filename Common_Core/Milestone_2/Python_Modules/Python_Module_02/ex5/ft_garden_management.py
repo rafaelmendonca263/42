@@ -2,8 +2,10 @@
 class GardenError(Exception):
     pass
 
+
 class PlantError(GardenError):
     pass
+
 
 class WaterError(GardenError):
     pass
@@ -26,7 +28,8 @@ class GardenManager:
         try:
             plant = Plant(name, water_level, sunlight_hours)
             if water_level < 0 or water_level > 10:
-                raise PlantError(f"Water level {water_level} is out of bounds!")
+                raise PlantError(f"Water level {water_level} "
+                                 "is out of bounds!")
             self.plants.append(plant)
             print(f"Added {name} successfully")
         except PlantError as e:
@@ -48,10 +51,13 @@ class GardenManager:
         for plant in self.plants:
             try:
                 if plant.water_level > 10:
-                    raise PlantError(f"Water level {plant.water_level} is too high (max 10)")
+                    raise PlantError(f"Water level {plant.water_level} "
+                                     "is too high (max 10)")
                 if plant.water_level < 1:
-                    raise PlantError(f"Water level {plant.water_level} is too low (min 1)")
-                print(f"{plant.name}: healthy (water: {plant.water_level}, sun: {plant.sunlight_hours})")
+                    raise PlantError(f"Water level {plant.water_level} "
+                                     "is too low (min 1)")
+                print(f"{plant.name}: healthy (water: {plant.water_level},"
+                      f" sun: {plant.sunlight_hours})")
             except PlantError as e:
                 print(f"Error checking {plant.name}: {e}")
 

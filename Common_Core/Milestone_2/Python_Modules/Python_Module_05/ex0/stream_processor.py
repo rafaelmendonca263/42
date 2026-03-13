@@ -1,6 +1,6 @@
 
 from abc import ABC, abstractmethod
-from typing import Any, List, Dict, Union, Optional
+from typing import Any, List
 
 
 class DataProcessor(ABC):
@@ -23,6 +23,7 @@ class NumericProcessor(DataProcessor):
         try:
             total = sum(data)
             return True
+            print(total)
         except TypeError:
             return False
 
@@ -34,7 +35,11 @@ class NumericProcessor(DataProcessor):
 
         print("Validation: Numeric data verified")
 
-        total = total = int(sum(data)) if all(isinstance(x, int) for x in data) else sum(data)
+        total = (
+                int(sum(data))
+                if all(isinstance(x, int) for x in data)
+                else sum(data)
+        )
         avg = total / len(data)
 
         result = (

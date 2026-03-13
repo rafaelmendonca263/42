@@ -28,8 +28,14 @@ if __name__ == "__main__":
     print("\n=== Inventory Statistics ===")
     most_abundant = sorted_items[0]
     least_abundant = sorted_items[-1]
-    print(f"Most abundant: {most_abundant[0]} ({most_abundant[1]['quantity']} units)")
-    print(f"Least abundant: {least_abundant[0]} ({least_abundant[1]['quantity']} units)")
+    print(
+        f"Most abundant: {most_abundant[0]} "
+        f"({most_abundant[1]['quantity']} units)"
+    )
+    print(
+        f"Least abundant: {least_abundant[0]} "
+        f"({least_abundant[1]['quantity']} units)"
+    )
 
     print("\n=== Item Categories ===")
     categories = {"Moderate": {}, "Scarce": {}}
@@ -42,10 +48,23 @@ if __name__ == "__main__":
     print(f"Scarce: {categories['Scarce']}")
 
     print("\n=== Management Suggestions ===")
-    restock = [item for item, data in inventory.items() if data["quantity"] <= 1]
+    restock = [
+        item
+        for item, data in inventory.items()
+        if data["quantity"] <= 1
+    ]
     print(f"Restock needed: {restock}")
 
     print("\n=== Dictionary Properties Demo ===")
-    print(f"Dictionary keys: {list(inventory.keys())}")
-    print(f"Dictionary values: {[data['quantity'] for data in inventory.values()]}")
-    print("Sample lookup - 'sword' in inventory:", "sword" in inventory)
+    print(
+        "Dictionary keys: "
+        f"{list(inventory.keys())}"
+    )
+    print(
+        "Dictionary values: "
+        f"{[data['quantity'] for data in inventory.values()]}"
+    )
+    print(
+        "Sample lookup - 'sword' in inventory: "
+        f"{'sword' in inventory}"
+    )

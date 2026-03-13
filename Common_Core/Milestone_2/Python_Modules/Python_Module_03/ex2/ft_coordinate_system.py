@@ -1,4 +1,6 @@
+
 import math
+
 
 def distance_3d(p1, p2):
     x1, y1, z1 = p1
@@ -8,6 +10,7 @@ def distance_3d(p1, p2):
         (y2 - y1) ** 2 +
         (z2 - z1) ** 2
     )
+
 
 def parse_coordinates(coord_str):
     print(f'Parsing coordinates: "{coord_str}"')

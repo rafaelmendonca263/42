@@ -6,16 +6,18 @@ def secure_read_vault():
         content = f.read()
         print("SECURE EXTRACTION:")
         print(content + "\n")
-        
+
+
 def secure_write_vault():
     with open("classified_data.txt", "w") as f:
         print("SECURE PRESERVATION:")
         f.write("[CLASSIFIED] New security protocols archived")
-        
     print("Vault automatically sealed upon completion\n")
+
+
 if __name__ == "__main__":
     print("=== CYBER ARCHIVES - VAULT SECURITY SYSTEM ===\n")
-    
+
     secure_read_vault()
     secure_write_vault()
 

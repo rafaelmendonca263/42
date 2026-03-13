@@ -1,7 +1,8 @@
+
 class SecurePlant:
     def __init__(self, name, height, age):
         self.name = name
-        self._height = 0  
+        self._height = 0
         self._age = 0
         self.initial_height = 0
 
@@ -53,4 +54,5 @@ if __name__ == "__main__":
 
     print("\n--- Current plant states ---\n")
     for plant in plants:
-        print(f"Current plant: {plant.name} ({plant.get_height()}cm, {plant.get_age()} days)")
+        print(f"Current plant: {plant.name} "
+              f"({plant.get_height()}cm, {plant.get_age()} days)")

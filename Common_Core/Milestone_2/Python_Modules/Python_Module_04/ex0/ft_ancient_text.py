@@ -4,6 +4,7 @@ def read(file_path):
         content = file.read()
     return content
 
+
 if __name__ == "__main__":
     print("=== CYBER ARCHIVES - DATA RECOVERY SYSTEM ===\n")
     print("Accessing Storage Vault: ancient_fragment.txt")
