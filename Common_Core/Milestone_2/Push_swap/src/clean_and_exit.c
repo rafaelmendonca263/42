@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   clean_and_exit.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/15 20:54:09 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/01/23 09:49:00 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/03/13 14:20:16 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,15 +56,15 @@ void	clean(t_stack *a, t_stack *b, long *nums, char **words)
 	}
 }
 
-void	just_exit(t_stack *a, t_stack *b, long *nums, char **words)
-{
-	clean(a, b, nums, words);
-	exit(0);
-}
-
 void	exit_with_error(t_stack *a, t_stack *b, long *nums, char **words)
 {
 	write(2, "Error\n", 6);
 	clean(a, b, nums, words);
 	exit(1);
+}
+
+void	just_exit(t_stack *a, t_stack *b, long *nums, char **words)
+{
+	clean(a, b, nums, words);
+	exit(0);
 }

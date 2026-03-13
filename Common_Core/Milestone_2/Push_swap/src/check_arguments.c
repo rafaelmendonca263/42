@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   check_arguments.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 06:56:07 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/01/23 14:19:09 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/03/13 16:39:59 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,39 @@ static int	is_valid_number(char *str)
 	return (1);
 }
 
+static long	validate_arg(char *arg)
+{
+	long	value;
+
+	if (!is_valid_number(arg))
+		return (2147483649);
+	value = ft_atol(arg);
+	if (value > 2147483647 || value < -2147483648)
+		return (2147483649);
+	return (value);
+}
+
+static int	process_split(char **split, long *nums, int *index)
+{
+	int		i;
+	long	value;
+
+	i = 0;
+	while (split[i])
+	{
+		if (split[i][0])
+		{
+			value = validate_arg(split[i]);
+			if (value == 2147483649)
+				return (0);
+			nums[*index] = value;
+			(*index)++;
+		}
+		i++;
+	}
+	return (1);
+}
+
 static void	check_duplicates(long *nums, int size, t_stack *a, t_stack *b)
 {
 	int	i;
@@ -44,36 +77,11 @@ static void	check_duplicates(long *nums, int size, t_stack *a, t_stack *b)
 		while (j < size)
 		{
 			if (nums[i] == nums[j])
-				exit_with_error(a, b, nums, NULL);
+			{
+				free(nums);
+				exit_with_error(a, b, NULL, NULL);
+			}
 			j++;
-		}
-		i++;
-	}
-}
-
-static long	parse_one_arg(char *arg, t_stack *a, t_stack *b, long *nums)
-{
-	long	value;
-
-	if (!is_valid_number(arg))
-		exit_with_error(a, b, nums, NULL);
-	value = ft_atol(arg);
-	if (value > 2147483647 || value < -2147483648)
-		exit_with_error(a, b, nums, NULL);
-	return (value);
-}
-
-static void	parse_args(char **args, long *nums, int *index, t_stack *a)
-{
-	int	i;
-
-	i = 0;
-	while (args[i])
-	{
-		if (args[i][0] != '\0')
-		{
-			nums[*index] = parse_one_arg(args[i], a, NULL, nums);
-			(*index)++;
 		}
 		i++;
 	}
@@ -81,13 +89,11 @@ static void	parse_args(char **args, long *nums, int *index, t_stack *a)
 
 int	check_arguments(int argc, char **argv, t_stack *stack_a, t_stack *stack_b)
 {
-	char	**split;
 	long	*nums;
+	char	**split;
 	int		i;
 	int		index;
 
-	if (argc < 2)
-		return (0);
 	nums = malloc(sizeof(long) * 10000);
 	if (!nums)
 		exit_with_error(stack_a, stack_b, NULL, NULL);
@@ -96,9 +102,11 @@ int	check_arguments(int argc, char **argv, t_stack *stack_a, t_stack *stack_b)
 	while (i < argc)
 	{
 		split = ft_split(argv[i], ' ');
-		if (!split)
+		if (!split || !process_split(split, nums, &index))
+		{
+			clean(NULL, NULL, NULL, split);
 			exit_with_error(stack_a, stack_b, nums, NULL);
-		parse_args(split, nums, &index, stack_a);
+		}
 		clean(NULL, NULL, NULL, split);
 		i++;
 	}

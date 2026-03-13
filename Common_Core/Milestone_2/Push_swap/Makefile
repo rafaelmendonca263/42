@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+         #
+#    By: rmedonca <rmedonca@student.42lisboa.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/16 00:27:45 by rmedonca          #+#    #+#              #
-#    Updated: 2026/01/23 10:29:42 by rmedonca         ###   ########.fr        #
+#    Updated: 2026/03/13 16:33:42 by rmedonca         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -56,7 +56,6 @@ SRCS = src/check_arguments.c \
        Libft/ft_strlcpy.c \
        Libft/ft_strdup.c \
        Libft/ft_atol.c \
-       src/tester.c
 
 OBJS = $(SRCS:.c=.o)
 
