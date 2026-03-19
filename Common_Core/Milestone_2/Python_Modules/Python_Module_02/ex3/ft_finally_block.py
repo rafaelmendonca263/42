@@ -1,14 +1,17 @@
 
+from typing import NoReturn
+
+
 class PlantError(Exception):
     pass
 
 
-def check_plant(plant):
+def check_plant(plant: str) -> NoReturn:
     if plant is None:
         raise PlantError("Cannot water None - invalid plant!")
 
 
-def water_plants(plant_list):
+def water_plants(plant_list: list) -> None:
     print("Opening watering system")
     success = True
 
@@ -24,10 +27,10 @@ def water_plants(plant_list):
         if success:
             print("Watering completed successfully!\n")
         else:
-            print("Cleanup always happens, even with errors!\n")
+            print("\nCleanup always happens, even with errors!")
 
 
-def test_watering_system():
+def test_watering_system() -> None:
     print("Testing normal watering...")
     water_plants(["tomato", "lettuce", "carrots"])
 

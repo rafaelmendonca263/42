@@ -1,27 +1,27 @@
 
-def garden_operations():
+def garden_operations() -> None:
     print("Testing ValueError...")
     try:
         int("abc")
-    except ValueError as error:
-        print(f"Caught ValueError: {error}\n")
-    print("Testing ZeroDivisionError...")
+    except ValueError:
+        print("Caught ValueError: invalid literal for int()\n")
+    print("\nTesting ZeroDivisionError...")
     try:
         res = 10 / 0
         print(res)
-    except ZeroDivisionError as error:
-        print(f"Caught ZeroDivisionError: {error}\n")
-    print("Testing FileNotFoundError...")
+    except ZeroDivisionError:
+        print("Caught ZeroDivisionError: division by zero")
+    print("\nTesting FileNotFoundError...")
     try:
         open('missing.txt')
-    except FileNotFoundError as error:
-        print(f"Caught FileNotFoundError: {error}\n")
-    print("Testing KeyError...")
+    except FileNotFoundError:
+        print("Caught FileNotFoundError: No such file 'missing.txt'")
+    print("\nTesting KeyError...")
     try:
         plants["cactus"]
-    except KeyError as error:
-        print(f"Caught KeyError: {error}\n")
-    print("Testing multiple exceptions together...")
+    except KeyError:
+        print("Caught KeyError: 'cactus'")
+    print("\nTesting multiple exceptions together...")
     try:
         int("abc")
         res = 10 / 0
@@ -38,7 +38,7 @@ plants = {
 }
 
 
-def test_error_types():
+def test_error_types() -> None:
     garden_operations()
     print("All error types tested successfully!")
 

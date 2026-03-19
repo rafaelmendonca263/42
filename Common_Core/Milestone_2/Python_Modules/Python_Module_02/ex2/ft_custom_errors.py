@@ -1,4 +1,7 @@
 
+from typing import NoReturn
+
+
 class GardenError(Exception):
     pass
 
@@ -11,17 +14,17 @@ class WaterError(GardenError):
     pass
 
 
-def check_plant(plant_name):
+def check_plant(plant_name: str) -> NoReturn:
     if plant_name == "tomato":
         raise PlantError(f"The {plant_name} plant is wilting!")
 
 
-def check_water(level):
+def check_water(level: int) -> NoReturn:
     if level < 10:
         raise WaterError("Not enough water in the tank!")
 
 
-def garden_custom_errors_demo():
+def garden_custom_errors_demo() -> None:
     print("Testing PlantError...")
     try:
         check_plant("tomato")

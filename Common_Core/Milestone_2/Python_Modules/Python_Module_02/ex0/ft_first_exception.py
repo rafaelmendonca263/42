@@ -1,5 +1,5 @@
 
-def check_temperature(temp_str: str):
+def check_temperature(temp_str: str) -> None:
     print(f"Testing temperature: {temp_str}")
     try:
         temp = int(temp_str)
@@ -13,7 +13,7 @@ def check_temperature(temp_str: str):
         print(f"Error: '{temp_str}' is not a valid number")
 
 
-def test_temperature_input():
+def test_temperature_input() -> None:
     check_temperature("25")
     print("")
     check_temperature("abc")
@@ -25,6 +25,6 @@ def test_temperature_input():
 
 
 if __name__ == "__main__":
-    print("=== Garden Temperature Checker ===")
+    print("=== Garden Temperature Checker ===\n")
     test_temperature_input()
     print("All tests completed - program didn't crash!")
