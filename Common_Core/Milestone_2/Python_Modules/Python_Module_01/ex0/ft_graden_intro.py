@@ -8,4 +8,4 @@ if __name__ == "__main__":
     print("Plant:", plant_name)
     print("Height:", plant_height, "cm")
     print("Age:", plant_age, "days")
-    print("=== End of Program ===")
+    print("\n=== End of Program ===")

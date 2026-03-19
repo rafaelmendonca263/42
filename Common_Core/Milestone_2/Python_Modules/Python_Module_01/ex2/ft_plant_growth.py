@@ -1,18 +1,18 @@
 
-class Plant:
-    def __init__(self, name, height, age):
+class Plant():
+    def __init__(self, name: str, height: int, age: int) -> None:
         self.name = name
         self.height = height
         self.age = age
         self.initial_height = height
 
-    def grow(self, cm):
+    def grow(self, cm: int) -> None:
         self.height += cm
 
-    def age_one_day(self):
+    def age_one_day(self) -> None:
         self.age += 1
 
-    def get_info(self):
+    def get_info(self) -> str:
         return f"{self.name}: {self.height}cm, {self.age} days old"
 
 
