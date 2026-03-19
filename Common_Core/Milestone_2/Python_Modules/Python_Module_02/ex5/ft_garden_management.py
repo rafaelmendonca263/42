@@ -73,7 +73,7 @@ class GardenManager:
 def test_garden_management() -> None:
     print("Adding plants to garden...")
     garden = GardenManager()
-    garden.add_plant("tomato", 5, 8) 
+    garden.add_plant("tomato", 5, 8)
     garden.add_plant("lettuce", 15, 6)
     garden.add_plant("", 4, 5)
 
