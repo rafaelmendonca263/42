@@ -12,7 +12,10 @@ class WaterError(GardenError):
 
 
 class Plant:
-    def __init__(self, name: str, water_level: int, sunlight_hours: int) -> None:
+    def __init__(self,
+                 name: str,
+                 water_level: int,
+                 sunlight_hours: int) -> None:
         if not name:
             raise PlantError("Plant name cannot be empty!")
         self.name = name
@@ -24,7 +27,10 @@ class GardenManager:
     def __init__(self) -> None:
         self.plants: list[Plant] = []
 
-    def add_plant(self, name: str, water_level: int, sunlight_hours: int) -> None:
+    def add_plant(self,
+                  name: str,
+                  water_level: int,
+                  sunlight_hours: int) -> None:
         try:
             plant = Plant(name, water_level, sunlight_hours)
             self.plants.append(plant)
