@@ -1,12 +1,13 @@
+
 from ex3.GameEngine import GameEngine
 from ex3.AggressiveStrategy import AggressiveStrategy
 from ex3.FantasyCardFactory import FantasyCardFactory
 
 
 if __name__ == "__main__":
-    print("\n=== DataDeck Game Engine ===")
+    print("=== DataDeck Game Engine ===")
 
-    print("\nConfiguring Fantasy Card Game...")
+    print("Configuring Fantasy Card Game...")
 
     factory = FantasyCardFactory()
     strategy = AggressiveStrategy()
@@ -18,13 +19,18 @@ if __name__ == "__main__":
     print("Strategy:", strategy.__class__.__name__)
     print("Available types:", factory.get_supported_types())
 
-    print("\nSimulating aggressive turn...")
+    print("Simulating aggressive turn...")
 
     result = engine.simulate_turn()
 
-    print("\nTurn execution:")
+    print("Hand: [" + ", ".join(result["hand"]) + "]")
+
+    print("Turn execution:")
     print("Strategy:", result["strategy"])
     print("Actions:", result["actions"])
 
-    print("\nGame Report:")
+    print("Game Report:")
     print(engine.get_engine_status())
+
+    print("Abstract Factory + Strategy Pattern:"
+          " Maximum flexibility achieved!")

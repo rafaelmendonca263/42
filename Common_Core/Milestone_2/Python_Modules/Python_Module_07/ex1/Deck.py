@@ -6,10 +6,11 @@ from ex0.CreatureCard import CreatureCard
 from ex1.SpellCard import SpellCard
 from ex1.ArtifactCard import ArtifactCard
 
+
 class Deck():
     def __init__(self):
         self.cards: List[Card] = []
-    
+
     def add_card(self, card: Card) -> None:
         self.cards.append(card)
 
@@ -18,7 +19,7 @@ class Deck():
             if card.name == card_name:
                 self.cards.remove(card)
                 return True
-        return False        
+        return False
 
     def shuffle(self) -> None:
         random.shuffle(self.cards)
@@ -42,7 +43,7 @@ class Deck():
                 artifacts += 1
             elif isinstance(card, CreatureCard):
                 creatures += 1
-        
+
         avg_cost = total_cost / len(self.cards) if self.cards else 0
 
         return {

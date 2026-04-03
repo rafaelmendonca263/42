@@ -1,9 +1,9 @@
 
-from ex0.Card import Card
 from ex0.CreatureCard import CreatureCard
 
+
 if __name__ == "__main__":
-    
+
     creature = CreatureCard("Fire Dragon", 5, "Legendary", 7, 5)
 
     print("\n=== DataDeck Card Foundation ===")

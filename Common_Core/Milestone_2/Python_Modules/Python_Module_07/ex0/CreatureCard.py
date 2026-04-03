@@ -1,18 +1,19 @@
 
 from ex0.Card import Card
-from typing import Dict, List, Any, Optional
+
 
 class CreatureCard(Card):
-    def __init__(self, name: str, cost: int, rarity: str, attack: int, health: int):
+    def __init__(self, name: str, cost: int,
+                 rarity: str, attack: int, health: int):
         super().__init__(name, cost, rarity)
         self.attack = attack
         self.health = health
-    
+
     def get_card_info(self):
         info = super().get_card_info()
         info.update({"attack": self.attack, "health": self.health})
         return info
-    
+
     def play(self, game_state: dict) -> dict:
         return {
                 "card_played": self.name,

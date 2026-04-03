@@ -14,12 +14,13 @@ if __name__ == "__main__":
     creature = CreatureCard(creature_data['name'], creature_data['cost'],
                             creature_data['rarity'], creature_data['attack'],
                             creature_data['health'])
-    
+
     spell = SpellCard(spell_data['name'], spell_data['cost'],
                       spell_data['rarity'], spell_data['effect_type'])
-    
+
     artifact = ArtifactCard(artifact_data['name'], artifact_data['cost'],
-                            artifact_data['rarity'], artifact_data['durability'],
+                            artifact_data['rarity'],
+                            artifact_data['durability'],
                             artifact_data['effect'])
 
     deck = Deck()
@@ -42,7 +43,7 @@ if __name__ == "__main__":
         if card is None:
             break
 
-        print(f"Drew: {card.name} ({type(card).__name__.replace('Card','')})")
+        print(f"Drew: {card.name} ({type(card).__name__.replace('Card', '')})")
         result = card.play({})
         print(f"Play result: {result}\n")
 

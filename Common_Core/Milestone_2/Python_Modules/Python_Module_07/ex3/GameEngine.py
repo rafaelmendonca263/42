@@ -1,12 +1,14 @@
 
-from ex3.GameStrategy import GameStrategy
+from typing import Dict, Any, List
 from ex3.CardFactory import CardFactory
+from ex3.GameStrategy import GameStrategy
 
 
-class GameEngine():
-    def __init__(self):
-        self.factory = None
-        self.strategy = None
+class GameEngine:
+
+    def __init__(self) -> None:
+        self.factory: CardFactory | None = None
+        self.strategy: GameStrategy | None = None
         self.turns_simulated = 0
         self.total_damage = 0
         self.cards_created = 0
@@ -19,29 +21,37 @@ class GameEngine():
         self.factory = factory
         self.strategy = strategy
 
-    def simulate_turn(self) -> dict:
-        creature = self.factory.create_creature()
-        spell = self.factory.create_spell()
-        artifact = self.factory.create_artifact()
+    def _format_hand(self, hand: List) -> List[str]:
+        formatted_hand = []
+        for card in hand:
+            formatted_hand.append(f"{card.name} ({card.cost})")
+        return formatted_hand
 
-        hand = [creature, spell, artifact]
+    def simulate_turn(self) -> Dict[str, Any]:
+        hand = [
+            self.factory.create_creature(),
+            self.factory.create_creature("goblin"),
+            self.factory.create_spell(),
+        ]
+
         battlefield = []
 
         actions = self.strategy.execute_turn(hand, battlefield)
 
-        turn_report = {
-            "turns_simulated": 1,
-            "strategy": self.strategy.get_strategy_name(),  # ✅ nome da strategy
-            "total_damage": actions.get("damage_dealt", 0),
-            "cards_created": len(hand),
-            "actions": actions
+        self.turns_simulated += 1
+        self.total_damage += actions["damage_dealt"]
+        self.cards_created += len(hand)
+
+        return {
+            "hand": self._format_hand(hand),
+            "strategy": self.strategy.get_strategy_name(),
+            "actions": actions,
         }
 
-        return turn_report
-
-    def get_engine_status(self) -> dict:
+    def get_engine_status(self) -> Dict[str, Any]:
         return {
-            "factory": self.factory.__class__.__name__,
-            "strategy": self.strategy.get_strategy_name(),
-            "available_types": self.factory.get_supported_types()
+            "turns_simulated": self.turns_simulated,
+            "strategy_used": self.strategy.get_strategy_name(),
+            "total_damage": self.total_damage,
+            "cards_created": self.cards_created,
         }
