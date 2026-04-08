@@ -1,54 +1,45 @@
 
-from typing import Dict, Any, List
+from typing import List, Any, Dict, Optional
 from ex3.CardFactory import CardFactory
 from ex3.GameStrategy import GameStrategy
 
 
 class GameEngine:
-
-    def __init__(self) -> None:
-        self.factory: CardFactory | None = None
-        self.strategy: GameStrategy | None = None
-        self.turns_simulated = 0
-        self.total_damage = 0
-        self.cards_created = 0
-
-    def configure_engine(
-        self,
-        factory: CardFactory,
-        strategy: GameStrategy
-    ) -> None:
-        self.factory = factory
-        self.strategy = strategy
-
-    def _format_hand(self, hand: List) -> List[str]:
-        formatted_hand = []
-        for card in hand:
-            formatted_hand.append(f"{card.name} ({card.cost})")
-        return formatted_hand
+    def __init__(self):
+        self.factory: Optional[CardFactory] = None
+        self.strategy: Optional[GameStrategy] = None
+        self.turns_simulated: int = 0
+        self.total_damage: int = 0
+        self.cards_created: int = 0
 
     def simulate_turn(self) -> Dict[str, Any]:
+        assert self.factory is not None
+        assert self.strategy is not None
+
         hand = [
             self.factory.create_creature(),
-            self.factory.create_creature("goblin"),
+            self.factory.create_creature(),
             self.factory.create_spell(),
         ]
 
-        battlefield = []
+        battlefield: List[Any] = []
 
-        actions = self.strategy.execute_turn(hand, battlefield)
+        result = self.strategy.execute_turn(hand, battlefield)
 
         self.turns_simulated += 1
-        self.total_damage += actions["damage_dealt"]
+        self.total_damage += result["damage_dealt"]
         self.cards_created += len(hand)
 
-        return {
-            "hand": self._format_hand(hand),
-            "strategy": self.strategy.get_strategy_name(),
-            "actions": actions,
-        }
+        return result
+
+    def configure_engine(self,
+                         factory: CardFactory,
+                         strategy: GameStrategy) -> None:
+        self.factory = factory
+        self.strategy = strategy
 
     def get_engine_status(self) -> Dict[str, Any]:
+        assert self.strategy is not None
         return {
             "turns_simulated": self.turns_simulated,
             "strategy_used": self.strategy.get_strategy_name(),

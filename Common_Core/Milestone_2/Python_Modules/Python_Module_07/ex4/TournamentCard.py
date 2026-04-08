@@ -14,7 +14,7 @@ class TournamentCard(Card, Combatable, Rankable):
         rating: int = 1200
     ):
         super().__init__(name, cost, rarity)
-        self.attack = 5
+        self.attack_power = 5
         self.health = 5
         self.rating = rating
         self.wins = 0

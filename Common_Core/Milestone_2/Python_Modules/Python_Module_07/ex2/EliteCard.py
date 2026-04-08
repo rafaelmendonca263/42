@@ -1,3 +1,5 @@
+from typing import Any, Dict, Optional
+
 from ex0.Card import Card
 from ex2.Magical import Magical
 from ex2.Combatable import Combatable
@@ -16,7 +18,7 @@ class EliteCard(Card, Magical, Combatable):
 
         self.health = defense_power
 
-    def play(self, game_state: dict = None) -> dict:
+    def play(self, game_state: Optional[Dict[str, Any]] = None) -> dict:
         return {
             "card_played": self.name,
             "cost": self.cost,
