@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "matrix-loading"
+version = "0.1.0"
+description = "Minimal program to load Matrix data dependencies and visualize."
+authors = ["Your Name <you@example.com>"]
+packages = [{ include = "." }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pandas = "3.0.2"
+numpy = "2.4.4"
+matplotlib = "3.10.8"
+requests = "2.33.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
