@@ -1,7 +1,7 @@
 
 def mage_counter() -> callable:
     count = 0
-    
+
     def counter():
         nonlocal count
         count += 1
@@ -11,7 +11,7 @@ def mage_counter() -> callable:
 
 def spell_accumulator(initial_power: int) -> callable:
     total_power = initial_power
-    
+
     def accumulator(spell_power: int):
         nonlocal total_power
         total_power += spell_power
