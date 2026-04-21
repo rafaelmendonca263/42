@@ -1,58 +1,31 @@
 
-from typing import NoReturn
+def garden_operations(operation_number: int) -> None:
+    if operation_number == 0:
+        int("abc")
+    elif operation_number == 1:
+        10 / 0
+    elif operation_number == 2:
+        open('/non/existent/file')
+    elif operation_number == 3:
+        "Jardim" + 42  # Gera o TypeError esperado
+    else:
+        return
 
 
-class GardenError(Exception):
-    pass
-
-
-class PlantError(GardenError):
-    pass
-
-
-class WaterError(GardenError):
-    pass
-
-
-def check_plant(plant_name: str) -> NoReturn:
-    if plant_name == "tomato":
-        raise PlantError(f"The {plant_name} plant is wilting!")
-
-
-def check_water(level: int) -> NoReturn:
-    if level < 10:
-        raise WaterError("Not enough water in the tank!")
-
-
-def garden_custom_errors_demo() -> None:
-    print("Testing PlantError...")
-    try:
-        check_plant("tomato")
-    except PlantError as e:
-        print(f"Caught PlantError: {e}")
-    print()
-
-    print("Testing WaterError...")
-    try:
-        check_water(5)
-    except WaterError as e:
-        print(f"Caught WaterError: {e}")
-    print()
-
-    print("Testing catching all garden errors...")
-    try:
-        check_plant("tomato")
-    except GardenError as e:
-        print(f"Caught a garden error: {e}")
-    try:
-        check_water(5)
-    except GardenError as e:
-        print(f"Caught a garden error: {e}")
-    print()
-
-    print("All custom error types work correctly!")
+def test_error_types() -> None:
+    for i in range(5):
+        print(f"Testing operation {i}...")
+        try:
+            garden_operations(i)
+            if i <= 3:
+                pass
+                print("Operation completed successfully")
+        except (ValueError, ZeroDivisionError, FileNotFoundError,
+                TypeError) as e:
+            print(f"Caught {type(e).__name__}: {e}")
 
 
 if __name__ == "__main__":
-    print("=== Custom Garden Errors Demo ===\n")
-    garden_custom_errors_demo()
+    print("=== Garden Error Types Demo ===")
+    test_error_types()
+    print("\nAll error types tested successfully!")
