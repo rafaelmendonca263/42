@@ -23,15 +23,11 @@ cactus = Plant("Cactus", 15, 120)
 plants = [rose, sunflower, cactus]
 
 if __name__ == "__main__":
-    print("=== Day 1 ===")
-    for plant in plants:
-        print(plant.get_info())
-    for day in range(2, 8):
+    for day in range(1, 8):
+        print(f"=== Day{day} ===")
         for plant in plants:
             plant.grow(3)
             plant.age_one_day()
-    print("=== Day 7 ===")
-    for plant in plants:
-        print(plant.get_info())
-        growth = plant.height - plant.initial_height
-        print(f"Growth this week: +{growth}cm\n")
+            print(plant.get_info())
+    growth = plant.height - plant.initial_height
+    print(f"Growth this week: +{growth}cm")
