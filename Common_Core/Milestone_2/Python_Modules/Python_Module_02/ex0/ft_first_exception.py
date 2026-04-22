@@ -3,9 +3,10 @@ def check_temperature(temp_str: str) -> None:
     print(f"Imput data is '{temp_str}'")
     try:
         temp = int(temp_str)
-        print(f"Temperature {temp}°C is perfect for plants!")
+        print(f"Temperature is now {temp}°C")
     except ValueError:
-        print(f"Error: '{temp_str}' is not a valid number")
+        print("Caught input_temperature error: invalid literal for "
+              f"int() with base 10: '{temp_str}'")
 
 
 def test_temperature_input() -> None:
@@ -16,6 +17,6 @@ def test_temperature_input() -> None:
 
 
 if __name__ == "__main__":
-    print("=== Garden Temperature Checker ===\n")
+    print("=== Garden Temperature ===\n")
     test_temperature_input()
     print("All tests completed - program didn't crash!")
