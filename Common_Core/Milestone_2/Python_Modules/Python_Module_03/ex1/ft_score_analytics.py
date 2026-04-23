@@ -11,15 +11,15 @@ if __name__ == "__main__":
             score = int(arg)
             scores.append(score)
         except ValueError:
-            print(f"Warning: '{arg}' is not a valid score "
-                  "and will be ignored.")
+            print(f"Invalid parameter: '{arg}'")
     if len(scores) == 0:
         print("No scores provided. Usage: python3 ft_score_analytics.py "
               "<score1> <score2> ...")
     else:
-        print(f"Scores procced: {scores}")
+        print(f"Scores processed: {scores}")
         print(f"Total Players: {len(scores)}")
         print(f"Total Score: {sum(scores)}")
+        print(f"Average Score: {sum(scores) / len(scores):.2f}")
         print(f"High Score: {max(scores)}")
         print(f"Low Score: {min(scores)}")
-        print(f"Average Score: {sum(scores) / len(scores):.2f}")
+        print(f"Score range: {max(scores)-min(scores)}")

@@ -1,4 +1,5 @@
 
+import sys
 import math
 
 
@@ -20,44 +21,21 @@ def parse_coordinates(coord_str):
         y = int(parts[1])
         z = int(parts[2])
         return (x, y, z)
-    except Exception as e:
-        print(f"Error parsing coordinates: {e}")
-        print(
-            f"Error details - Type: {type(e).__name__}, "
-            f"Args: {e.args}"
-        )
+    except Exception:
+        print("Invalid syntax")
         return None
 
 
 if __name__ == "__main__":
-    print("=== Game Coordinate System ===")
+    print("=== Game Coordinate System ===\n")
 
-    origin = (0, 0, 0)
+    print("Get a first set of coordinates")
 
-    position = (10, 20, 5)
-    print(f"Position created: {position}")
+    for first_cordenates is None:
+    origin = input("Enter new coordinates as floats in format 'x,y,z': ")
+    first_coordenates = parse_coordinates
+    print(f"It includes: X={first_coordenates.x}, Y={first_coordenates.y}, Z={first_coordenates.z}")
+    
 
-    dist = distance_3d(origin, position)
-    print(
-        f"Distance between {origin} and {position}: "
-        f"{dist:.2f}"
-    )
-
-    coord_str = "3,4,0"
-    parsed = parse_coordinates(coord_str)
-    if parsed is not None:
-        print(f"Parsed position: {parsed}")
-        dist = distance_3d(origin, parsed)
-        print(
-            f"Distance between {origin} and {parsed}: "
-            f"{dist}"
-        )
-
-    invalid_str = "abc,def,ghi"
-    print(f'Parsing invalid coordinates: "{invalid_str}"')
-    parse_coordinates(invalid_str)
-
-    print("Unpacking demonstration:")
-    x, y, z = parsed
-    print(f"Player at x={x}, y={y}, z={z}")
-    print(f"Coordinates: X={x}, Y={y}, Z={z}")
+    print("Get a second set of coordinates")
+    origin = input("Enter new coordinates as floats in format 'x,y,z': ")
