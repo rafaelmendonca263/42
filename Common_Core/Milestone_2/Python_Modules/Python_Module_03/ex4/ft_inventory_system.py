@@ -1,70 +1,54 @@
 
+import sys
+
 if __name__ == "__main__":
     print("=== Inventory System Analysis ===")
 
-    inventory = {
-        "sword":   {"quantity": 1, "type": "weapon", "value": 100},
-        "potion":  {"quantity": 5, "type": "consumable", "value": 10},
-        "shield":  {"quantity": 2, "type": "armor", "value": 50},
-        "armor":   {"quantity": 3, "type": "armor", "value": 150},
-        "helmet":  {"quantity": 1, "type": "armor", "value": 70}
-    }
-
-    total_items = sum(item["quantity"] for item in inventory.values())
-    unique_items = len(inventory)
-    print(f"Total items in inventory: {total_items}")
-    print(f"Unique item types: {unique_items}")
-
-    print("\n=== Current Inventory ===")
-    sorted_items = sorted(
-        inventory.items(),
-        key=lambda x: x[1]["quantity"],
-        reverse=True
-    )
-    for item, data in sorted_items:
-        percentage = (data["quantity"] / total_items) * 100
-        print(f"{item}: {data['quantity']} units ({percentage:.1f}%)")
-
-    print("\n=== Inventory Statistics ===")
-    most_abundant = sorted_items[0]
-    least_abundant = sorted_items[-1]
-    print(
-        f"Most abundant: {most_abundant[0]} "
-        f"({most_abundant[1]['quantity']} units)"
-    )
-    print(
-        f"Least abundant: {least_abundant[0]} "
-        f"({least_abundant[1]['quantity']} units)"
-    )
-
-    print("\n=== Item Categories ===")
-    categories = {"Moderate": {}, "Scarce": {}}
-    for item, data in inventory.items():
-        if data["quantity"] >= 5:
-            categories["Moderate"][item] = data["quantity"]
+    inventory = {}
+    for item in sys.argv[1:]:
+        item = item.split(":")
+        if item[0] not in inventory:
+            if len(item) == 2:
+                try:
+                    inventory[item[0]] = int(item[1])
+                except ValueError:
+                    print(f"Quantity error for '{item[0]}': "
+                          f"invalid literal for int() with base 10: '{item[1]}'")
+            else:
+                print(f"Error - invalid parameter '{item[0]}'")
         else:
-            categories["Scarce"][item] = data["quantity"]
-    print(f"Moderate: {categories['Moderate']}")
-    print(f"Scarce: {categories['Scarce']}")
+            print(f"Redundant item '{item[0]}' - discarding")
 
-    print("\n=== Management Suggestions ===")
-    restock = [
-        item
-        for item, data in inventory.items()
-        if data["quantity"] <= 1
-    ]
-    print(f"Restock needed: {restock}")
+    print(f"Got inventory: {inventory}")
 
-    print("\n=== Dictionary Properties Demo ===")
+    names = list(inventory)
+    number_items = sum(inventory.values())
+    print(f"Item list: {names}")
+    print(f"Total quantity of the {len(names)} items: {number_items}")
+
+    for item in inventory:
+        percentage = (inventory[item] / number_items) * 100
+        print(f"Item {item} represents ({percentage:.1f}%)")
+
+    most_abundant = max(inventory.values())
+    most_abundant_name = max(inventory, key=inventory.get)
+    least_abundant = min(inventory.values())
+    least_abundant_name = min(inventory, key=inventory.get)
+
     print(
-        "Dictionary keys: "
-        f"{list(inventory.keys())}"
+        f"Item most abundant: {most_abundant_name} "
+        f"with a quantity {most_abundant}"
     )
+
     print(
-        "Dictionary values: "
-        f"{[data['quantity'] for data in inventory.values()]}"
+        f"Item least abundant: {least_abundant_name} "
+        f"with a quantity {least_abundant}"
     )
-    print(
-        "Sample lookup - 'sword' in inventory: "
-        f"{'sword' in inventory}"
-    )
+
+    new_item = "magic_item: 1"
+    new_item = new_item.split('"')
+    new_item = new_item[0].split(":")
+
+    inventory[new_item[0]] = int(new_item[1])
+
+    print(f"Updated inventory: {inventory}")

@@ -1,69 +1,35 @@
 
 if __name__ == "__main__":
-    print("=== Game Analytics Dashboard ===")
+    print("=== Game Data Alchemist ===")
 
-    players = [
-        {
-            "name": "alice",
-            "score": 2300,
-            "achievements": ["first_kill", "level_10"],
-        },
-        {
-            "name": "bob",
-            "score": 1800,
-            "achievements": ["first_kill", "level_5"],
-        },
-        {
-            "name": "charlie",
-            "score": 2150,
-            "achievements": ["first_kill", "level_10", "boss_slayer"],
-        }
-    ]
+    players = ['Alice',
+               'bob',
+               'Charlie',
+               'dylan',
+               'Emma',
+               'Gregory',
+               'john',
+               'kevin',
+               'Liam']
 
-    print("\n=== List Comprehension Examples ===")
-    high_scorers = [p["name"] for p in players if p["score"] > 2000]
-    print(f"High scorers (>2000): {high_scorers}")
+    scores = [263, 666, 907, 170, 568, 446, 90, 527, 54]
 
-    doubled_scores = [p["score"] * 2 for p in players]
-    print(f"Scores doubled: {doubled_scores}")
+    print(f"Initial list of players: {players}")
 
-    active_players = [p["name"] for p in players]
-    print(f"Active players: {active_players}")
+    new_list = []
+    for player in players:
+        new_list.append(player.capitalize())
 
-    print("\n=== Dict Comprehension Examples ===")
-    player_scores = {p["name"]: p["score"] for p in players}
-    print(f"Player scores: {player_scores}")
+    print(f"New list with all names capitalized: {new_list}")
 
-    score_categories = {
-        "high": sum(1 for p in players if p["score"] > 2000),
-        "medium": sum(1 for p in players if 1800 <= p["score"] <= 2000),
-        "low": sum(1 for p in players if p["score"] < 1800),
-    }
-    print(f"Score categories: {score_categories}")
+    new_list = []
+    for player in players:
+        if player == player.capitalize():
+            new_list.append(player)
 
-    achievement_counts = {p["name"]: len(p["achievements"]) for p in players}
-    print(f"Achievement counts: {achievement_counts}")
+    print(f"New list of capitalized names only: {new_list}")
 
-    print("\n=== Set Comprehension Examples ===")
-    unique_players = {p["name"] for p in players}
-    print(f"Unique players: {unique_players}")
-
-    unique_achievements = {ach for p in players for ach in p["achievements"]}
-    print(f"Unique achievements: {unique_achievements}")
-
-    print("\n=== Combined Analysis ===")
-    total_players = len(unique_players)
-    print(f"Total players: {total_players}")
-
-    total_unique_achievements = len(unique_achievements)
-    print(f"Total unique achievements: {total_unique_achievements}")
-
-    average_score = sum(p["score"] for p in players) / len(players)
-    print(f"Average score: {average_score}")
-
-    top_performer = max(players, key=lambda p: p["score"])
-    print(
-        f"Top performer: {top_performer['name']} "
-        f"({top_performer['score']} points, "
-        f"{len(top_performer['achievements'])} achievements)"
-    )
+    score_dict = []
+    for player in players:
+        score_dict.append({player for scores in zip(players, scores)})
+    print(f"Score dict: {score_dict}")

@@ -1,5 +1,4 @@
 
-import sys
 import math
 
 
@@ -31,11 +30,24 @@ if __name__ == "__main__":
 
     print("Get a first set of coordinates")
 
-    for first_cordenates is None:
-    origin = input("Enter new coordinates as floats in format 'x,y,z': ")
-    first_coordenates = parse_coordinates
-    print(f"It includes: X={first_coordenates.x}, Y={first_coordenates.y}, Z={first_coordenates.z}")
-    
+    origin = None
+    first_coordenates = None
+    second_coordenates = None
 
-    print("Get a second set of coordinates")
-    origin = input("Enter new coordinates as floats in format 'x,y,z': ")
+    while first_coordenates is None:
+        origin = input("Enter new coordinates as floats in format 'x,y,z': ")
+        first_coordenates = parse_coordinates(origin)
+        print(f"Got a first tuple: ({first_coordenates[0]},"
+              f" {first_coordenates[1]}, {first_coordenates[2]})")
+        print(f"It includes: X={first_coordenates[0]}, "
+              f"Y={first_coordenates[1]}, Z={first_coordenates[2]}")
+        print("Distance to center: "
+              f"{distance_3d((0, 0, 0), (first_coordenates))}")
+
+    print("\nGet a second set of coordinates")
+
+    while second_coordenates is None:
+        origin = input("Enter new coordinates as floats in format 'x,y,z': ")
+        second_coordenates = parse_coordinates(origin)
+        print("Distance between the 2 sets of coordinates: "
+              f"{distance_3d((second_coordenates), (first_coordenates))}")

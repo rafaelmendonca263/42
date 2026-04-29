@@ -1,62 +1,76 @@
 
+import random
+
+
+def gen_player_achivements():
+    all_achievements = {'Crafting Genius',
+                        'Collector Supreme',
+                        'Untouchable',
+                        'Speed Runner',
+                        'Sharp Mind',
+                        'First Steps',
+                        'Treasure Hunter',
+                        'Survivor',
+                        'Boss Slayer',
+                        'Master Explorer',
+                        'Strategist',
+                        'World Savior',
+                        'Unstoppable'}
+
+    quantity = random.randint(1, len(all_achievements))
+
+    chosen_items = random.sample(list(all_achievements), quantity)
+
+    return set(chosen_items)
+
+
 if __name__ == "__main__":
     print("=== Achievement Tracker System ===\n")
 
-    alice = {
-        "first_kill",
-        "level_10",
-        "treasure_hunter",
-        "speed_demon",
-    }
-    bob = {
-        "first_kill",
-        "level_10",
-        "boss_slayer",
-        "collector",
-    }
-    charlie = {
-        "level_10",
-        "treasure_hunter",
-        "boss_slayer",
-        "speed_demon",
-        "perfectionist",
-    }
+    names = {'Alice': gen_player_achivements(),
+             'Bob': gen_player_achivements(),
+             'Charlie': gen_player_achivements(),
+             'Dylan': gen_player_achivements()}
 
-    print(f"Player Alice achievements: {alice}")
-    print(f"Player Bob achievements: {bob}")
-    print(f"Player Charlie achievements: {charlie}\n")
+    for name in names:
+        print(f"Player {name}: {names[name]}")
 
-    print("=== Achievement Analytics ===")
+    all_achievements = {'Crafting Genius',
+                        'Collector Supreme',
+                        'Untouchable',
+                        'Speed Runner',
+                        'Sharp Mind',
+                        'First Steps',
+                        'Treasure Hunter',
+                        'Survivor',
+                        'Boss Slayer',
+                        'Master Explorer',
+                        'Strategist',
+                        'World Savior',
+                        'Unstoppable'}
 
-    all_achievements = alice | bob | charlie
-    print(f"All unique achievements: {all_achievements}")
-    print(f"Total unique achievements: {len(all_achievements)}\n")
+    print(f"\nAll distinct achievements: {all_achievements}\n")
 
-    common_achievements = alice & bob & charlie
-    print(f"Common to all players: {common_achievements}")
+    common = names['Alice'] & names['Bob'] & names['Charlie'] & names['Dylan']
 
-    unique_to_all = (
-        all_achievements
-        - (alice & bob)
-        - (bob & charlie)
-        - (alice & charlie)
-    )
-    print(f"Rare achievements (1 player): {unique_to_all}\n")
+    print(f"\nCommon achievements: {common}\n")
 
-    alice_and_bob = alice & bob
-    print(f"Alice vs Bob common: {alice_and_bob}")
+    only_Alice = names['Alice'] - names['Bob'] & names['Charlie'] & names['Dylan']
+    only_Bob = names['Bob'] - names['Alice'] & names['Charlie'] & names['Dylan']
+    only_Charlie = names['Charlie'] - names['Bob'] & names['Alice'] & names['Dylan']
+    only_Dylan = names['Dylan'] - names['Bob'] & names['Charlie'] & names['Alice']
 
-    bob_and_charlie = bob & charlie
-    print(f"Bob vs Charlie common: {bob_and_charlie}")
+    print(f"Only Alice has: {only_Alice}")
+    print(f"Only Bob has: {only_Bob}")
+    print(f"Only Charlie has: {only_Charlie}")
+    print(f"Only Dylan has: {only_Dylan}\n")
 
-    alice_and_charlie = alice & charlie
-    print(f"Alice vs Charlie common: {alice_and_charlie}\n")
+    miss_Alice = all_achievements - names['Alice']
+    miss_Bob = all_achievements - names['Bob']
+    miss_Charlie = all_achievements - names['Charlie']
+    miss_Dylan = all_achievements - names['Dylan']
 
-    alice_unique = alice - bob - charlie
-    print(f"Alice unique: {alice_unique}")
-
-    bob_unique = bob - alice - charlie
-    print(f"Bob unique: {bob_unique}")
-
-    charlie_unique = charlie - alice - bob
-    print(f"Charlie unique: {charlie_unique}")
+    print(f"Alice is missing: {miss_Alice}")
+    print(f"Bob is missing: {miss_Bob}")
+    print(f"Charlie is missing: {miss_Charlie}")
+    print(f"Dylan is missing: {miss_Dylan}")
