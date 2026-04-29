@@ -14,6 +14,8 @@ def secure_write_vault():
         f.write("[CLASSIFIED] New security protocols archived")
     print("Vault automatically sealed upon completion\n")
 
+def secure_archive():
+    
 
 if __name__ == "__main__":
     print("=== CYBER ARCHIVES - VAULT SECURITY SYSTEM ===\n")

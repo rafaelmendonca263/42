@@ -14,7 +14,7 @@ def process_archives():
     
     print("=== Cyber Archives Recovery & Preservation ===")
     print(f"Accessing file '{file_name}'")
-    print("---")
+    print("---\n")
     
     new_lines = []
     try:
@@ -23,14 +23,14 @@ def process_archives():
             cleaned_line = line.rstrip('\n')
             print(cleaned_line)
             new_lines.append(cleaned_line + "#")
-        print("---")
-        print(f"File '{file_name}' closed.")
+        print("\n---")
+        print(f"File '{file_name}' closed.\n")
         print("Transform data:")
-        print("---")
+        print("---\n")
 
         for line in new_lines:
             print(line)
-        print("---")
+        print("\n---")
     except FileNotFoundError:
         print(f"Error: File '{file_name}' not found.")
         return
@@ -47,7 +47,7 @@ def process_archives():
                 f_out.write(linha + "\n")
         print(f"Data saved in file '{new_name}'.")
     else:
-        print("No file name provided. Aborting save.")
+        print("Not saving data.")
 
 if __name__ == "__main__":
     process_archives()
