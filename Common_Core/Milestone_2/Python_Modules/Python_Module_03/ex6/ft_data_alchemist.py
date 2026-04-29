@@ -31,5 +31,14 @@ if __name__ == "__main__":
 
     score_dict = []
     for player in players:
-        score_dict.append({player for scores in zip(players, scores)})
+        score_dict = {name: score for name, score in zip(players, scores)}
     print(f"Score dict: {score_dict}")
+
+    score_average = round(sum(scores) / len(scores),2)
+
+    print(f"Score average is {score_average}")
+
+    high_scores = []
+    high_scores = {name: score for name, score in score_dict.items() if score > score_average}
+
+    print(f"High scores: {high_scores}")
