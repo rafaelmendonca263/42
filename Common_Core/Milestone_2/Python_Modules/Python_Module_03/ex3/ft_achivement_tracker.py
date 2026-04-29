@@ -55,10 +55,18 @@ if __name__ == "__main__":
 
     print(f"\nCommon achievements: {common}\n")
 
-    only_Alice = names['Alice'] - names['Bob'] & names['Charlie'] & names['Dylan']
-    only_Bob = names['Bob'] - names['Alice'] & names['Charlie'] & names['Dylan']
-    only_Charlie = names['Charlie'] - names['Bob'] & names['Alice'] & names['Dylan']
-    only_Dylan = names['Dylan'] - names['Bob'] & names['Charlie'] & names['Alice']
+    only_Alice = names['Alice'] - (names['Bob']
+                                   & names['Charlie']
+                                   & names['Dylan'])
+    only_Bob = names['Bob'] - (names['Alice']
+                               & names['Charlie']
+                               & names['Dylan'])
+    only_Charlie = names['Charlie'] - (names['Bob']
+                                       & names['Alice']
+                                       & names['Dylan'])
+    only_Dylan = names['Dylan'] - (names['Bob']
+                                   & names['Charlie']
+                                   & names['Alice'])
 
     print(f"Only Alice has: {only_Alice}")
     print(f"Only Bob has: {only_Bob}")

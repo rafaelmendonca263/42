@@ -1,25 +1,53 @@
 
-def write_archive(file_path, text):
-    with open(file_path, 'w') as file:
-        file.write(text)
-    return text
+import sys
 
+def read_lines(file_path):
+    with open(file_path, 'r', encoding="utf-8") as file:
+            return file.readlines()
+
+def process_archives():
+    if len(sys.argv) < 2:
+        print("Uso: python3 ft_archive_creation.py <nome_do_ficheiro>")
+        return
+    
+    file_name = sys.argv[1]
+    
+    print("=== Cyber Archives Recovery & Preservation ===")
+    print(f"Accessing file '{file_name}'")
+    print("---")
+    
+    new_lines = []
+    try:
+        lines = read_lines(file_name)
+        for line in lines:
+            cleaned_line = line.rstrip('\n')
+            print(cleaned_line)
+            new_lines.append(cleaned_line + "#")
+        print("---")
+        print(f"File '{file_name}' closed.")
+        print("Transform data:")
+        print("---")
+
+        for line in new_lines:
+            print(line)
+        print("---")
+    except FileNotFoundError:
+        print(f"Error: File '{file_name}' not found.")
+        return
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return
+    
+    new_name = input("Enter new file name (or empty): ").strip()
+    
+    if new_name:
+        print(f"Saving data to '{new_name}'")
+        with open(new_name, "w", encoding="utf-8") as f_out:
+            for linha in new_lines:
+                f_out.write(linha + "\n")
+        print(f"Data saved in file '{new_name}'.")
+    else:
+        print("No file name provided. Aborting save.")
 
 if __name__ == "__main__":
-    print("=== CYBER ARCHIVES - PRESERVATION SYSTEM ===\n")
-    print("Initializing new storage unit: new_discovery.txt")
-    try:
-        file_path = 'new_discovery.txt'
-        text = write_archive(file_path, "[ENTRY 001] New quantum "
-                                        "algorithm discovered\n"
-                                        "[ENTRY 002] Efficiency increased "
-                                        "by 347%\n"
-                                        "[ENTRY 003] Archived by "
-                                        "Data Archivist trainee")
-        print("Storage unit created successfully...\n")
-        print("Inscribing preservation data...")
-        print(text)
-        print("\nData inscription complete. Storage unit sealed.")
-        print("Archive 'new_discovery.txt' ready for long-term preservation.")
-    except FileNotFoundError:
-        print("ERROR: Storage vault not found. Run data generator first.")
+    process_archives()

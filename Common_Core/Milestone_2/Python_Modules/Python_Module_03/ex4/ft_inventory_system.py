@@ -1,23 +1,30 @@
 
 import sys
+from typing import Dict, List
+
 
 if __name__ == "__main__":
     print("=== Inventory System Analysis ===")
 
-    inventory = {}
-    for item in sys.argv[1:]:
-        item = item.split(":")
-        if item[0] not in inventory:
-            if len(item) == 2:
+    if len(sys.argv) <= 1:
+        print("Usage: python3 ft_inventory_system.py <object>:<int> ... ")
+    
+    inventory: Dict[str, int] = {}
+    for arg in sys.argv[1:]:
+        parts: List[str] = arg.split(":")
+        if parts[0] not in inventory:
+            if len(parts) == 2:
                 try:
-                    inventory[item[0]] = int(item[1])
-                except ValueError:
-                    print(f"Quantity error for '{item[0]}': "
-                          f"invalid literal for int() with base 10: '{item[1]}'")
+                    inventory[parts[0]] = int(parts[1])
+                except ValueError as e:
+                    print(f"Quantity error for '{parts[0]}': {e}")
             else:
-                print(f"Error - invalid parameter '{item[0]}'")
+                print(f"Error - invalid parameter '{parts[0]}'")
         else:
-            print(f"Redundant item '{item[0]}' - discarding")
+            print(f"Redundant parts '{parts[0]}' - discarding")
+
+    if not inventory:
+        sys.exit()
 
     print(f"Got inventory: {inventory}")
 
@@ -31,9 +38,9 @@ if __name__ == "__main__":
         print(f"Item {item} represents ({percentage:.1f}%)")
 
     most_abundant = max(inventory.values())
-    most_abundant_name = max(inventory, key=inventory.get)
+    most_abundant_name = max(inventory, key=lambda k: inventory[k])
     least_abundant = min(inventory.values())
-    least_abundant_name = min(inventory, key=inventory.get)
+    least_abundant_name = min(inventory, key=lambda k: inventory[k])
 
     print(
         f"Item most abundant: {most_abundant_name} "
@@ -45,10 +52,9 @@ if __name__ == "__main__":
         f"with a quantity {least_abundant}"
     )
 
-    new_item = "magic_item: 1"
-    new_item = new_item.split('"')
-    new_item = new_item[0].split(":")
+    raw_new_item: str = "magic_item: 1"
+    split_item: List[str] = raw_new_item.split(":")
 
-    inventory[new_item[0]] = int(new_item[1])
+    inventory[split_item[0].strip()] = int(split_item[1])
 
     print(f"Updated inventory: {inventory}")
