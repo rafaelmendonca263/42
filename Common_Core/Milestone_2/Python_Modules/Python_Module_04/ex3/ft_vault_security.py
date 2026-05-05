@@ -1,26 +1,39 @@
-
-def secure_read_vault():
-    print("Initiating secure vault access...")
-    with open("classified_data.txt", "r") as f:
-        print("Vault connection established with failsafe protocols.\n")
-        content = f.read()
-        print("SECURE EXTRACTION:")
-        print(content + "\n")
-
-
-def secure_write_vault():
-    with open("classified_data.txt", "w") as f:
-        print("SECURE PRESERVATION:")
-        f.write("[CLASSIFIED] New security protocols archived")
-    print("Vault automatically sealed upon completion\n")
-
-def secure_archive():
-    
+def secure_archive(file_name, action='r', content=None):
+    try:
+        if action == 'r':
+            with open(file_name, 'r') as file:
+                data = file.read()
+            return (True, data)
+            
+        elif action == 'w':
+            with open(file_name, 'w') as file:
+                if content is not None:
+                    file.write(content)
+            return (True, 'Content successfully written to file')
+            
+        else:
+            return (False, f"Invalid action: '{action}'. Use 'r' or 'w'.")
+            
+    except Exception as e:
+        return (False, str(e))
 
 if __name__ == "__main__":
-    print("=== CYBER ARCHIVES - VAULT SECURITY SYSTEM ===\n")
-
-    secure_read_vault()
-    secure_write_vault()
-
-    print("All vault operations completed with maximum security.")
+    print("=== Cyber Archives Security ===\n")
+    
+    print("Using 'secure_archive' to read from a nonexistent file:")
+    print(secure_archive('/not/existing/file', 'r'))
+    
+    print("\nUsing 'secure_archive' to read from an inaccessible file:")
+    print(secure_archive('/etc/shadow', 'r'))
+    
+    archive_data = (
+        "[FRAGMENT 001] Digital preservation protocols established 2087\n"
+        "[FRAGMENT 002] Knowledge must survive the entropy wars\n"
+        "[FRAGMENT 003] Every byte saved is a victory against oblivion\n"
+    )
+    
+    print("\nUsing 'secure_archive' to write previous content to a new file:")
+    print(secure_archive('cyber_archive_log.txt', 'w', archive_data))
+    
+    print("\nUsing 'secure_archive' to read from a regular file:")
+    print(secure_archive('cyber_archive_log.txt', 'r'))

@@ -7,7 +7,7 @@ def read_lines(file_path):
                 return file.readlines()
     except FileNotFoundError as e:
         print(f"[STDERR] Error opening file '{file_path}': {e} ", file=sys.stderr)
-        return
+        exit()
 
 def process_archives():
     if len(sys.argv) < 2:
@@ -37,7 +37,7 @@ def process_archives():
         print("\n---")
     except Exception as e:
         print(f"[STDERR] Unexpected error: {e}", file=sys.stderr)
-        return
+        exit()
     
     new_name = sys.stdout.write("Enter new file name (or empty): ")
     sys.stdout.flush()

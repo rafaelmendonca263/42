@@ -20,7 +20,7 @@ def parse_coordinates(coord_str):
         y = int(parts[1])
         z = int(parts[2])
         return (x, y, z)
-    except ValueError:
+    except ValueError as e:
         print("Invalid syntax")
         exit()
 
