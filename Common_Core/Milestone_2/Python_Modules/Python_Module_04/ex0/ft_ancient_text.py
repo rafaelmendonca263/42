@@ -1,6 +1,7 @@
 
 import sys
 
+
 def read(file_path):
     with open(file_path, 'r') as file:
         content = file.read()
@@ -10,7 +11,7 @@ def read(file_path):
 def read_archives():
     if len(sys.argv) < 2:
         print("Usage: python3 ft_archive_creation.py <file>")
-        return
+        exit(1)
     file = sys.argv[1]
     print("=== Cyber Archives Recovery ===")
     print(f"Accessing file '{file}'")
@@ -25,11 +26,18 @@ def read_archives():
         print("\nData recovery complete. Storage unit disconnected.")
         print(f"File '{file}' closed.")
     except FileNotFoundError as e:
-        print(f"Error opening file '{file}': {e}\n")
+        print(f"Error opening file '{file}': {e}")
+        exit(1)
     except PermissionError as e:
-        print(f"Error opening file '{file}': {e}\n")
+        print(f"Error opening file '{file}': {e}")
+        exit(1)
     except Exception as e:
-        print(f"Ocorreu um erro inesperado: {e}\n")
+        print(f"Unexpected ERROR: {e}")
+        exit(1)
+
 
 if __name__ == "__main__":
-    read_archives()
+    try:
+        read_archives()
+    except Exception as e:
+        print(e)

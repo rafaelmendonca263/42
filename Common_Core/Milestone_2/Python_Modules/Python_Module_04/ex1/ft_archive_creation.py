@@ -1,21 +1,23 @@
 
 import sys
 
+
 def read_lines(file_path):
     with open(file_path, 'r', encoding="utf-8") as file:
-            return file.readlines()
+        return file.readlines()
+
 
 def process_archives():
     if len(sys.argv) < 2:
         print("Uso: python3 ft_archive_creation.py <nome_do_ficheiro>")
-        return
-    
+        exit(1)
+
     file_name = sys.argv[1]
-    
+
     print("=== Cyber Archives Recovery & Preservation ===")
     print(f"Accessing file '{file_name}'")
     print("---\n")
-    
+
     new_lines = []
     try:
         lines = read_lines(file_name)
@@ -33,13 +35,13 @@ def process_archives():
         print("\n---")
     except FileNotFoundError:
         print(f"Error: File '{file_name}' not found.")
-        return
+        exit(1)
     except Exception as e:
         print(f"Unexpected error: {e}")
-        return
-    
+        exit(1)
+
     new_name = input("Enter new file name (or empty): ").strip()
-    
+
     if new_name:
         print(f"Saving data to '{new_name}'")
         with open(new_name, "w", encoding="utf-8") as f_out:
@@ -49,5 +51,9 @@ def process_archives():
     else:
         print("Not saving data.")
 
+
 if __name__ == "__main__":
-    process_archives()
+    try:
+        process_archives()
+    except Exception as e:
+        print(e)

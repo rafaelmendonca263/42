@@ -13,12 +13,7 @@ def gen_event():
         yield event
 
 
-if __name__ == "__main__":
-    print("=== Game Data Stream Processor ===")
-
-    print("\nProcessing 1000 game events...\n")
-
-    generator = gen_event()
+def consume_event():
     for i in range(1000):
         event = next(generator)
         print(
@@ -27,15 +22,29 @@ if __name__ == "__main__":
             f"{event[1]}"
         )
 
-    a = []
-    for i in range(10):
-        event = next(generator)
-        a.append(event)
-    print(f"Built list of 10 events: {a}")
 
-    while a:
-        b = random.choice(a)
-        print(f"Got event from list: {b}")
+if __name__ == "__main__":
+    try:
+        print("=== Game Data Stream Processor ===")
 
-        a.remove(b)
-        print(f"Remains in list: {a}")
+        print("\nProcessing 1000 game events...\n")
+
+        generator = gen_event()
+
+        consume_event()
+        a = []
+        for i in range(10):
+            event = next(generator)
+            a.append(event)
+        print(f"Built list of 10 events: {a}")
+
+        while a:
+            b = random.choice(a)
+            print(f"Got event from list: {b}")
+
+            a.remove(b)
+            print(f"Remains in list: {a}")
+    
+    except Exception as e:
+        print(e)
+        exit(1)

@@ -1,25 +1,29 @@
 
 import sys
 
+
 def read_lines(file_path):
     try:
         with open(file_path, 'r', encoding="utf-8") as file:
-                return file.readlines()
+            return file.readlines()
     except FileNotFoundError as e:
-        print(f"[STDERR] Error opening file '{file_path}': {e} ", file=sys.stderr)
-        exit()
+        print(f"[STDERR] Error opening file '{file_path}': "
+              f"{e} ", file=sys.stderr)
+        exit(1)
+
 
 def process_archives():
     if len(sys.argv) < 2:
-        print("Uso: python3 ft_stream_management.py <nome_do_ficheiro>", file=sys.stderr)
+        print("Uso: python3 ft_stream_management.py "
+              "<nome_do_ficheiro>", file=sys.stderr)
         return
-    
+
     file_name = sys.argv[1]
-    
+
     print("=== Cyber Archives Recovery & Preservation ===")
     print(f"Accessing file '{file_name}'")
     print("---\n")
-    
+
     new_lines = []
     try:
         lines = read_lines(file_name)
@@ -37,8 +41,8 @@ def process_archives():
         print("\n---")
     except Exception as e:
         print(f"[STDERR] Unexpected error: {e}", file=sys.stderr)
-        exit()
-    
+        exit(1)
+
     new_name = sys.stdout.write("Enter new file name (or empty): ")
     sys.stdout.flush()
     resposta = sys.stdin.readline()
@@ -52,10 +56,15 @@ def process_archives():
                     f_out.write(linha + "\n")
             print(f"Data saved in file '{new_name}'.")
         except Exception as e:
-            print(f"[STDERR] Error opening file '{new_name}': {e}", file=sys.stderr)
+            print(f"[STDERR] Error opening file '{new_name}':"
+                  f" {e}", file=sys.stderr)
             print("Data not saved.")
     else:
-            print("Data not saved.")
+        print("Data not saved.")
+
 
 if __name__ == "__main__":
-    process_archives()
+    try:
+        process_archives()
+    except Exception as e:
+        print(e)
