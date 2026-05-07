@@ -59,6 +59,7 @@ if __name__ == "__main__":
             second_coordenates = parse_coordinates(origin)
             print("Distance between the 2 sets of coordinates: "
                   f"{distance_3d((second_coordenates), (first_coordenates))}")
+    
     except Exception as e:
         print(e)
         exit(1)
