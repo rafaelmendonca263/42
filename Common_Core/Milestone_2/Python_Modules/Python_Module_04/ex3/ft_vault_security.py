@@ -34,11 +34,12 @@ if __name__ == "__main__":
             "[FRAGMENT 003] Every byte saved is a victory against oblivion\n"
         )
 
-        print("\nUsing 'secure_archive' to write previous content to a new file:")
+        print("\nUsing 'secure_archive' to write previous content"
+              " to a new file:")
         print(secure_archive('cyber_archive_log.txt', 'w', archive_data))
 
         print("\nUsing 'secure_archive' to read from a regular file:")
         print(secure_archive('cyber_archive_log.txt', 'r'))
-    
+
     except Exception as e:
         print(e)

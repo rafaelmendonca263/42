@@ -17,7 +17,7 @@ if __name__ == "__main__":
                 print(f"Argument {i}: {arg}")
 
         print(f"Total arguments: {len(sys.argv)}")
-    
+
     except Exception as e:
         print(e)
         exit(1)

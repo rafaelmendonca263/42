@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
             a.remove(b)
             print(f"Remains in list: {a}")
-    
+
     except Exception as e:
         print(e)
         exit(1)

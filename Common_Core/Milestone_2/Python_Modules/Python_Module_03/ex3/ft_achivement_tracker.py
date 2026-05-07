@@ -48,10 +48,13 @@ if __name__ == "__main__":
                             'Strategist',
                             'World Savior',
                             'Unstoppable'}
-        
+
         print(f"\nAll distinct achievements: {all_achievements}\n")
-        common = names['Alice'] & names['Bob'] & names['Charlie'] & names['Dylan']
-        
+        common = (names['Alice'] &
+                  names['Bob'] &
+                  names['Charlie'] &
+                  names['Dylan'])
+
         print(f"\nCommon achievements: {common}\n")
         only_Alice = names['Alice'] - (names['Bob']
                                        & names['Charlie']
@@ -80,7 +83,7 @@ if __name__ == "__main__":
         print(f"Bob is missing: {miss_Bob}")
         print(f"Charlie is missing: {miss_Charlie}")
         print(f"Dylan is missing: {miss_Dylan}")
-    
+
     except Exception as e:
         print(e)
         exit(1)

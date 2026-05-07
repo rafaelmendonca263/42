@@ -36,7 +36,8 @@ if __name__ == "__main__":
         for item in inventory:
             try:
                 percentage = (inventory[item] / number_items) * 100
-                print(f"Total quantity of the {len(names)} items: {number_items}")
+                print(f"Total quantity of the {len(names)} "
+                      f"items: {number_items}")
             except ZeroDivisionError:
                 print("Error: All items need to be at leat one in quantity")
                 exit(1)
@@ -63,7 +64,7 @@ if __name__ == "__main__":
         inventory[split_item[0].strip()] = int(split_item[1])
 
         print(f"Updated inventory: {inventory}")
-    
+
     except Exception as e:
         print(e)
         exit(1)

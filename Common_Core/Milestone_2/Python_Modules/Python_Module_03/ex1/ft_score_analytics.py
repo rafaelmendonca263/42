@@ -24,7 +24,7 @@ if __name__ == "__main__":
             print(f"High Score: {max(scores)}")
             print(f"Low Score: {min(scores)}")
             print(f"Score range: {max(scores)-min(scores)}")
-    
+
     except Exception as e:
         print(e)
         exit(1)

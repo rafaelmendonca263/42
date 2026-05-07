@@ -43,7 +43,8 @@ if __name__ == "__main__":
         second_coordenates = None
 
         while first_coordenates is None:
-            origin = input("Enter new coordinates as floats in format 'x,y,z': ")
+            origin = input("Enter new coordinates as "
+                           "floats in format 'x,y,z': ")
             first_coordenates = parse_coordinates(origin)
             print(f"Got a first tuple: ({first_coordenates[0]},"
                   f" {first_coordenates[1]}, {first_coordenates[2]})")
@@ -55,11 +56,12 @@ if __name__ == "__main__":
         print("\nGet a second set of coordinates")
 
         while second_coordenates is None:
-            origin = input("Enter new coordinates as floats in format 'x,y,z': ")
+            origin = input("Enter new coordinates as floats "
+                           "in format 'x,y,z': ")
             second_coordenates = parse_coordinates(origin)
             print("Distance between the 2 sets of coordinates: "
                   f"{distance_3d((second_coordenates), (first_coordenates))}")
-    
+
     except Exception as e:
         print(e)
         exit(1)
