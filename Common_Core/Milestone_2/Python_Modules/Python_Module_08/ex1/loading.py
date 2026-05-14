@@ -1,6 +1,5 @@
 
 import importlib
-import sys
 
 
 dependencies = ["pandas", "numpy", "matplotlib"]
@@ -13,9 +12,7 @@ print("Checking dependencies:")
 for dep in dependencies:
     try:
         if dep == "matplotlib":
-            # Importa o pacote principal para versão
             modules["matplotlib_pkg"] = importlib.import_module("matplotlib")
-            # Importa pyplot separadamente
             modules[dep] = importlib.import_module("matplotlib.pyplot")
             version = modules["matplotlib_pkg"].__version__
         else:
@@ -24,29 +21,28 @@ for dep in dependencies:
         print(f"[OK] {dep} ({version})")
     except ModuleNotFoundError:
         print(f"[ERROR] {dep} not found")
+        exit(1)
 
 
-if len(modules) < len(dependencies) + 1:  # +1 por matplotlib_pkg extra
+if len(modules) < len(dependencies) + 1:
     print("Missing dependencies detected.")
     print("Install with:")
     print("pip install -r requirements.txt")
     print("or")
     print("poetry install")
-    sys.exit(1)
+    exit(1)
 
 pd = modules["pandas"]
 np = modules["numpy"]
-plt = modules["matplotlib"]  # pyplot
+plt = modules["matplotlib"]
 
 
-def main():
+def main() -> None:
     print("Analyzing Matrix data...")
-    # Criar dados fictícios
     data = np.random.rand(1000, 2)
     x = data[:, 0]
     y = data[:, 1]
 
-    # Visualização
     plt.figure(figsize=(6, 4))
     plt.scatter(x, y, c="blue", alpha=0.5)
     plt.title("Matrix Data Analysis")
@@ -61,4 +57,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(e)
