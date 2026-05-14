@@ -1,70 +1,61 @@
 
-"""
-oracle.py - Access the Mainframe
-Loads configuration from environment variables or .env file,
-validates settings, and prints Oracle status.
-"""
-
 import os
+import sys
 from dotenv import load_dotenv
 
-load_dotenv()
+def load_oracle_configs():
 
-print("Accessing the Mainframe")
-print("ORACLE STATUS: Reading the Matrix...\n")
+    load_dotenv()
 
-CONFIG_VARS = {
-    "MATRIX_MODE": "development",
-    "DATABASE_URL": None,
-    "API_KEY": None,
-    "LOG_LEVEL": "DEBUG",
-    "ZION_ENDPOINT": None
-}
+    configs = {
+        "mode": os.getenv("MATRIX_MODE", "development"),
+        "db": os.getenv("DB_URL", "Not set"),
+        "api": "Authenticated" if os.getenv("API_KEY") else "Unauthorized",
+        "log": os.getenv("LOG_LEVEL", "INFO"),
+        "zion": os.getenv("ZION_ENDPOINT", "Not set")
+    }
 
-for key in CONFIG_VARS:
-    CONFIG_VARS[key] = os.getenv(key, CONFIG_VARS[key])
+    return configs
 
+def security_check(configs):
+    print("\nEnvironment security check:")
 
-def check_hardcoded_secrets(config):
-    """Detecta valores padrão ou hardcoded"""
-    hardcoded = []
-    for key, value in config.items():
-        if value in (None, "", "password", "user", "secret"):
-            hardcoded.append(key)
-    return hardcoded
-
-
-if __name__ == "__main__":
-    print("Configuration loaded:")
-    print(f"Mode: {CONFIG_VARS['MATRIX_MODE']}")
-    print(f"Database: {CONFIG_VARS['DATABASE_URL'] or 'Not set'}")
-    print(f"API Access: "
-          f"{'Authenticated' if CONFIG_VARS['API_KEY'] else 'Not set'}")
-    print(f"Log Level: {CONFIG_VARS['LOG_LEVEL']}")
-    print(f"Zion Network: {CONFIG_VARS['ZION_ENDPOINT'] or 'Not set'}\n")
-
-    print("Environment security check:")
-
-    hardcoded = check_hardcoded_secrets(CONFIG_VARS)
-    if hardcoded:
-        print(f"[ERROR] Hardcoded secrets found: {', '.join(hardcoded)}")
-    else:
+    if configs["db"] not in (None, "DB_URL") and configs["api"] != "Unauthorized":
         print("[OK] No hardcoded secrets detected")
+    else:
+        print("[WARNING] Possible hardcoded secrets or missing values")
 
     if os.path.exists(".env"):
         print("[OK] .env file properly configured")
     else:
-        print("[WARNING] .env file missing!")
+        print("[ERROR] .env file missing")
 
-    if CONFIG_VARS['MATRIX_MODE'] == "production":
-        required_keys = ("DATABASE_URL", "API_KEY")
-        missing = [
-            k for k in required_keys
-            if not CONFIG_VARS[k]
-        ]
-    if missing:
-        print(f"[ERROR] Missing production secrets: {', '.join(missing)}")
+    if configs["mode"] == "production" or os.getenv("MATRIX_MODE"):
+        print("[OK] Production overrides available")
     else:
-        print("[INFO] No production overrides set")
+        print("[INFO] Running in default mode")
 
-    print("\nThe Oracle sees all configurations.")
+def main():
+    print("Accessing the Mainframe")
+    print("ORACLE STATUS: Reading the Matrix...\n")
+
+    try:
+        matrix_cfg = load_oracle_configs()
+
+        print("Configuration loaded:")
+        print(f"Mode: {matrix_cfg['mode']}")
+        print(f"Database: {matrix_cfg['db']}")
+        print(f"API Access: {matrix_cfg['api']}")
+        print(f"Log Level: {matrix_cfg['log']}")
+        print(f"Zion Network: {matrix_cfg['zion']}")
+
+        security_check(matrix_cfg)
+
+        print("\nThe Oracle sees all configurations.")
+
+    except Exception as e:
+        print(f"[CRITICAL ERROR] The Matrix has a glitch: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

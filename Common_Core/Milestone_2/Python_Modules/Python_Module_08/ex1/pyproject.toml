@@ -6,11 +6,11 @@ authors = ["Your Name <you@example.com>"]
 packages = [{ include = "." }]
 
 [tool.poetry.dependencies]
-python = "^3.12"
-pandas = "3.0.2"
-numpy = "2.4.4"
-matplotlib = "3.10.8"
-requests = "2.33.1"
+python = "^3.10"
+pandas = "^2.2.2"
+numpy = "^1.26.4"
+matplotlib = "^3.9.0"
+requests = "^2.33.1"
 
 [build-system]
 requires = ["poetry-core"]
