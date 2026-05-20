@@ -1,7 +1,5 @@
-
 import sys
 from typing import Dict, List
-
 
 if __name__ == "__main__":
     try:
@@ -36,8 +34,10 @@ if __name__ == "__main__":
         for item in inventory:
             try:
                 percentage = (inventory[item] / number_items) * 100
-                print(f"Total quantity of the {len(names)} "
-                      f"items: {number_items}")
+                print(
+                    f"Total quantity of the {len(names)} "
+                    f"items: {number_items}"
+                )
             except ZeroDivisionError:
                 print("Error: All items need to be at leat one in quantity")
                 exit(1)

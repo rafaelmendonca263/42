@@ -1,5 +1,4 @@
-
-class SecurePlant():
+class SecurePlant:
     def __init__(self, name: str, height: int, age: int) -> None:
         self.name = name
         self.__height = 0
@@ -47,5 +46,7 @@ if __name__ == "__main__":
     plants[0].set_height(-5)
 
     for plant in plants:
-        print(f"Current state: {plant.name} "
-              f"({plant.get_height()}cm, {plant.get_age()} days)")
+        print(
+            f"Current state: {plant.name} "
+            f"({plant.get_height()}cm, {plant.get_age()} days)"
+        )

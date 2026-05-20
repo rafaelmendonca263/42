@@ -1,7 +1,7 @@
-
 import os
 import sys
 from dotenv import load_dotenv
+
 
 def load_oracle_configs():
 
@@ -12,15 +12,19 @@ def load_oracle_configs():
         "db": os.getenv("DB_URL", "Not set"),
         "api": "Authenticated" if os.getenv("API_KEY") else "Unauthorized",
         "log": os.getenv("LOG_LEVEL", "INFO"),
-        "zion": os.getenv("ZION_ENDPOINT", "Not set")
+        "zion": os.getenv("ZION_ENDPOINT", "Not set"),
     }
 
     return configs
 
+
 def security_check(configs):
     print("\nEnvironment security check:")
 
-    if configs["db"] not in (None, "DB_URL") and configs["api"] != "Unauthorized":
+    if (
+        configs["db"] not in (None, "DB_URL")
+        and configs["api"] != "Unauthorized"
+    ):
         print("[OK] No hardcoded secrets detected")
     else:
         print("[WARNING] Possible hardcoded secrets or missing values")
@@ -34,6 +38,7 @@ def security_check(configs):
         print("[OK] Production overrides available")
     else:
         print("[INFO] Running in default mode")
+
 
 def main():
     print("Accessing the Mainframe")
@@ -56,6 +61,7 @@ def main():
     except Exception as e:
         print(f"[CRITICAL ERROR] The Matrix has a glitch: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

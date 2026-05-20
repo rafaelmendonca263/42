@@ -1,4 +1,3 @@
-
 def validate_ingredients(ingredients: str) -> str:
     spellbook = ["fire", "water", "earth", "air"]
     ingredients_lower = ingredients.lower()

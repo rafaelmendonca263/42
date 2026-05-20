@@ -1,52 +1,48 @@
-
-def artifact_sorter(artifacts: list[dict]) -> list[dict]:
-    return sorted(artifacts, key=lambda x: x["power"], reverse=True)
+from typing import Any
 
 
-def power_filter(mages: list[dict], min_power: int) -> list[dict]:
-    return list(filter(lambda x: x["power"] >= min_power, mages))
+def artifact_sorter(artifacts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return sorted(artifacts, key=lambda x: x.get("power", 0), reverse=True)
+
+
+def power_filter(mages: list[dict[str, Any]],
+                 min_power: int) -> list[dict[str, Any]]:
+    return list(filter(lambda m: m.get("power", 0) >= min_power, mages))
 
 
 def spell_transformer(spells: list[str]) -> list[str]:
-    return list(map(lambda x: "* " + x + " *", spells))
+    return list(map(lambda s: f"* {s} *", spells))
 
 
-def mage_stats(mages: list[dict]) -> dict:
+def mage_stats(mages: list[dict[str, Any]]) -> dict[str, int | float]:
+    if not mages:
+        return {"max_power": 0, "min_power": 0, "avg_power": 0.0}
+
+    powers = list(map(lambda m: m.get("power", 0), mages))
+
+    max_power = max(powers, key=lambda p: p)
+    min_power = min(powers, key=lambda p: p)
+    avg_power = round(sum(powers) / len(powers), 2)
+
     return {
-        "max_power": max(mages, key=lambda x: x["power"])["power"],
-        "min_power": min(mages, key=lambda x: x["power"])["power"],
-        "avg_power": round(
-            sum(map(lambda x: x["power"], mages)) / len(mages),
-            2
-        )
+        "max_power": max_power,
+        "min_power": min_power,
+        "avg_power": avg_power,
     }
 
 
 if __name__ == "__main__":
-    # Dados de teste para os Artefatos
-    test_artifacts = [
-        {'name': 'Crystal Orb', 'power': 85, 'type': 'magic'},
-        {'name': 'Fire Staff', 'power': 92, 'type': 'weapon'}
+    print("Testing artifact sorter...")
+    artifacts = [
+        {"name": "Crystal Orb", "power": 85, "type": "Focus"},
+        {"name": "Fire Staff", "power": 92, "type": "Weapon"},
     ]
+    sorted_artifacts = artifact_sorter(artifacts)
+    print(f"{sorted_artifacts[0]['name']} "
+          f"({sorted_artifacts[0]['power']} power) "
+          f"comes before {sorted_artifacts[1]['name']} "
+          f"({sorted_artifacts[1]['power']} power)")
 
-    # Testando o artifact sorter
-    print("\nTesting artifact sorter...")
-    sorted_artifacts = artifact_sorter(test_artifacts)
-
-    # Extraindo o primeiro e o segundo classificados para o print
-    primeiro = sorted_artifacts[0]
-    segundo = sorted_artifacts[1]
-    print(
-        f"{primeiro['name']} ({primeiro['power']} power) comes before "
-        f"{segundo['name']} ({segundo['power']} power)"
-    )
-
-    # Dados de teste para os Feitiços
-    test_spells = ["fireball", "heal", "shield"]
-
-    # Testando o spell transformer
     print("\nTesting spell transformer...")
-    transformed_spells = spell_transformer(test_spells)
-
-    # O expected output mostra os feitiços separados por um espaço
-    print(" ".join(transformed_spells))
+    spells = ["fireball", "heal", "shield"]
+    print(" ".join(spell_transformer(spells)))

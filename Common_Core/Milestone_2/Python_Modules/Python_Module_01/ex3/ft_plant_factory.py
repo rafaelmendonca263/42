@@ -1,5 +1,4 @@
-
-class Plant():
+class Plant:
     def __init__(self, name: str, height: int, age: int) -> None:
         self.name = name
         self.height = height
@@ -21,7 +20,7 @@ plant_data = [
     ("Oak", 200, 365),
     ("Cactus", 5, 90),
     ("Sunflower", 80, 45),
-    ("Fern", 15, 120)
+    ("Fern", 15, 120),
 ]
 
 if __name__ == "__main__":

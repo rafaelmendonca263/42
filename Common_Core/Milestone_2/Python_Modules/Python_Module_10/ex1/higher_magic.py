@@ -2,6 +2,7 @@ def spell_combiner(spell1: callable, spell2: callable) -> callable:
     def new_wand(*args, **kwargs):
         spell_combined = (spell1(*args, **kwargs), spell2(*args, **kwargs))
         return spell_combined
+
     return new_wand
 
 
@@ -9,6 +10,7 @@ def power_amplifier(base_spell: callable, multiplier: int) -> callable:
     def amplified_spell(*args, **kwargs):
         base_power = base_spell(*args, **kwargs)
         return base_power * multiplier
+
     return amplified_spell
 
 
@@ -18,6 +20,7 @@ def conditional_caster(condition: callable, spell: callable) -> callable:
             return spell(*args, **kwargs)
         else:
             return "Spell fizzled"
+
     return conditional_spell
 
 
@@ -28,6 +31,7 @@ def spell_sequence(spells: list[callable]) -> callable:
             result = spell(*args, **kwargs)
             results.append(result)
         return results
+
     return sequence_caster
 
 

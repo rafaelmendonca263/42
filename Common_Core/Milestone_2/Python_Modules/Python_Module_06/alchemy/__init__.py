@@ -4,7 +4,6 @@ from alchemy.potions import strength_potion
 from alchemy.transmutation import lead_to_gold
 from . import grimoire
 
-
 __version__ = "1.0.0"
 __author__ = "Master Pythonicus"
 

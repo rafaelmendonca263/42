@@ -106,7 +106,7 @@ if __name__ == "__main__":
             "of string 'foo' without prior validation:"
         )
         try:
-            num_proc.ingest("foo")
+            num_proc.ingest("foo")  # type: ignore[arg-type]
         except ValueError as e:
             print(f"Got exception: {e}")
 

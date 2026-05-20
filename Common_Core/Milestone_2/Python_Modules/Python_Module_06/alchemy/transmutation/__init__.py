@@ -1,4 +1,3 @@
-
 from .recipes import lead_to_gold
 
 __version__ = "1.0.0"

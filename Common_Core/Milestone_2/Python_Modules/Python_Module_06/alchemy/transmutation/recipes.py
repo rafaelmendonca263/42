@@ -1,4 +1,3 @@
-
 def lead_to_gold():
 
     from alchemy.potions import strength_potion

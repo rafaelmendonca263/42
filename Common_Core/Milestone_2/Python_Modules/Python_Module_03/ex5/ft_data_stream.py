@@ -1,4 +1,3 @@
-
 import random
 
 
@@ -16,11 +15,7 @@ def gen_event():
 def consume_event():
     for i in range(1000):
         event = next(generator)
-        print(
-            f"Event {i}: "
-            f"Player {event[0]} "
-            f"{event[1]}"
-        )
+        print(f"Event {i}: " f"Player {event[0]} " f"{event[1]}")
 
 
 if __name__ == "__main__":

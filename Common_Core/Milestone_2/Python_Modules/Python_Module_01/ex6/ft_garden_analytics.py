@@ -1,5 +1,4 @@
-
-def display_stats(plant: 'Plant') -> None:
+def display_stats(plant: "Plant") -> None:
     """Função única global para exibir estatísticas de qualquer planta."""
     plant.display_internal_stats()
 
@@ -7,6 +6,7 @@ def display_stats(plant: 'Plant') -> None:
 class Plant:
     class Stats:
         """Classe aninhada para segurar dados estatísticos."""
+
         def __init__(self) -> None:
             self.grow_calls: int = 0
             self.age_calls: int = 0
@@ -31,9 +31,11 @@ class Plant:
         print(f"{self.name}: {self.height}cm, {self.age} days old")
 
     def display_internal_stats(self) -> None:
-        print(f"Stats: {self._stats.grow_calls} grow, "
-              f"{self._stats.age_calls} age, "
-              f"{self._stats.show_calls} show")
+        print(
+            f"Stats: {self._stats.grow_calls} grow, "
+            f"{self._stats.age_calls} age, "
+            f"{self._stats.show_calls} show"
+        )
 
     @staticmethod
     def is_older_than_year(age: int) -> bool:
@@ -41,7 +43,7 @@ class Plant:
         return age > 365
 
     @classmethod
-    def create_anonymous(cls) -> 'Plant':
+    def create_anonymous(cls) -> "Plant":
         """Cria uma planta anónima diretamente."""
         return cls("Unknown plant", 0.0, 0)
 
@@ -67,6 +69,7 @@ class Flower(Plant):
 
 class Seed(Flower):
     """Classe Seed que herda de Flower e guarda número de sementes."""
+
     def __init__(self, name: str, height: float, age: int, color: str) -> None:
         super().__init__(name, height, age, color)
         self.seed_count = 0
@@ -81,16 +84,19 @@ class Seed(Flower):
 
 
 class Tree(Plant):
-    def __init__(self, name: str, height: float, age: int,
-                 trunk_diameter: float) -> None:
+    def __init__(
+        self, name: str, height: float, age: int, trunk_diameter: float
+    ) -> None:
         super().__init__(name, height, age)
         self.trunk_diameter = trunk_diameter
         self.shade_calls = 0
 
     def produce_shade(self) -> None:
         self.shade_calls += 1
-        print(f"Tree {self.name} now produces a shade of "
-              f"{self.height}cm long and {self.trunk_diameter}cm wide.")
+        print(
+            f"Tree {self.name} now produces a shade of "
+            f"{self.height}cm long and {self.trunk_diameter}cm wide."
+        )
 
     def display_internal_stats(self) -> None:
         """Override para incluir chamadas de sombra."""

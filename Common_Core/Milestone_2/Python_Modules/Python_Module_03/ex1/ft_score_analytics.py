@@ -1,4 +1,3 @@
-
 import sys
 
 if __name__ == "__main__":
@@ -14,8 +13,10 @@ if __name__ == "__main__":
             except ValueError:
                 print(f"Invalid parameter: '{arg}'")
         if len(scores) == 0:
-            print("No scores provided. Usage: python3 ft_score_analytics.py "
-                  "<score1> <score2> ...")
+            print(
+                "No scores provided. Usage: python3 ft_score_analytics.py "
+                "<score1> <score2> ..."
+            )
         else:
             print(f"Scores processed: {scores}")
             print(f"Total Players: {len(scores)}")

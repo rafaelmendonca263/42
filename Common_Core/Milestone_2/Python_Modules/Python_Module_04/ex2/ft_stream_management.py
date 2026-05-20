@@ -1,21 +1,24 @@
-
 import sys
 
 
 def read_lines(file_path):
     try:
-        with open(file_path, 'r', encoding="utf-8") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             return file.readlines()
     except FileNotFoundError as e:
-        print(f"[STDERR] Error opening file '{file_path}': "
-              f"{e} ", file=sys.stderr)
+        print(
+            f"[STDERR] Error opening file '{file_path}': " f"{e} ",
+            file=sys.stderr,
+        )
         exit(1)
 
 
 def process_archives():
     if len(sys.argv) < 2:
-        print("Uso: python3 ft_stream_management.py "
-              "<nome_do_ficheiro>", file=sys.stderr)
+        print(
+            "Uso: python3 ft_stream_management.py " "<nome_do_ficheiro>",
+            file=sys.stderr,
+        )
         return
 
     file_name = sys.argv[1]
@@ -28,7 +31,7 @@ def process_archives():
     try:
         lines = read_lines(file_name)
         for line in lines:
-            cleaned_line = line.rstrip('\n')
+            cleaned_line = line.rstrip("\n")
             print(cleaned_line)
             new_lines.append(cleaned_line + "#")
         print("\n---")
@@ -56,8 +59,10 @@ def process_archives():
                     f_out.write(linha + "\n")
             print(f"Data saved in file '{new_name}'.")
         except Exception as e:
-            print(f"[STDERR] Error opening file '{new_name}':"
-                  f" {e}", file=sys.stderr)
+            print(
+                f"[STDERR] Error opening file '{new_name}':" f" {e}",
+                file=sys.stderr,
+            )
             print("Data not saved.")
     else:
         print("Data not saved.")

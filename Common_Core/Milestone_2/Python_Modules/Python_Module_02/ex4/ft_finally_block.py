@@ -1,4 +1,3 @@
-
 class PlantError(Exception):
     pass
 

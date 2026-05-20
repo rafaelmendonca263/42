@@ -4,10 +4,15 @@ from functools import singledispatch
 
 
 def spell_reducer(spells: list[int], operation: str) -> int:
-    ops = {"add": operator.add, "multiply": operator.mul,
-           "subtraction": operator.sub,
-           "division": operator.truediv, "max": max,
-           "min": min, "power": operator.pow}
+    ops = {
+        "add": operator.add,
+        "multiply": operator.mul,
+        "subtraction": operator.sub,
+        "division": operator.truediv,
+        "max": max,
+        "min": min,
+        "power": operator.pow,
+    }
     if operation not in ops:
         raise ValueError(f"Invalid operation: {operation}")
     return reduce(ops[operation], spells)
@@ -17,9 +22,9 @@ def partial_enchanter(base_enchantment: callable) -> dict[str, callable]:
     enchantments = {
         "fire_enchant": partial(base_enchantment, element="fire", power=50),
         "ice_enchant": partial(base_enchantment, element="ice", power=50),
-        "lightning_enchant": partial(base_enchantment,
-                                     element="lightning",
-                                     power=50),
+        "lightning_enchant": partial(
+            base_enchantment, element="lightning", power=50
+        ),
     }
     return enchantments
 
