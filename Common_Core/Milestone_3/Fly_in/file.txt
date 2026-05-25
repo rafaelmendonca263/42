@@ -1,6 +1,6 @@
 # Ficheiro de Teste: Fly-in (Avaliação de Parser)
 
-nb_drones: 5
+nb_drones: 0
 
 start_hub: base_principal 0 0 [color=green max_drones=5]
 end_hub: destino_final 10 10

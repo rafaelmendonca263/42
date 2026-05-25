@@ -1,6 +1,6 @@
-
 from dataclasses import dataclass
 from typing import Optional
+
 
 @dataclass
 class Zone:
@@ -10,3 +10,9 @@ class Zone:
     zone_type: str = "normal"
     color: Optional[str] = None
     max_drones: int = 1
+
+
+@dataclass
+class Link:
+    zone1: str
+    zone2: str
