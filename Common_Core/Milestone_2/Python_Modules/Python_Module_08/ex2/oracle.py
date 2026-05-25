@@ -1,9 +1,9 @@
 import os
 import sys
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # type: ignore
 
 
-def load_oracle_configs():
+def load_oracle_configs() -> dict[str, str]:
 
     load_dotenv()
 
@@ -18,7 +18,7 @@ def load_oracle_configs():
     return configs
 
 
-def security_check(configs):
+def security_check(configs: dict[str, str]) -> None:
     print("\nEnvironment security check:")
 
     if (
@@ -40,7 +40,7 @@ def security_check(configs):
         print("[INFO] Running in default mode")
 
 
-def main():
+def main() -> None:
     print("Accessing the Mainframe")
     print("ORACLE STATUS: Reading the Matrix...\n")
 

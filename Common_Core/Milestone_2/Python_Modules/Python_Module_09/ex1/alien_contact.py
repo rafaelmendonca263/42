@@ -1,7 +1,8 @@
 import datetime
 from enum import Enum
 from typing import Optional
-from pydantic import BaseModel, Field, ValidationError, model_validator
+from pydantic import BaseModel, Field  # type: ignore
+from pydantic import ValidationError, model_validator
 
 
 class ContactType(str, Enum):
@@ -11,7 +12,7 @@ class ContactType(str, Enum):
     TELEPATHIC = "telepathic"
 
 
-class AlienContact(BaseModel):
+class AlienContact(BaseModel):  # type: ignore[misc]
 
     contact_id: str = Field(min_length=5, max_length=15)
     timestamp: datetime.datetime
@@ -23,7 +24,7 @@ class AlienContact(BaseModel):
     message_received: Optional[str] = Field(default=None, max_length=500)
     is_verified: bool = Field(default=False)
 
-    @model_validator(mode="after")
+    @model_validator(mode="after")  # type: ignore[misc]
     def validate_business_rules(self) -> "AlienContact":
 
         if not self.contact_id.startswith("AC"):

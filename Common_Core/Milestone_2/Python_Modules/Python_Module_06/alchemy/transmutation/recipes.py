@@ -1,4 +1,4 @@
-def lead_to_gold():
+def lead_to_gold() -> str:
 
     from alchemy.potions import strength_potion
     import alchemy

@@ -1,58 +1,66 @@
-def spell_combiner(spell1: callable, spell2: callable) -> callable:
-    def new_wand(*args, **kwargs):
-        spell_combined = (spell1(*args, **kwargs), spell2(*args, **kwargs))
-        return spell_combined
-
-    return new_wand
+from collections import abc
 
 
-def power_amplifier(base_spell: callable, multiplier: int) -> callable:
-    def amplified_spell(*args, **kwargs):
-        base_power = base_spell(*args, **kwargs)
-        return base_power * multiplier
+def spell_combiner(
+    spell1: abc.Callable[[str, int], str],
+    spell2: abc.Callable[[str, int], str]
+) -> abc.Callable[[str, int], tuple[str, str]]:
+    def combined(target: str, power: int) -> tuple[str, str]:
+        return (spell1(target, power), spell2(target, power))
 
-    return amplified_spell
-
-
-def conditional_caster(condition: callable, spell: callable) -> callable:
-    def conditional_spell(*args, **kwargs):
-        if condition(*args, **kwargs):
-            return spell(*args, **kwargs)
-        else:
-            return "Spell fizzled"
-
-    return conditional_spell
+    return combined
 
 
-def spell_sequence(spells: list[callable]) -> callable:
-    def sequence_caster(*args, **kwargs):
-        results = []
-        for spell in spells:
-            result = spell(*args, **kwargs)
-            results.append(result)
-        return results
+def power_amplifier(
+    base_spell: abc.Callable[[str, int], str],
+    multiplier: int
+) -> abc.Callable[[str, int], str]:
+    def amplified(target: str, power: int) -> str:
+        return base_spell(target, power * multiplier)
 
-    return sequence_caster
+    return amplified
+
+
+def conditional_caster(
+    condition: abc.Callable[[str, int], bool],
+    spell: abc.Callable[[str, int], str]
+) -> abc.Callable[[str, int], str]:
+    def caster(target: str, power: int) -> str:
+        if condition(target, power):
+            return spell(target, power)
+        return "Spell fizzled"
+
+    return caster
+
+
+def spell_sequence(
+    spells: list[abc.Callable[[str, int], str]]
+) -> abc.Callable[[str, int], list[str]]:
+    def sequence(target: str, power: int) -> list[str]:
+        return [spell(target, power) for spell in spells]
+
+    return sequence
+
+
+def main() -> None:
+    def fireball(target: str, power: int) -> str:
+        return f"Fireball hits {target} for {power} damage"
+
+    def heal(target: str, power: int) -> str:
+        return f"Heal restores {target} for {power} HP"
+
+    def is_dragon(target: str, power: int) -> bool:
+        return target.lower() == "dragon"
+
+    print("Testing spell combiner...")
+    combined = spell_combiner(fireball, heal)
+    print(f"Combined spell result: {combined('Dragon', 20)}")
+
+    print("\nTesting power amplifier...")
+    mega_fireball = power_amplifier(fireball, 3)
+    print(f"Original: 10, Amplified power simulation through function:")
+    print(mega_fireball("Orc", 10))
 
 
 if __name__ == "__main__":
-    # 1. Criar alguns feitiços base para testar
-    def fireball(target):
-        return f"Fireball hits {target}"
-
-    def heal(target):
-        return f"Heals {target}"
-
-    def base_damage():
-        return 10
-
-    # 2. Testar o spell_combiner
-    print("Testing spell combiner...")
-    combined_spell = spell_combiner(fireball, heal)
-    resultado1, resultado2 = combined_spell("Dragon")
-    print(f"Combined spell result: {resultado1}, {resultado2}")
-
-    # 3. Testar o power_amplifier
-    print("Testing power amplifier...")
-    mega_spell = power_amplifier(base_damage, 3)
-    print(f"Original: {base_damage()}, Amplified: {mega_spell()}")
+    main()

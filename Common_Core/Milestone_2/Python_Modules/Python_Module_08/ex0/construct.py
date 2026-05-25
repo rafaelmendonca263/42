@@ -3,7 +3,7 @@ import os
 import site
 
 
-def main():
+def main() -> None:
     if sys.prefix != sys.base_prefix:
         print("MATRIX STATUS: Welcome to the construct\n")
         print("Current Python:", sys.executable)

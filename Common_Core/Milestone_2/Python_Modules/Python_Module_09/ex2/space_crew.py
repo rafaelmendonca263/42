@@ -1,11 +1,11 @@
 import datetime
 from enum import Enum
 from typing import List
-from pydantic import BaseModel, Field, ValidationError, model_validator
+from pydantic import BaseModel, Field  # type: ignore
+from pydantic import ValidationError, model_validator
 
 
 class Rank(str, Enum):
-    """Enumeration of authorized Starfleet operational titles."""
 
     CADET = "cadet"
     OFFICER = "officer"
@@ -14,7 +14,7 @@ class Rank(str, Enum):
     COMMANDER = "commander"
 
 
-class CrewMember(BaseModel):
+class CrewMember(BaseModel):  # type: ignore[misc]
 
     member_id: str = Field(min_length=3, max_length=10)
     name: str = Field(min_length=2, max_length=50)
@@ -25,7 +25,7 @@ class CrewMember(BaseModel):
     is_active: bool = Field(default=True)
 
 
-class SpaceMission(BaseModel):
+class SpaceMission(BaseModel):  # type: ignore[misc]
 
     mission_id: str = Field(min_length=5, max_length=15)
     mission_name: str = Field(min_length=3, max_length=100)
@@ -36,7 +36,7 @@ class SpaceMission(BaseModel):
     mission_status: str = Field(default="planned")
     budget_millions: float = Field(ge=1.0, le=10000.0)
 
-    @model_validator(mode="after")
+    @model_validator(mode="after")  # type: ignore[misc]
     def validate_mission_safety(self) -> "SpaceMission":
         if not self.mission_id.startswith("M"):
             raise ValueError("Mission ID must start with 'M'")
