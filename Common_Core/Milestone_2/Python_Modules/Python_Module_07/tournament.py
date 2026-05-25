@@ -1,4 +1,6 @@
+import sys
 from typing import List, Tuple
+
 from ex0 import FlameFactory, AquaFactory, CreatureFactory
 from ex1 import HealingCreatureFactory, TransformCreatureFactory
 from ex2 import (
@@ -20,6 +22,8 @@ def run_tournament(
         name = f.__class__.__name__.replace("CreatureFactory", "").replace(
             "Factory", ""
         )
+        if name == "Flame":
+            name = "Flameling"
         strat = s.__class__.__name__.replace("Strategy", "")
         fact_names.append(f"({name}+{strat})")
 
@@ -65,11 +69,13 @@ if __name__ == "__main__":
             [(flame_f, normal_s), (healing_f, defensive_s)],
         )
         print()
+
         run_tournament(
             "Tournament 1 (error)",
             [(flame_f, aggressive_s), (healing_f, defensive_s)],
         )
         print()
+
         run_tournament(
             "Tournament 2 (multiple)",
             [
@@ -78,5 +84,13 @@ if __name__ == "__main__":
                 (transform_f, aggressive_s),
             ],
         )
-    except Exception as e:
-        print(e)
+
+    except Exception:
+        import traceback
+
+        print(
+            "Erro crítico e inesperado na execução do "
+            "sistema:",
+            file=sys.stderr,
+        )
+        traceback.print_exc()

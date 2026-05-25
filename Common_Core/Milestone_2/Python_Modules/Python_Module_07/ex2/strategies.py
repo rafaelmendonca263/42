@@ -1,10 +1,6 @@
 from abc import ABC, abstractmethod
-from ex0.creature import Creature
-from ex1.capabilities import HealCapability, TransformCapability
-
-
-class InvalidStrategyException(Exception):
-    pass
+from ex0 import Creature
+from ex1 import HealCapability, TransformCapability
 
 
 class StrategyValidationError(Exception):
@@ -23,7 +19,7 @@ class BattleStrategy(ABC):
 
 class NormalStrategy(BattleStrategy):
     def is_valid(self, creature: Creature) -> bool:
-        return True
+        return isinstance(creature, Creature)
 
     def act(self, creature: Creature) -> str:
         if not self.is_valid(creature):
@@ -39,18 +35,14 @@ class AggressiveStrategy(BattleStrategy):
 
     def act(self, creature: Creature) -> str:
         if not self.is_valid(creature):
-            raise InvalidStrategyException(
+            raise StrategyValidationError(
                 f"Invalid Creature '{creature.name}' for this "
                 "aggressive strategy"
             )
+        assert isinstance(creature, TransformCapability)
 
-        if isinstance(creature, TransformCapability):
-            res_trans = creature.transform()
-            res_att = creature.attack()
-            res_revert = creature.revert()
-            return f"{res_trans}\n{res_att}\n{res_revert}"
-
-        return ""
+        actions = [creature.transform(), creature.attack(), creature.revert()]
+        return "\n".join(actions)
 
 
 class DefensiveStrategy(BattleStrategy):
@@ -59,14 +51,11 @@ class DefensiveStrategy(BattleStrategy):
 
     def act(self, creature: Creature) -> str:
         if not self.is_valid(creature):
-            raise InvalidStrategyException(
+            raise StrategyValidationError(
                 f"Invalid Creature '{creature.name}' for this "
                 "defensive strategy"
             )
+        assert isinstance(creature, HealCapability)
 
-        if isinstance(creature, HealCapability):
-            res_att = creature.attack()
-            res_heal = creature.heal()
-            return f"{res_att}\n{res_heal}"
-
-        return ""
+        actions = [creature.attack(), creature.heal()]
+        return "\n".join(actions)
