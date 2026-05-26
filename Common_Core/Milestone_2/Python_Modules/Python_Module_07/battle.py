@@ -1,10 +1,10 @@
-from ex0 import FlameFactory, AquaFactory, CreatureFactory, Creature
+from ex0 import FlameFactory, AquaFactory, CreatureFactory
 
 
 def verify_factory(factory: CreatureFactory) -> None:
     print("Testing factory")
-    base: Creature = factory.create_base()
-    evolved: Creature = factory.create_evolved()
+    base = factory.create_base()
+    evolved = factory.create_evolved()
 
     print(base.describe())
     print(base.attack())
@@ -14,8 +14,8 @@ def verify_factory(factory: CreatureFactory) -> None:
 
 def run_battle(factory_f: CreatureFactory, factory_a: CreatureFactory) -> None:
     print("Testing battle")
-    fire_base: Creature = factory_f.create_base()
-    water_base: Creature = factory_a.create_base()
+    fire_base = factory_f.create_base()
+    water_base = factory_a.create_base()
 
     print(fire_base.describe())
     print(" VS.")

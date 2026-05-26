@@ -1,9 +1,9 @@
 # Ficheiro de Teste: Fly-in (Avaliação de Parser)
 
-nb_drones: 0
+nb_drones: 2
 
 start_hub: base_principal 0 0 [color=green max_drones=5]
-end_hub: destino_final 10 10
+end_hub: destino_final 10 -10
 
 # Zonas intermediárias
 hub: telhado_1 2 4
@@ -13,6 +13,6 @@ hub: obstaculo 3 3 [zone=blocked]
 
 # Conexões
 connection: base_principal-telhado_1
-connection: telhado_1-corredor_A [max_link_capacity=2]
+connection: telhado_1-corredor_A [max_link_capacitaaaaaaaaaaaaaaaaa=2]
 connection: corredor_A-zona_militar
 connection: zona_militar-destino_final

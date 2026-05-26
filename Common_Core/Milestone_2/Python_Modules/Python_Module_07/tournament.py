@@ -1,4 +1,3 @@
-import sys
 from typing import List, Tuple
 
 from ex0 import FlameFactory, AquaFactory, CreatureFactory
@@ -19,11 +18,18 @@ def run_tournament(
 
     fact_names = []
     for f, s in opponents:
-        name = f.__class__.__name__.replace("CreatureFactory", "").replace(
-            "Factory", ""
-        )
-        if name == "Flame":
+        f_name = f.__class__.__name__
+        if "Flame" in f_name:
             name = "Flameling"
+        elif "Aqua" in f_name:
+            name = "Aquabub"
+        elif "Healing" in f_name:
+            name = "Healing"
+        elif "Transform" in f_name:
+            name = "Transform"
+        else:
+            name = f_name
+
         strat = s.__class__.__name__.replace("Strategy", "")
         fact_names.append(f"({name}+{strat})")
 
@@ -41,13 +47,15 @@ def run_tournament(
 
             print("\n * Battle *")
             print(f" {c1.describe()}")
-            print(" vs.")
+            print("  vs.")
             print(f" {c2.describe()}")
-            print(" now fight!")
+            print("  now fight!")
 
             try:
-                print(strat1.act(c1))
-                print(strat2.act(c2))
+                for line in strat1.act(c1).split("\n"):
+                    print(f" {line}")
+                for line in strat2.act(c2).split("\n"):
+                    print(f" {line}")
             except StrategyValidationError as e:
                 print(f" Battle error, aborting tournament: {e}")
                 return
@@ -84,13 +92,5 @@ if __name__ == "__main__":
                 (transform_f, aggressive_s),
             ],
         )
-
-    except Exception:
-        import traceback
-
-        print(
-            "Erro crítico e inesperado na execução do "
-            "sistema:",
-            file=sys.stderr,
-        )
-        traceback.print_exc()
+    except Exception as e:
+        print(e)

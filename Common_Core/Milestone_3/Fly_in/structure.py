@@ -3,16 +3,16 @@ from typing import Optional
 
 
 @dataclass
-class Zone:
+class Hub:
     name: str
     x: int
     y: int
-    zone_type: str = "normal"
+    hub_type: str = "normal"
     color: Optional[str] = None
     max_drones: int = 1
 
 
 @dataclass
-class Link:
-    zone1: str
-    zone2: str
+class Connection:
+    hub1: str
+    hub2: str
