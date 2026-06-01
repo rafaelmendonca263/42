@@ -4,7 +4,6 @@
 ![C](https://img.shields.io/badge/Language-C-blue)
 ![Python](https://img.shields.io/badge/Language-Python-yellow)
 ![Shell](https://img.shields.io/badge/Language-Shell-lightgrey)
-![Status](https://img.shields.io/badge/Status-In%20Progress-orange)
 
 ## Overview
 
@@ -22,28 +21,36 @@ All projects are implemented in accordance with the rules, constraints, and codi
 Projects are organized by **programming language**, and each project follows the structure required by the official 42 subject specifications.
 
 ```
-├── Common_Core/            # Core projects developed in 42 curriculum
-  ├── Milestone_0
-    ├──libft
-  ├── Milestone_1
-        ├── Born2beroot
-        ├── Get_next_line
-        ├── Printf
-  ├── Milestone_2
-        ├── A_maze_ing
-        ├── Exam_rank_2
-        ├── Push_swap
-        ├── Python_Modules
-├── Piscine/                # Projects developed in Piscine
-    ├── C
-        ├── C00/C08
-    ├── Rush
-        ├── Rush00
-        ├── Rush01
-    ├── Shell
-        ├── Shell00
-        ├── Shell01
-├── Piscine_Reloaded/       # Projects developed in Piscine_Reloaded
+├── Common_Core/            # Core projects 
+|    ├── Milestone_0
+|    |      ├──Libft
+|    |
+|    ├── Milestone_1
+|    |      ├── Born2beroot
+|    |      ├── Get_next_line
+|    |      ├── Printf
+|    |
+|    ├── Milestone_2
+|    |      ├── A_maze_ing
+|    |      ├── Exam_rank_2
+|    |      ├── Push_swap
+|    |      ├── Python_Modules
+|    |
+|    ├── Milestone_3
+|          ├── Fly_in
+|
+├── Piscine/                # Projects 
+|      ├── C
+|          ├── C00/C08
+|      ├── Rush
+|          ├── Rush00
+|          ├── Rush01
+|      ├── Shell
+|          ├── Shell00
+|          ├── Shell01
+|
+├── Piscine_Reloaded/       # Projects 
+|
 └── README.md
 ```
 
@@ -56,7 +63,8 @@ Projects are organized by **programming language**, and each project follows the
 | [ft_printf](./Common_Core/Milestone_1/Printf)    | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
 | [Push_Swap](./Common_Core/Milestone_2/Push_swap) | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
 | [Python_Modules](./Common_Core/Milestone_2/Python_Modules) | ![Python](https://img.shields.io/badge/Language-Python-yellow) | ![In Progress](https://img.shields.io/badge/Status-In%20Progress-orange) |
-|[A-Maze-ing](./Common_Core/Milestone_2/A-Maze-ing/)|![C](https://img.shields.io/badge/Language-Python-yellow) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen)|
+|[A-Maze-ing](./Common_Core/Milestone_2/A-Maze-ing/)|![Python](https://img.shields.io/badge/Language-Python-yellow) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen)|
+|[Fly-in](./Common_Core/Milestone_2/A-Maze-ing/)|![Python](https://img.shields.io/badge/Language-Python-yellow) | ![In Progress](https://img.shields.io/badge/Status-In%20Progress-orange)|
 
 
 ## Key Skills
