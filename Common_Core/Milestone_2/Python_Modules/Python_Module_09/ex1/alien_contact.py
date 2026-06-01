@@ -2,7 +2,7 @@ import datetime
 from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, Field  # type: ignore
-from pydantic import ValidationError, model_validator
+from pydantic import ValidationError, model_validator  # type: ignore
 
 
 class ContactType(str, Enum):

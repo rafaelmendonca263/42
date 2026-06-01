@@ -2,7 +2,7 @@ import datetime
 from enum import Enum
 from typing import List
 from pydantic import BaseModel, Field  # type: ignore
-from pydantic import ValidationError, model_validator
+from pydantic import ValidationError, model_validator  # type: ignore
 
 
 class Rank(str, Enum):
@@ -26,7 +26,6 @@ class CrewMember(BaseModel):  # type: ignore[misc]
 
 
 class SpaceMission(BaseModel):  # type: ignore[misc]
-
     mission_id: str = Field(min_length=5, max_length=15)
     mission_name: str = Field(min_length=3, max_length=100)
     destination: str = Field(min_length=3, max_length=50)
@@ -70,7 +69,6 @@ def main() -> None:
     print("Space Mission Crew Validation")
     print("=========================================")
 
-    # Initialize sample operational personnel
     commander_member = CrewMember(
         member_id="C01",
         name="Sarah Connor",
@@ -129,7 +127,7 @@ def main() -> None:
             destination="Moon",
             launch_date=datetime.datetime.now(),
             duration_days=30,
-            crew=[lieutenant_member, officer_member],  # No Commander/Captain
+            crew=[lieutenant_member, officer_member],
             budget_millions=150.0,
         )
     except ValidationError as e:
@@ -139,4 +137,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(e)
