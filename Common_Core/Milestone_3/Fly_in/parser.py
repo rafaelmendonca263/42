@@ -63,6 +63,8 @@ class Parser:
                         if not corredor0 or not corredor1:
                             raise ParseError(f"Syntax Error: Malformed connection names: '{part[1].strip()}'")
 
+                        # NOTA: O construtor posicional Connection(corredor0, corredor1) funciona perfeitamente
+                        # com from_hub e to_hub por ordem!
                         connections.append((Connection(corredor0, corredor1), metadata))
                         continue
                     
@@ -154,8 +156,19 @@ class Parser:
         end_hub_count = 0
 
         for hub_obj, metadata in raw_hubs:
-            # Corrigido para chamar o método estático dentro da classe
             Parser.validate_metadata(metadata, ALLOWED_HUB_KEYS)
+
+            if metadata:
+                content = metadata.strip(" \t\n\r\xa0").rstrip(']')
+                for pair in content.split():
+                    if "=" in pair:
+                        k, v = pair.split("=", 1)
+                        if k.strip() == "max_drones":
+                            hub_obj.max_drones = int(v.strip())
+                        elif k.strip() == "zone":
+                            hub_obj.zone_type = v.strip()
+                        elif k.strip() == "color":
+                            hub_obj.color = v.strip()
 
             if hub_obj.hub_type == "start":
                 start_hub_count += 1
@@ -179,19 +192,28 @@ class Parser:
         seen_connections = set()
 
         for conn_obj, metadata in raw_connections:
-            # Corrigido para chamar o método estático dentro da classe
             Parser.validate_metadata(metadata, ALLOWED_CONN_KEYS)
 
-            if (conn_obj.hub1 not in valid_hub_names or
-                    conn_obj.hub2 not in valid_hub_names):
-                raise ParseError(f"Invalid hub in Connections: {conn_obj.hub1} -> {conn_obj.hub2}")
+            if metadata:
+                content = metadata.strip(" \t\n\r\xa0").rstrip(']')
+                for pair in content.split():
+                    if "=" in pair:
+                        k, v = pair.split("=", 1)
+                        if k.strip() == "max_link_capacity":
+                            # Corrigido de max_link_capacity para max_drones de acordo com a nossa dataclass
+                            conn_obj.max_drones = int(v.strip())
 
-            if conn_obj.hub1 == conn_obj.hub2:
-                raise ParseError(f"Syntax Error: Self-loop detected. Hub '{conn_obj.hub1}' cannot connect to itself.")
+            # --- CORREÇÃO AQUI: Trocado hub1/hub2 por from_hub/to_hub ---
+            if (conn_obj.from_hub not in valid_hub_names or
+                    conn_obj.to_hub not in valid_hub_names):
+                raise ParseError(f"Invalid hub in Connections: {conn_obj.from_hub} -> {conn_obj.to_hub}")
 
-            conn_pair = frozenset([conn_obj.hub1, conn_obj.hub2])
+            if conn_obj.from_hub == conn_obj.to_hub:
+                raise ParseError(f"Syntax Error: Self-loop detected. Hub '{conn_obj.from_hub}' cannot connect to itself.")
+
+            conn_pair = frozenset([conn_obj.from_hub, conn_obj.to_hub])
             if conn_pair in seen_connections:
-                raise ParseError(f"Duplicate connection detected: {conn_obj.hub1} <-> {conn_obj.hub2}")
+                raise ParseError(f"Duplicate connection detected: {conn_obj.from_hub} <-> {conn_obj.to_hub}")
 
             seen_connections.add(conn_pair)
             final_connections.append(conn_obj)
@@ -202,17 +224,18 @@ class Parser:
         return dict_hubs
 
 
-# Exemplo de como usar no teu main.py ou bloco de execução:
+def parse_config(filepath: str) -> dict:
+    raw_data = Parser.extract_info(filepath)
+    return Parser.parse_info(raw_data)
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python parser.py <config_file>", file=sys.stderr)
         sys.exit(1)
 
     try:
-        # Chamada direta usando o nome da classe, sem instanciar objeto!
-        raw_data = Parser.extract_info(sys.argv[1])
-        validated_data = Parser.parse_info(raw_data)
-        
+        validated_data = parse_config(sys.argv[1])
         print("=== PARSING E VALIDAÇÃO CONCLUÍDOS COM SUCESSO ===")
         print(validated_data)
     except ParseError as e:

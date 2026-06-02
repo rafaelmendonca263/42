@@ -1,41 +1,53 @@
-from collections import deque
+from structure import Hub, Connection
 
 class NetworkGraph:
-    def __init__(self, parsed_data):
-        self.hubs = {hub.name: hub for hub in parsed_data["hubs"]}
+    def __init__(self):
+        self.hubs = {}
+        self.connections = {}
+        self.adj_list = {}
+        # Cache interna para não repetir o DFS de hubs já calculados
+        self._paths_cache = {}
 
-        self.adj = {hub_name: [] for hub_name in self.hubs}
-        
-        for conn in parsed_data["Connection"]:
-            self.adj[conn.hub1].append(conn.hub2)
-            self.adj[conn.hub2].append(conn.hub1)
-    
+    def add_hub(self, hub: Hub):
+        self.hubs[hub.name] = hub
+        self.adj_list[hub.name] = []
+
+    def add_connection(self, conn: Connection):
+        key = f"{conn.from_hub}->{conn.to_hub}"
+        self.connections[key] = conn
+        # Garante que não adicionas duplicados se o parser ler a mesma linha
+        if conn.to_hub not in self.adj_list[conn.from_hub]:
+            self.adj_list[conn.from_hub].append(conn.to_hub)
+        # Limpa a cache se novas conexões forem adicionadas dinamicamente
+        self._paths_cache.clear()
+
     def find_all_paths(self, start: str, end: str):
+        """Procura caminhos usando cache para evitar explosão combinatória no DFS."""
+        cache_key = f"{start}->{end}"
+        if cache_key in self._paths_cache:
+            return self._paths_cache[cache_key]
 
-        queue = deque([[start]])
-        paths = []
-        path = []
-        current_cost = 0
+        # Executa o DFS real apenas se não estiver na cache
+        calculated_paths = self._dfs_find_paths(start, end, [])
+        
+        # Guarda na cache
+        self._paths_cache[cache_key] = calculated_paths
+        return calculated_paths
 
-        while queue:
-            path, current_cost = queue.popleft()
-            current_hub = path[-1]
+    def _dfs_find_paths(self, start: str, end: str, current_path: list) -> list:
+        """Mecanismo DFS interno protegido."""
+        path = current_path + [start]
+        
+        if start == end:
+            return [(path, len(path) - 1)]
             
-            if current_hub == end:
-                paths.append((path, current_cost))
-                continue
-
-            for neighbour in self.adj[current_hub]:
-                if neighbour not in path: 
-                    neighbour_hub = self.hubs[neighbour]
-                    if self.hubs[neighbour].zone_type == "blocked":
-                        continue
-                    elif neighbour_hub.zone_type == "restricted":
-                        additional_cost = 2
-                    else:
-                        additional_cost = 1
-                    new_cost = current_cost + additional_cost
-                    new_path = path + [neighbour]
-                    queue.append((new_path, new_cost))
-                
+        if start not in self.adj_list:
+            return []
+            
+        paths = []
+        for node in self.adj_list[start]:
+            if node not in path:
+                newpaths = self._dfs_find_paths(node, end, path)
+                for newpath in newpaths:
+                    paths.append(newpath)
         return paths

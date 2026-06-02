@@ -1,31 +1,43 @@
-PYTHON = python3
-VENV = venv
-PIP = $(VENV)/bin/pip
-PY = $(VENV)/bin/python
+VENV        = .venv
+PYTHON      = $(VENV)/bin/python3
+PIP         = $(VENV)/bin/pip3
+MYPY        = $(VENV)/bin/mypy
+FLAKE8      = $(VENV)/bin/flake8
+MAPA        = maps/challenger/01_the_impossible_dream.txt
+
+all: install lint
 
 install:
-	test -d $(VENV) || $(PYTHON) -m venv $(VENV)
-	$(PIP) install --upgrade pip
-	$(PIP) install flake8 mypy
+	@if [ ! -d "$(VENV)" ]; then \
+		python3 -m venv $(VENV); \
+	fi
+	@$(PIP) install --upgrade pip setuptools wheel >/dev/null 2>&1
+	@$(PIP) install mypy flake8 >/dev/null 2>&1
 
 run: install
-	$(PY) Fly_in.py config.txt
+	@if [ ! -d "$(VENV)" ]; then exit 1; fi
+	$(PYTHON) main.py $(MAPA)
 
-debug: install
-	$(PY) -m pdb a_maze_ing.py config.txt
+debug:
+	@if [ ! -d "$(VENV)" ]; then exit 1; fi
+	$(PYTHON) -m pdb main.py $(MAPA)
+
+lint:
+	@if [ ! -d "$(VENV)" ]; then exit 1; fi
+	$(FLAKE8) main.py simulation.py visualizer.py
+	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs main.py simulation.py visualizer.py
+
+lint-strict:
+	@if [ ! -d "$(VENV)" ]; then exit 1; fi
+	$(FLAKE8) main.py simulation.py visualizer.py
+	$(MYPY) --strict main.py simulation.py visualizer.py
 
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type d -name ".mypy_cache" -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-	rm -rf venv
+	rm -rf __pycache__ .mypy_cache .pytest_cache *.pyc
 
-lint: install
-	$(VENV)/bin/flake8 .
-	$(VENV)/bin/mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+fclean: clean
+	rm -rf $(VENV)
 
-lint-strict: install
-	$(VENV)/bin/flake8 .
-	$(VENV)/bin/mypy . --strict
+re: fclean all
 
-.PHONY: install run debug clean lint lint-strict
+.PHONY: all install run debug lint lint-strict clean fclean re
