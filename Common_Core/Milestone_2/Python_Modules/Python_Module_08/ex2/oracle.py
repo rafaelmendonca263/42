@@ -1,15 +1,15 @@
 import os
 import sys
-from dotenv import load_dotenv  # type: ignore
 
 
 def load_oracle_configs() -> dict[str, str]:
+    from dotenv import load_dotenv  # type: ignore
 
     load_dotenv()
 
     configs = {
         "mode": os.getenv("MATRIX_MODE", "development"),
-        "db": os.getenv("DB_URL", "Not set"),
+        "db": os.getenv("DATABASE_URL", "Not set"),
         "api": "Authenticated" if os.getenv("API_KEY") else "Unauthorized",
         "log": os.getenv("LOG_LEVEL", "INFO"),
         "zion": os.getenv("ZION_ENDPOINT", "Not set"),
@@ -22,7 +22,7 @@ def security_check(configs: dict[str, str]) -> None:
     print("\nEnvironment security check:")
 
     if (
-        configs["db"] not in (None, "DB_URL")
+        configs["db"] not in (None, "Not set")
         and configs["api"] != "Unauthorized"
     ):
         print("[OK] No hardcoded secrets detected")
@@ -34,7 +34,10 @@ def security_check(configs: dict[str, str]) -> None:
     else:
         print("[ERROR] .env file missing")
 
-    if configs["mode"] == "production" or os.getenv("MATRIX_MODE"):
+    if (
+        configs["mode"] == "production"
+        or os.getenv("MATRIX_MODE") == "production"
+    ):
         print("[OK] Production overrides available")
     else:
         print("[INFO] Running in default mode")

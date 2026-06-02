@@ -8,7 +8,7 @@ def spell_reducer(spells: list[int], operation: str) -> int:
     if not spells:
         return 0
 
-    ops = {
+    ops: dict[str, abc.Callable[[int, int], int]] = {
         "add": operator.add,
         "multiply": operator.mul,
         "max": max,
@@ -22,7 +22,7 @@ def spell_reducer(spells: list[int], operation: str) -> int:
 
 
 def partial_enchanter(
-    base_enchantment: abc.Callable[[int, str, str], str]
+    base_enchantment: abc.Callable[[int, str, str], str],
 ) -> dict[str, abc.Callable[[str], str]]:
     fire_enchant = functools.partial(base_enchantment, 50, "fire")
     ice_enchant = functools.partial(base_enchantment, 50, "ice")

@@ -1,12 +1,22 @@
 from collections import abc
 
 
-def artifact_sorter(artifacts: list[dict[str, int | str]]) -> list[dict[str, int | str]]:
+def artifact_sorter(
+    artifacts: list[dict[str, int | str]],
+) -> list[dict[str, int | str]]:
     return sorted(artifacts, key=lambda x: x["power"], reverse=True)
 
 
-def power_filter(mages: list[dict[str, int | str]], min_power: int) -> list[dict[str, int | str]]:
-    return list(filter(lambda x: isinstance(x["power"], (int, float)) and x["power"] >= min_power, mages))
+def power_filter(
+    mages: list[dict[str, int | str]], min_power: int
+) -> list[dict[str, int | str]]:
+    return list(
+        filter(
+            lambda x: isinstance(x["power"], (int, float))
+            and x["power"] >= min_power,
+            mages,
+        )
+    )
 
 
 def spell_transformer(spells: list[str]) -> list[str]:
@@ -26,7 +36,9 @@ def mage_stats(mages: list[dict[str, int | str]]) -> dict[str, int | float]:
 
     get_max: abc.Callable[[list[int | float]], int | float] = lambda x: max(x)
     get_min: abc.Callable[[list[int | float]], int | float] = lambda x: min(x)
-    get_avg: abc.Callable[[list[int | float]], float] = lambda x: round(sum(x) / len(x), 2)
+    get_avg: abc.Callable[[list[int | float]], float] = lambda x: round(
+        sum(x) / len(x), 2
+    )
 
     return {
         "max_power": int(get_max(powers)),
@@ -43,8 +55,9 @@ def main() -> None:
     ]
     sorted_artifacts = artifact_sorter(artifacts)
     print(
-        f"{sorted_artifacts[0]['name']} ({sorted_artifacts[0]['power']} power) "
-        f"comes before {sorted_artifacts[1]['name']} ({sorted_artifacts[1]['power']} power)"
+        f"{sorted_artifacts[0]['name']} ({sorted_artifacts[0]['power']} power)"
+        " comes before "
+        f"{sorted_artifacts[1]['name']} ({sorted_artifacts[1]['power']} power)"
     )
 
     print("\nTesting spell transformer...")

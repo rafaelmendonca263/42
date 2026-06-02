@@ -1,6 +1,7 @@
 from collections import abc
 import functools
 import time
+from typing import Any
 
 
 def spell_timer(func: abc.Callable[..., Any]) -> abc.Callable[..., Any]:
@@ -17,18 +18,27 @@ def spell_timer(func: abc.Callable[..., Any]) -> abc.Callable[..., Any]:
     return wrapper
 
 
-def power_validator(min_power: int) -> abc.Callable[..., abc.Callable[..., Any]]:
+def power_validator(
+    min_power: int,
+) -> abc.Callable[..., abc.Callable[..., Any]]:
     def decorator(func: abc.Callable[..., Any]) -> abc.Callable[..., Any]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             power = kwargs.get("power")
-            if power is None and len(args) > 0:
-                if hasattr(args[0], "__class__") and len(args) > 1:
+
+            if power is None:
+                if len(args) > 2 and isinstance(args[2], (int, float)):
+                    power = args[2]
+                elif len(args) > 1 and isinstance(args[1], (int, float)):
                     power = args[1]
-                else:
+                elif len(args) > 0 and isinstance(args[0], (int, float)):
                     power = args[0]
 
-            if power is not None and isinstance(power, int) and power >= min_power:
+            if (
+                power is not None
+                and isinstance(power, int)
+                and power >= min_power
+            ):
                 return func(*args, **kwargs)
             return "Insufficient power for this spell"
 
@@ -37,7 +47,9 @@ def power_validator(min_power: int) -> abc.Callable[..., abc.Callable[..., Any]]
     return decorator
 
 
-def retry_spell(max_attempts: int) -> abc.Callable[..., abc.Callable[..., Any]]:
+def retry_spell(
+    max_attempts: int,
+) -> abc.Callable[..., abc.Callable[..., Any]]:
     def decorator(func: abc.Callable[..., Any]) -> abc.Callable[..., Any]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:

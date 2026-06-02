@@ -1,1 +1,5 @@
-.env.example
+.env
+.venv/
+matrix_env/
+__pycache__/
+*.png
