@@ -11,21 +11,23 @@ class Parser:
     @staticmethod
     def extract_info(filepath: str):
         try:
-            with open(filepath, 'r', encoding='utf-8') as file:
+            with open(filepath, "r", encoding="utf-8") as file:
                 hubs = []
                 num = 0
                 connections = []
 
                 for line in file:
-                    line = line.rstrip('\r\n')
-                    if '#' in line:
-                        line = line.split('#', 1)[0]
+                    line = line.rstrip("\r\n")
+                    if "#" in line:
+                        line = line.split("#", 1)[0]
                     line = line.strip()
                     if not line:
                         continue
-                    
+
                     if line.count(":") != 1:
-                        raise ParseError(f"Syntax Error: Invalid line format. Expected exactly one ':' separator, found {line.count(':')}: '{line.strip()}'")
+                        raise ParseError(
+                            f"Syntax Error: Invalid line format. Expected exactly one ':' separator, found {line.count(':')}: '{line.strip()}'"
+                        )
 
                     part = line.split(":", 1)
                     type = part[0].strip()
@@ -34,40 +36,56 @@ class Parser:
                         try:
                             num = int(part[1].strip())
                         except ValueError:
-                            raise ParseError(f"Syntax Error: Number of drones must be an integer, got '{part[1].strip()}'")
+                            raise ParseError(
+                                f"Syntax Error: Number of drones must be an integer, got '{part[1].strip()}'"
+                            )
                         continue
-                    
+
                     elif type == "connection":
                         if "[" in part[1]:
                             link_data, metadata = part[1].split("[", 1)
                         else:
                             if "]" in part[1]:
-                                raise ParseError("Syntax Error: Found closing bracket ']' without opening '['.")
+                                raise ParseError(
+                                    "Syntax Error: Found closing bracket ']' without opening '['."
+                                )
                             link_data = part[1]
                             metadata = ""
 
-                        clean_link = link_data.replace(" ", "").replace("\t", "").replace("\xa0", "")
+                        clean_link = (
+                            link_data.replace(" ", "")
+                            .replace("\t", "")
+                            .replace("\xa0", "")
+                        )
                         if not clean_link:
-                            raise ParseError(f"Syntax Error: Empty connection definition.")
+                            raise ParseError(
+                                f"Syntax Error: Empty connection definition."
+                            )
 
                         if clean_link.count("-") != 1:
-                            raise ParseError(f"Syntax Error: Invalid connection format (must have exactly one '-'): '{part[1].strip()}'")
+                            raise ParseError(
+                                f"Syntax Error: Invalid connection format (must have exactly one '-'): '{part[1].strip()}'"
+                            )
 
                         if "]" in clean_link or "[" in clean_link:
-                            raise ParseError(f"Syntax Error: Unexpected tokens in connection: '{part[1].strip()}'")
+                            raise ParseError(
+                                f"Syntax Error: Unexpected tokens in connection: '{part[1].strip()}'"
+                            )
 
                         corredores = clean_link.split("-")
                         corredor0 = corredores[0]
                         corredor1 = corredores[1]
 
                         if not corredor0 or not corredor1:
-                            raise ParseError(f"Syntax Error: Malformed connection names: '{part[1].strip()}'")
+                            raise ParseError(
+                                f"Syntax Error: Malformed connection names: '{part[1].strip()}'"
+                            )
 
                         # NOTA: O construtor posicional Connection(corredor0, corredor1) funciona perfeitamente
                         # com from_hub e to_hub por ordem!
                         connections.append((Connection(corredor0, corredor1), metadata))
                         continue
-                    
+
                     elif type in ("hub", "start_hub", "end_hub"):
                         if "[" in part[1]:
                             data = part[1].split("[", 1)
@@ -76,20 +94,26 @@ class Parser:
                             coor = mandatory.split()
                         else:
                             if "]" in part[1]:
-                                raise ParseError("Syntax Error: Found closing bracket ']' without opening '['.")
+                                raise ParseError(
+                                    "Syntax Error: Found closing bracket ']' without opening '['."
+                                )
                             data = part[1]
                             coor = data.split()
                             metadata = ""
 
                         if len(coor) != 3:
-                            raise ParseError(f"Syntax Error: Invalid number of parameters for hub definition: '{part[1].strip()}'")
+                            raise ParseError(
+                                f"Syntax Error: Invalid number of parameters for hub definition: '{part[1].strip()}'"
+                            )
 
                         name = coor[0].strip()
                         try:
                             x = int(coor[1].strip())
                             y = int(coor[2].strip())
                         except ValueError:
-                            raise ParseError(f"Syntax Error: Coordinates for hub '{name}' must be integers, got '{coor[1]}' and '{coor[2]}'")
+                            raise ParseError(
+                                f"Syntax Error: Coordinates for hub '{name}' must be integers, got '{coor[1]}' and '{coor[2]}'"
+                            )
 
                         hub_type = "normal"
                         if type == "start_hub":
@@ -101,13 +125,11 @@ class Parser:
                         continue
 
                     else:
-                        raise ParseError(f"Syntax Error: Unknown command type discovered: '{type}'")
+                        raise ParseError(
+                            f"Syntax Error: Unknown command type discovered: '{type}'"
+                        )
 
-            return {
-                "hubs": hubs,
-                "Connection": connections,
-                "nb_drones": num
-            }
+            return {"hubs": hubs, "Connection": connections, "nb_drones": num}
 
         except Exception as e:
             if isinstance(e, ParseError):
@@ -117,25 +139,33 @@ class Parser:
     @staticmethod
     def validate_metadata(metadata_str: str, allowed_keys: set):
         if metadata_str:
-            if metadata_str.count(']') != 1 or '[' in metadata_str:
-                raise ParseError(f"Syntax Error: Invalid or unbalanced brackets in metadata: '[{metadata_str.strip()}'")
+            if metadata_str.count("]") != 1 or "[" in metadata_str:
+                raise ParseError(
+                    f"Syntax Error: Invalid or unbalanced brackets in metadata: '[{metadata_str.strip()}'"
+                )
 
             raw_check = metadata_str.strip(" \t\n\r\xa0")
-            if not raw_check.endswith(']'):
-                raise ParseError(f"Syntax Error: Metadata must end with ']' token: '[{metadata_str.strip()}'")
+            if not raw_check.endswith("]"):
+                raise ParseError(
+                    f"Syntax Error: Metadata must end with ']' token: '[{metadata_str.strip()}'"
+                )
 
-            content = raw_check.rstrip(']').strip(" \t\n\r\xa0")
+            content = raw_check.rstrip("]").strip(" \t\n\r\xa0")
             if not content:
                 raise ParseError("Syntax Error: Metadata brackets cannot be empty")
 
             pairs = content.split()
             for pair in pairs:
                 if "=" not in pair:
-                    raise ParseError(f"Invalid metadata format: '{pair}' (expected key=value)")
+                    raise ParseError(
+                        f"Invalid metadata format: '{pair}' (expected key=value)"
+                    )
 
                 key, value = pair.split("=", 1)
                 if key.strip() not in allowed_keys:
-                   raise ParseError(f"Unknown metadata key discovered: '{key.strip()}'")
+                    raise ParseError(
+                        f"Unknown metadata key discovered: '{key.strip()}'"
+                    )
 
     @staticmethod
     def parse_info(dict_hubs):
@@ -159,7 +189,7 @@ class Parser:
             Parser.validate_metadata(metadata, ALLOWED_HUB_KEYS)
 
             if metadata:
-                content = metadata.strip(" \t\n\r\xa0").rstrip(']')
+                content = metadata.strip(" \t\n\r\xa0").rstrip("]")
                 for pair in content.split():
                     if "=" in pair:
                         k, v = pair.split("=", 1)
@@ -177,16 +207,22 @@ class Parser:
 
             coords = (hub_obj.x, hub_obj.y)
             if coords in seen_coordinates:
-                raise ParseError(f"Duplicate coordinates {coords} found for hub {hub_obj.name}")
+                raise ParseError(
+                    f"Duplicate coordinates {coords} found for hub {hub_obj.name}"
+                )
 
             seen_coordinates.add(coords)
             valid_hub_names.add(hub_obj.name)
             final_hubs.append(hub_obj)
 
         if start_hub_count != 1:
-            raise ParseError(f"Business Logic Error: Map must contain exactly one 'start_hub' (found {start_hub_count})")
+            raise ParseError(
+                f"Business Logic Error: Map must contain exactly one 'start_hub' (found {start_hub_count})"
+            )
         if end_hub_count != 1:
-            raise ParseError(f"Business Logic Error: Map must contain exactly one 'end_hub' (found {end_hub_count})")
+            raise ParseError(
+                f"Business Logic Error: Map must contain exactly one 'end_hub' (found {end_hub_count})"
+            )
 
         final_connections = []
         seen_connections = set()
@@ -195,7 +231,7 @@ class Parser:
             Parser.validate_metadata(metadata, ALLOWED_CONN_KEYS)
 
             if metadata:
-                content = metadata.strip(" \t\n\r\xa0").rstrip(']')
+                content = metadata.strip(" \t\n\r\xa0").rstrip("]")
                 for pair in content.split():
                     if "=" in pair:
                         k, v = pair.split("=", 1)
@@ -204,16 +240,24 @@ class Parser:
                             conn_obj.max_drones = int(v.strip())
 
             # --- CORREÇÃO AQUI: Trocado hub1/hub2 por from_hub/to_hub ---
-            if (conn_obj.from_hub not in valid_hub_names or
-                    conn_obj.to_hub not in valid_hub_names):
-                raise ParseError(f"Invalid hub in Connections: {conn_obj.from_hub} -> {conn_obj.to_hub}")
+            if (
+                conn_obj.from_hub not in valid_hub_names
+                or conn_obj.to_hub not in valid_hub_names
+            ):
+                raise ParseError(
+                    f"Invalid hub in Connections: {conn_obj.from_hub} -> {conn_obj.to_hub}"
+                )
 
             if conn_obj.from_hub == conn_obj.to_hub:
-                raise ParseError(f"Syntax Error: Self-loop detected. Hub '{conn_obj.from_hub}' cannot connect to itself.")
+                raise ParseError(
+                    f"Syntax Error: Self-loop detected. Hub '{conn_obj.from_hub}' cannot connect to itself."
+                )
 
             conn_pair = frozenset([conn_obj.from_hub, conn_obj.to_hub])
             if conn_pair in seen_connections:
-                raise ParseError(f"Duplicate connection detected: {conn_obj.from_hub} <-> {conn_obj.to_hub}")
+                raise ParseError(
+                    f"Duplicate connection detected: {conn_obj.from_hub} <-> {conn_obj.to_hub}"
+                )
 
             seen_connections.add(conn_pair)
             final_connections.append(conn_obj)
