@@ -83,7 +83,9 @@ class Parser:
 
                         # NOTA: O construtor posicional Connection(corredor0, corredor1) funciona perfeitamente
                         # com from_hub e to_hub por ordem!
-                        connections.append((Connection(corredor0, corredor1), metadata))
+                        connections.append(
+                            (Connection(corredor0, corredor1), metadata)
+                        )
                         continue
 
                     elif type in ("hub", "start_hub", "end_hub"):
@@ -121,7 +123,9 @@ class Parser:
                         elif type == "end_hub":
                             hub_type = "end"
 
-                        hubs.append((Hub(name, x, y, hub_type, None, 1), metadata))
+                        hubs.append(
+                            (Hub(name, x, y, hub_type, None, 1), metadata)
+                        )
                         continue
 
                     else:
@@ -134,7 +138,9 @@ class Parser:
         except Exception as e:
             if isinstance(e, ParseError):
                 raise e
-            raise ParseError(f"Not expected error while extracting information: {e}")
+            raise ParseError(
+                f"Not expected error while extracting information: {e}"
+            )
 
     @staticmethod
     def validate_metadata(metadata_str: str, allowed_keys: set):
@@ -152,7 +158,9 @@ class Parser:
 
             content = raw_check.rstrip("]").strip(" \t\n\r\xa0")
             if not content:
-                raise ParseError("Syntax Error: Metadata brackets cannot be empty")
+                raise ParseError(
+                    "Syntax Error: Metadata brackets cannot be empty"
+                )
 
             pairs = content.split()
             for pair in pairs:

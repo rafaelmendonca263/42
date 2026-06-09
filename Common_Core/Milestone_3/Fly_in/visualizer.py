@@ -33,7 +33,9 @@ class DroneVisualizer:
         span_y = (max_y - min_y) if (max_y - min_y) != 0 else 1
 
         for hub in self.hubs:
-            screen_x = padding + ((hub.x - min_x) / span_x) * (self.width - 2 * padding)
+            screen_x = padding + ((hub.x - min_x) / span_x) * (
+                self.width - 2 * padding
+            )
             screen_y = padding + ((hub.y - min_y) / span_y) * (
                 self.height - 2 * padding
             )
@@ -51,10 +53,15 @@ class DroneVisualizer:
         )
 
         for conn in self.connections:
-            if conn.from_hub in self.hub_coords and conn.to_hub in self.hub_coords:
+            if (
+                conn.from_hub in self.hub_coords
+                and conn.to_hub in self.hub_coords
+            ):
                 x1, y1 = self.hub_coords[conn.from_hub]
                 x2, y2 = self.hub_coords[conn.to_hub]
-                self.canvas.create_line(x1, y1, x2, y2, fill="#45475a", width=3)
+                self.canvas.create_line(
+                    x1, y1, x2, y2, fill="#45475a", width=3
+                )
 
         for hub in self.hubs:
             x, y = self.hub_coords[hub.name]
@@ -72,10 +79,20 @@ class DroneVisualizer:
                 color = "#89b4fa"
 
             self.canvas.create_oval(
-                x - r, y - r, x + r, y + r, fill=color, outline="#cdd6f4", width=2
+                x - r,
+                y - r,
+                x + r,
+                y + r,
+                fill=color,
+                outline="#cdd6f4",
+                width=2,
             )
             self.canvas.create_text(
-                x, y, text=hub.name[:7], fill="#11111b", font=("Helvetica", 9, "bold")
+                x,
+                y,
+                text=hub.name[:7],
+                fill="#11111b",
+                font=("Helvetica", 9, "bold"),
             )
 
             if getattr(hub, "max_drones", 1) > 1:
@@ -89,7 +106,10 @@ class DroneVisualizer:
 
         hub_drone_counters = {}
         for drone in drones_list:
-            if drone["current_hub"] == "impossible_goal" and not drone["is_flying"]:
+            if (
+                drone["current_hub"] == "impossible_goal"
+                and not drone["is_flying"]
+            ):
                 continue
 
             current_hub = drone["current_hub"]

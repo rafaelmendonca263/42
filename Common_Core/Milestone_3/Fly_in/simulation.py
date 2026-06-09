@@ -38,7 +38,10 @@ class Simulation:
         """Loop principal formatado rigorosamente de acordo com a norma da 42."""
         max_turn_limit = 1000  # Fail-safe
 
-        while not self.all_drones_arrived() and self.current_turn < max_turn_limit:
+        while (
+            not self.all_drones_arrived()
+            and self.current_turn < max_turn_limit
+        ):
             # Lista para guardar os outputs deste turno específico (ex: "D1-gate_hell1")
             turn_output = []
 
@@ -50,7 +53,9 @@ class Simulation:
                     self.current_turn >= drone["lock_until_turn"]
                     and not drone["is_flying"]
                 ):
-                    self.register_hub_occupancy(self.current_turn, drone["current_hub"])
+                    self.register_hub_occupancy(
+                        self.current_turn, drone["current_hub"]
+                    )
 
             # FASE 2: Processar cada drone (Ordenados por ID de 1 a N para garantir output limpo)
             for drone in self.drones:
@@ -58,7 +63,10 @@ class Simulation:
                     continue
 
                 # 1. Processar Aterragens
-                if self.current_turn == drone["lock_until_turn"] and drone["is_flying"]:
+                if (
+                    self.current_turn == drone["lock_until_turn"]
+                    and drone["is_flying"]
+                ):
                     self.unregister_hub_occupancy(
                         self.current_turn, drone["current_hub"]
                     )
@@ -75,7 +83,10 @@ class Simulation:
                         )
 
                 # 2. Se o drone ainda está no meio de um voo longo (Restricted Zone)
-                if self.current_turn < drone["lock_until_turn"] and drone["is_flying"]:
+                if (
+                    self.current_turn < drone["lock_until_turn"]
+                    and drone["is_flying"]
+                ):
                     # Regra do enunciado: em pleno voo para zona restrita, mostra a conexão
                     current_step = drone["step"]
                     origem = drone["path"][current_step]
@@ -104,31 +115,37 @@ class Simulation:
                             f"{current_hub_name}->{next_hub_name}"
                         )
 
-                        travel_cost = 2 if hub_object.zone_type == "restricted" else 1
+                        travel_cost = (
+                            2 if hub_object.zone_type == "restricted" else 1
+                        )
                         arrival_time = self.current_turn + travel_cost
 
                         # Validar capacidades
-                        hubs_agendados = self.hub_occupancy.get(arrival_time, {}).get(
-                            next_hub_name, 0
-                        )
+                        hubs_agendados = self.hub_occupancy.get(
+                            arrival_time, {}
+                        ).get(next_hub_name, 0)
                         hub_ok = hubs_agendados < hub_object.max_drones
 
                         conn_key = f"{current_hub_name}->{next_hub_name}"
                         conn_ok = True
                         if conn_object:
                             for t in range(self.current_turn, arrival_time):
-                                drones_na_conn = self.conn_occupancy.get(t, {}).get(
-                                    conn_key, 0
-                                )
+                                drones_na_conn = self.conn_occupancy.get(
+                                    t, {}
+                                ).get(conn_key, 0)
                                 if drones_na_conn >= conn_object.max_drones:
                                     conn_ok = False
                                     break
 
                         if hub_ok and conn_ok:
                             # Efetivar movimento
-                            self.register_hub_occupancy(arrival_time, next_hub_name)
+                            self.register_hub_occupancy(
+                                arrival_time, next_hub_name
+                            )
                             if conn_object:
-                                for t in range(self.current_turn, arrival_time):
+                                for t in range(
+                                    self.current_turn, arrival_time
+                                ):
                                     self.register_conn_occupancy(t, conn_key)
 
                             drone["lock_until_turn"] = arrival_time
@@ -142,7 +159,9 @@ class Simulation:
                                 )
                             else:
                                 # Se o custo é 1, aterra logo neste turno, mostra a zona de destino
-                                turn_output.append(f"D{drone['id']}-{next_hub_name}")
+                                turn_output.append(
+                                    f"D{drone['id']}-{next_hub_name}"
+                                )
                         else:
                             # Retido: Omitido da linha conforme o enunciado
                             drone["lock_until_turn"] = self.current_turn + 1
@@ -188,13 +207,18 @@ class Simulation:
         self.conn_occupancy[turn][conn_key] += 1
 
     def unregister_conn_occupancy(self, turn: int, conn_key: str):
-        if turn in self.conn_occupancy and conn_key in self.conn_occupancy[turn]:
+        if (
+            turn in self.conn_occupancy
+            and conn_key in self.conn_occupancy[turn]
+        ):
             self.conn_occupancy[turn][conn_key] -= 1
             if self.conn_occupancy[turn][conn_key] <= 0:
                 del self.conn_occupancy[turn][conn_key]
 
     def all_drones_arrived(self) -> bool:
-        return all(drone["current_hub"] == self.end_hub for drone in self.drones)
+        return all(
+            drone["current_hub"] == self.end_hub for drone in self.drones
+        )
 
     def evaluate_best_path(self, current_hub: str, start_turn: int) -> list:
         """Avalia as rotas possíveis e escolhe a que chega mais cedo com atalho estático."""
@@ -211,9 +235,9 @@ class Simulation:
                 conn_key = f"{path[0]}->{path[1]}"
                 conn_obj = self.graph.connections.get(conn_key)
                 if conn_obj:
-                    drones_na_conn = self.conn_occupancy.get(start_turn, {}).get(
-                        conn_key, 0
-                    )
+                    drones_na_conn = self.conn_occupancy.get(
+                        start_turn, {}
+                    ).get(conn_key, 0)
                     if drones_na_conn >= conn_obj.max_drones:
                         continue
 
@@ -256,7 +280,9 @@ class Simulation:
                 conn_ok = True
                 if conn_object:
                     for t in range(current_time, arrival_time):
-                        drones_na_conn = self.conn_occupancy.get(t, {}).get(conn_key, 0)
+                        drones_na_conn = self.conn_occupancy.get(t, {}).get(
+                            conn_key, 0
+                        )
                         if drones_na_conn >= conn_object.max_drones:
                             conn_ok = False
                             break
@@ -283,19 +309,25 @@ class Simulation:
         next_hub_name = path[current_step + 1]
 
         hub_object = self.graph.hubs[next_hub_name]
-        conn_object = self.graph.connections.get(f"{current_hub_name}->{next_hub_name}")
+        conn_object = self.graph.connections.get(
+            f"{current_hub_name}->{next_hub_name}"
+        )
 
         travel_cost = 2 if hub_object.zone_type == "restricted" else 1
         arrival_time = self.current_turn + travel_cost
 
-        hubs_agendados = self.hub_occupancy.get(arrival_time, {}).get(next_hub_name, 0)
+        hubs_agendados = self.hub_occupancy.get(arrival_time, {}).get(
+            next_hub_name, 0
+        )
         hub_ok = hubs_agendados < hub_object.max_drones
 
         conn_key = f"{current_hub_name}->{next_hub_name}"
         conn_ok = True
         if conn_object:
             for t in range(self.current_turn, arrival_time):
-                drones_na_conn = self.conn_occupancy.get(t, {}).get(conn_key, 0)
+                drones_na_conn = self.conn_occupancy.get(t, {}).get(
+                    conn_key, 0
+                )
                 if drones_na_conn >= conn_object.max_drones:
                     conn_ok = False
                     break

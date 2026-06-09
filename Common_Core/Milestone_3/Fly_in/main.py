@@ -31,7 +31,9 @@ def main():
     sim.run()
 
     if visual_mode and visualizer:
-        print("\n🏁 Simulação concluída! Fecha a janela gráfica para terminar.")
+        print(
+            "\n🏁 Simulação concluída! Fecha a janela gráfica para terminar."
+        )
         visualizer.root.mainloop()
 
 

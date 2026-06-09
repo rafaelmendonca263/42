@@ -35,7 +35,9 @@ class NetworkGraph:
         self._paths_cache[cache_key] = calculated_paths
         return calculated_paths
 
-    def _dfs_find_paths(self, start: str, end: str, current_path: list) -> list:
+    def _dfs_find_paths(
+        self, start: str, end: str, current_path: list
+    ) -> list:
         """Mecanismo DFS interno protegido."""
         path = current_path + [start]
 
