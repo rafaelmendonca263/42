@@ -3,7 +3,6 @@ PYTHON      = $(VENV)/bin/python3
 PIP         = $(VENV)/bin/pip3
 MYPY        = $(VENV)/bin/mypy
 FLAKE8      = $(VENV)/bin/flake8
-MAPA        = maps/challenger/01_the_impossible_dream.txt
 
 all: install lint
 
@@ -16,28 +15,41 @@ install:
 
 run: install
 	@if [ ! -d "$(VENV)" ]; then exit 1; fi
-	$(PYTHON) main.py $(MAPA)
+	@args="$(filter-out run,$(MAKECMDGOALS))"; \
+	if [ -z "$$args" ]; then \
+		echo "❌ Erro: Falta especificar o mapa!"; \
+		echo "👉 Uso correto: make run caminho/do/mapa.txt"; \
+		exit 1; \
+	fi; \
+	mapa=$$(echo $$args | awk '{print $$1}'); \
+	$(PYTHON) main.py $$mapa --visual
 
-debug:
+debug: install
 	@if [ ! -d "$(VENV)" ]; then exit 1; fi
-	$(PYTHON) -m pdb main.py $(MAPA)
+	@args="$(filter-out debug,$(MAKECMDGOALS))"; \
+	mapa=$$(echo $$args | awk '{print $$1}'); \
+	if [ -z "$$mapa" ]; then \
+		echo "❌ Erro: Falta especificar o mapa!"; \
+		exit 1; \
+	fi; \
+	$(PYTHON) -m pdb main.py $$mapa --visual
 
+# Flags obrigatórias exigidas na página 7 do enunciado
 lint:
 	@if [ ! -d "$(VENV)" ]; then exit 1; fi
-	$(FLAKE8) main.py simulation.py visualizer.py
-	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs main.py simulation.py visualizer.py
-
-lint-strict:
-	@if [ ! -d "$(VENV)" ]; then exit 1; fi
-	$(FLAKE8) main.py simulation.py visualizer.py
-	$(MYPY) --strict main.py simulation.py visualizer.py
+	$(FLAKE8) main.py simulation.py visualizer.py network.py parser.py
+	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs main.py simulation.py visualizer.py network.py parser.py
 
 clean:
-	rm -rf __pycache__ .mypy_cache .pytest_cache *.pyc
+	rm -rf __pycache__ .mypy_cache .pytest_cache *.pyc **/__pycache__
 
 fclean: clean
 	rm -rf $(VENV)
 
 re: fclean all
 
-.PHONY: all install run debug lint lint-strict clean fclean re
+# Truque para silenciar os argumentos de ficheiros (.txt) no Make
+%:
+	@:
+
+.PHONY: all install run debug lint clean fclean re

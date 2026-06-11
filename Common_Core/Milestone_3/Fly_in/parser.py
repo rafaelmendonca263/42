@@ -63,8 +63,6 @@ class Parser:
                         if not corredor0 or not corredor1:
                             raise ParseError(f"Syntax Error: Malformed connection names: '{part[1].strip()}'")
 
-                        # NOTA: O construtor posicional Connection(corredor0, corredor1) funciona perfeitamente
-                        # com from_hub e to_hub por ordem!
                         connections.append((Connection(corredor0, corredor1), metadata))
                         continue
                     
@@ -200,10 +198,8 @@ class Parser:
                     if "=" in pair:
                         k, v = pair.split("=", 1)
                         if k.strip() == "max_link_capacity":
-                            # Corrigido de max_link_capacity para max_drones de acordo com a nossa dataclass
                             conn_obj.max_drones = int(v.strip())
 
-            # --- CORREÇÃO AQUI: Trocado hub1/hub2 por from_hub/to_hub ---
             if (conn_obj.from_hub not in valid_hub_names or
                     conn_obj.to_hub not in valid_hub_names):
                 raise ParseError(f"Invalid hub in Connections: {conn_obj.from_hub} -> {conn_obj.to_hub}")

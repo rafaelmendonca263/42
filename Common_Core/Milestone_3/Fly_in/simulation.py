@@ -1,15 +1,16 @@
+import time
 from network import NetworkGraph
 from visualizer import DroneVisualizer
 
 
 class Simulation:
-    def __init__(self, graph: NetworkGraph, nb_drones: int, start_hub: str, end_hub: str):
+    def __init__(self, graph: NetworkGraph, nb_drones: int, start_hub: str, end_hub: str, visual: bool = False):
         self.graph = graph
         self.start_hub = start_hub
         self.end_hub = end_hub
         self.current_turn = 0
         self.output_history = []
-        self.visual = visual
+        self.visual = visual  # 👈 Corrigido: Agora a variável vem dos argumentos do __init__
 
         # Estado inicial dos drones (com suporte a verificação de status unificada)
         self.drones = [
@@ -29,6 +30,8 @@ class Simulation:
         # Tabelas de ocupação dinâmicas
         self.hub_occupancy = {}
         self.conn_occupancy = {}
+        
+        # Inicializa o visualizador apenas se a flag visual estiver ativa
         if self.visual:
             self.visualizer = DroneVisualizer(self.graph)
 
@@ -122,25 +125,17 @@ class Simulation:
                                 # Se o custo é 1, aterra logo neste turno, mostra a zona de destino
                                 turn_output.append(f"D{drone['id']}-{next_hub_name}")
                         else:
-                            # Retido: Omitido da linha conforme o enunciado
                             drone["lock_until_turn"] = self.current_turn + 1
                             drone["path"] = None
                     else:
-                        # Sem caminhos válidos disponíveis: espera
                         drone["lock_until_turn"] = self.current_turn + 1
 
-            # FASE 3: Output estrito do turno
             if turn_output:
-                # Ordena por ID do drone para o output ficar limpo e previsível
                 turn_output.sort(key=lambda x: int(x.split('-')[0][1:]))
                 print(" ".join(turn_output))
 
             if self.visual:
-                # Passa o turno atual e a lista de drones para a GUI desenhar
-                self.visualizer.draw_state(self.current_turn, self.drones)
-                # Pausa de x milissegundos para os humanos conseguirem acompanhar o voo
-                import time
-                time.sleep(0.4)
+                self.visualizer.draw_state(self.current_turn, self.drones, turn_output)
 
             self.current_turn += 1
     
@@ -174,7 +169,6 @@ class Simulation:
         return all(drone["current_hub"] == self.end_hub for drone in self.drones)
 
     def evaluate_best_path(self, current_hub: str, start_turn: int) -> list:
-        """Avalia as rotas possíveis e escolhe a que chega mais cedo com atalho estático."""
         all_paths = self.graph.find_all_paths(current_hub, self.end_hub)
         
         best_path = None
@@ -182,8 +176,7 @@ class Simulation:
         
         for path_data in all_paths:
             path = path_data[0]
-            
-            # Otimização: Se a primeira saída desta rota já estiver cheia agora, descarta imediatamente
+
             if len(path) > 1:
                 conn_key = f"{path[0]}->{path[1]}"
                 conn_obj = self.graph.connections.get(conn_key)
@@ -201,7 +194,6 @@ class Simulation:
         return best_path
 
     def simulate_path_arrival(self, path: list, start_turn: int) -> int:
-        """Calcula a previsão do tempo de chegada com corte rápido de tentativas."""
         current_time = start_turn
 
         for i in range(1, len(path)):
@@ -214,7 +206,6 @@ class Simulation:
             travel_cost = 2 if hub_object.zone_type == "restricted" else 1
             
             attempts = 0
-            # Se o gargalo for imediato (i == 1), desiste logo para poupar o processador
             max_allowed_attempts = 3 if i == 1 else 8 
             
             while True:
@@ -242,65 +233,10 @@ class Simulation:
                     return float('inf')
             
         return current_time
-
-    def move_drone(self, drone):
-        current_step = drone["step"]
-        path = drone["path"]
-        
-        if path is None or current_step >= len(path) - 1:
-            return
-
-        current_hub_name = drone["current_hub"]
-        next_hub_name = path[current_step + 1]
-        
-        hub_object = self.graph.hubs[next_hub_name]
-        conn_object = self.graph.connections.get(f"{current_hub_name}->{next_hub_name}")
-
-        travel_cost = 2 if hub_object.zone_type == "restricted" else 1
-        arrival_time = self.current_turn + travel_cost
-
-        hubs_agendados = self.hub_occupancy.get(arrival_time, {}).get(next_hub_name, 0)
-        hub_ok = hubs_agendados < hub_object.max_drones
-
-        conn_key = f"{current_hub_name}->{next_hub_name}"
-        conn_ok = True
-        if conn_object:
-            for t in range(self.current_turn, arrival_time):
-                drones_na_conn = self.conn_occupancy.get(t, {}).get(conn_key, 0)
-                if drones_na_conn >= conn_object.max_drones:
-                    conn_ok = False
-                    break
-
-        if hub_ok and conn_ok:
-            self.register_hub_occupancy(arrival_time, next_hub_name)
-            if conn_object:
-                for t in range(self.current_turn, arrival_time):
-                    self.register_conn_occupancy(t, conn_key)
-
-            drone["lock_until_turn"] = arrival_time
-            drone["is_flying"] = True
-            drone["status"] = "in_transit"
-            print(f"✈️ Drone {drone['id']} descolou de {current_hub_name} para {next_hub_name} (Previsão: Turno {arrival_time})")
-            self.output_history.append({
-                "turn": self.current_turn,
-                "drone_id": drone["id"],
-                "from": current_hub_name,
-                "to": next_hub_name,
-                "arrival": arrival_time
-            })
-        else:
-            motivo = "Conexão cheia" if not conn_ok else "Hub cheio"
-            print(f"⏱️ Drone {drone['id']} retido em {current_hub_name}. Adiando partida para o próximo turno ({motivo} para o Turno {arrival_time}).")
-            drone["lock_until_turn"] = self.current_turn + 1
-            drone["is_flying"] = False
-            drone["status"] = "landed"
-            drone["path"] = None
     
     def save_output(self, filename="output.json"):
-        """Grava os resultados da simulação num formato estruturado."""
         import json
         
-        # Estrutura padrão limpa
         data_to_save = {
             "total_turns": self.current_turn,
             "hubs_end_state": {d["id"]: d["current_hub"] for d in self.drones},
