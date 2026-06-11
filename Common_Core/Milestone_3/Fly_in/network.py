@@ -1,5 +1,6 @@
 from structure import Hub, Connection
 
+
 class NetworkGraph:
     def __init__(self, data: dict):
         self.hubs = {}
@@ -30,18 +31,30 @@ class NetworkGraph:
             return self._paths_cache[cache_key]
 
         calculated_paths = self._dfs_find_paths(start, end, [])
+<<<<<<< HEAD
         self._paths_cache[cache_key] = calculated_paths
         return calculated_paths
 
     def _dfs_find_paths(self, start: str, end: str, current_path: list) -> list:
+=======
+
+        # Guarda na cache
+        self._paths_cache[cache_key] = calculated_paths
+        return calculated_paths
+
+    def _dfs_find_paths(
+        self, start: str, end: str, current_path: list
+    ) -> list:
+        """Mecanismo DFS interno protegido."""
+>>>>>>> 196ff047d16a6436817ad5703c22743e41c379d9
         path = current_path + [start]
-        
+
         if start == end:
             return [(path, len(path) - 1)]
-            
+
         if start not in self.adj_list:
             return []
-            
+
         paths = []
         for node in self.adj_list[start]:
             if node not in path:
