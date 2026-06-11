@@ -1,4 +1,5 @@
 import sys
+from typing import Any, Dict, Set
 from structure import Hub, Connection
 
 
@@ -9,7 +10,7 @@ class ParseError(Exception):
 class Parser:
 
     @staticmethod
-    def extract_info(filepath: str):
+    def extract_info(filepath: str) -> Dict[str, Any]:
         try:
             with open(filepath, "r", encoding="utf-8") as file:
                 hubs = []
@@ -30,9 +31,9 @@ class Parser:
                         )
 
                     part = line.split(":", 1)
-                    type = part[0].strip()
+                    command_type = part[0].strip()
 
-                    if type == "nb_drones":
+                    if command_type == "nb_drones":
                         try:
                             num = int(part[1].strip())
                         except ValueError:
@@ -41,7 +42,7 @@ class Parser:
                             )
                         continue
 
-                    elif type == "connection":
+                    elif command_type == "connection":
                         if "[" in part[1]:
                             link_data, metadata = part[1].split("[", 1)
                         else:
@@ -59,7 +60,7 @@ class Parser:
                         )
                         if not clean_link:
                             raise ParseError(
-                                f"Syntax Error: Empty connection definition."
+                                "Syntax Error: Empty connection definition."
                             )
 
                         if clean_link.count("-") != 1:
@@ -81,18 +82,12 @@ class Parser:
                                 f"Syntax Error: Malformed connection names: '{part[1].strip()}'"
                             )
 
-<<<<<<< HEAD
-                        connections.append((Connection(corredor0, corredor1), metadata))
-=======
-                        # NOTA: O construtor posicional Connection(corredor0, corredor1) funciona perfeitamente
-                        # com from_hub e to_hub por ordem!
                         connections.append(
                             (Connection(corredor0, corredor1), metadata)
                         )
->>>>>>> 196ff047d16a6436817ad5703c22743e41c379d9
                         continue
 
-                    elif type in ("hub", "start_hub", "end_hub"):
+                    elif command_type in ("hub", "start_hub", "end_hub"):
                         if "[" in part[1]:
                             data = part[1].split("[", 1)
                             mandatory = data[0].strip()
@@ -122,9 +117,9 @@ class Parser:
                             )
 
                         hub_type = "normal"
-                        if type == "start_hub":
+                        if command_type == "start_hub":
                             hub_type = "start"
-                        elif type == "end_hub":
+                        elif command_type == "end_hub":
                             hub_type = "end"
 
                         hubs.append(
@@ -134,7 +129,7 @@ class Parser:
 
                     else:
                         raise ParseError(
-                            f"Syntax Error: Unknown command type discovered: '{type}'"
+                            f"Syntax Error: Unknown command type discovered: '{command_type}'"
                         )
 
             return {"hubs": hubs, "Connection": connections, "nb_drones": num}
@@ -147,7 +142,7 @@ class Parser:
             )
 
     @staticmethod
-    def validate_metadata(metadata_str: str, allowed_keys: set):
+    def validate_metadata(metadata_str: str, allowed_keys: Set[str]) -> None:
         if metadata_str:
             if metadata_str.count("]") != 1 or "[" in metadata_str:
                 raise ParseError(
@@ -173,14 +168,14 @@ class Parser:
                         f"Invalid metadata format: '{pair}' (expected key=value)"
                     )
 
-                key, value = pair.split("=", 1)
+                key, _ = pair.split("=", 1)
                 if key.strip() not in allowed_keys:
                     raise ParseError(
                         f"Unknown metadata key discovered: '{key.strip()}'"
                     )
 
     @staticmethod
-    def parse_info(dict_hubs):
+    def parse_info(dict_hubs: Dict[str, Any]) -> Dict[str, Any]:
         raw_hubs = dict_hubs["hubs"]
         raw_connections = dict_hubs["Connection"]
         nb_drones = dict_hubs["nb_drones"]
@@ -250,12 +245,6 @@ class Parser:
                         if k.strip() == "max_link_capacity":
                             conn_obj.max_drones = int(v.strip())
 
-<<<<<<< HEAD
-            if (conn_obj.from_hub not in valid_hub_names or
-                    conn_obj.to_hub not in valid_hub_names):
-                raise ParseError(f"Invalid hub in Connections: {conn_obj.from_hub} -> {conn_obj.to_hub}")
-=======
-            # --- CORREÇÃO AQUI: Trocado hub1/hub2 por from_hub/to_hub ---
             if (
                 conn_obj.from_hub not in valid_hub_names
                 or conn_obj.to_hub not in valid_hub_names
@@ -263,7 +252,6 @@ class Parser:
                 raise ParseError(
                     f"Invalid hub in Connections: {conn_obj.from_hub} -> {conn_obj.to_hub}"
                 )
->>>>>>> 196ff047d16a6436817ad5703c22743e41c379d9
 
             if conn_obj.from_hub == conn_obj.to_hub:
                 raise ParseError(
@@ -285,7 +273,7 @@ class Parser:
         return dict_hubs
 
 
-def parse_config(filepath: str) -> dict:
+def parse_config(filepath: str) -> Dict[str, Any]:
     raw_data = Parser.extract_info(filepath)
     return Parser.parse_info(raw_data)
 
