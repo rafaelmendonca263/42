@@ -10,9 +10,7 @@ class Hub:
     hub_type: str = "normal"
     color: Optional[str] = None
     max_drones: int = 1
-    zone_type: Literal["normal", "restricted", "priority", "blocked"] = (
-        "normal"
-    )
+    zone_type: Literal["normal", "restricted", "priority", "blocked"] = "normal"
 
 
 @dataclass

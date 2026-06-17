@@ -9,5 +9,4 @@ def criterios(palavra):
 
 
 def sort_words(word_list):
-
     return sorted(word_list, key=criterios)

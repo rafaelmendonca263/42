@@ -27,7 +27,7 @@ def main() -> None:
 
     sim.run()
 
-    if visual_mode and hasattr(sim, 'visualizer'):
+    if visual_mode and hasattr(sim, "visualizer"):
         print("\n🏁 Simulação concluída! Fecha a janela gráfica para terminar.")
         sim.visualizer.root.mainloop()
 
