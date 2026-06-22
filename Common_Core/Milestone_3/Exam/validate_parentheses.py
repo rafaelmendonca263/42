@@ -1,22 +1,26 @@
-
-def validate_parentheses(s):
+def validate_parentheses(s: str) -> bool:
+    para = {')':'(', '}':'{', ']':'['}
     lista = []
-    dict = {')': '(', '}': '{', ']': '['}
 
     for char in s:
-        if char in dict.values():
+        if char in para.values():
             lista.append(char)
-        elif char in dict:
-            if not lista:
+        elif char in para:
+            if lista and para[char] == lista[-1]:
+                lista.pop()
+            else:
                 return False
-            if lista[-1] != dict[char]:
-                return False
-            lista.pop()
 
     return len(lista) == 0
 
 
-"""
-lista = '{{{{{{{[[[[[[(())]]]]]]}}}}}}}'
-print(validate_parentheses(lista))
- """
+
+
+lista = [
+    '()',                               # lista[1] -> Deve dar True
+    '(]',                               # lista[2] -> Deve dar False
+    '([)]'                              # lista[3] -> Deve dar False
+]
+
+for listas in lista:
+    print(validate_parentheses(listas))
