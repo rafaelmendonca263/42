@@ -256,7 +256,7 @@ class Simulation:
         data_to_save = {
             "total_turns": self.current_turn,
             "hubs_end_state": {d["id"]: d["current_hub"] for d in self.drones},
-            "steps": self.output_history,
+            "steps": self.output_history
         }
 
         with open(filename, "w", encoding="utf-8") as f:

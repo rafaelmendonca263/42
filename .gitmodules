@@ -1,3 +1,6 @@
 [submodule "Common_Core/Milestone_2/A-Maze-ing"]
 	path = Common_Core/Milestone_2/A-Maze-ing
 	url = https://github.com/rafaelmendonca263/A-Maze-ing.git
+[submodule "Common_Core/Milestone_3/Exam/42-Python-ExamShell"]
+	path = Common_Core/Milestone_3/Exam/42-Python-ExamShell
+	url = git@github.com:SaraFreitas-dev/42-Python-ExamShell-Rank03.git
