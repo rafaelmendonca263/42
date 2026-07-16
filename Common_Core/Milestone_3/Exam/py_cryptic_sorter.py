@@ -1,27 +1,27 @@
-def criterios(string: str):
+def helper(string: str):
     tamanho = len(string)
-    ordem_alpha = string.lower()
-    num_vogais = sum(1 for letra in string.lower() if letra in "aeiou")
-    return (tamanho, ordem_alpha, num_vogais)
+    ascii_ord = string.lower()
+    count = 0
+    for char in string:
+        if char in "aeiou":
+            count += 1
+
+    return (tamanho, ascii_ord, count, string)
 
 
 def cryptic_sorter(strings: list[str]) -> list[str]:
-    lista_ordenada = list(strings)
-    j = 0
     i = 0
+    j = 0
+    res = strings
 
-    while i < len(lista_ordenada):
+    while i < len(res) - 1:
         j = 0
-        while j < len(lista_ordenada) - i - 1:
-            if criterios(lista_ordenada[j]) > criterios(lista_ordenada[j + 1]):
-                lista_ordenada[j], lista_ordenada[j + 1] = (
-                    lista_ordenada[j + 1],
-                    lista_ordenada[j],
-                )
+        while j < len(res) - 1 - i:
+            if helper(res[j]) > helper(res[j + 1]):
+                tmp = res[j]
+                res[j] = res[j + 1]
+                res[j + 1] = tmp
             j = j + 1
         i = i + 1
-    return lista_ordenada
 
-
-print(cryptic_sorter(["apple", "cat", "banana", "dog", "elephant"]))
-print(cryptic_sorter(["aaa", "bbb", "AAA", "BBB"]))
+    return res
