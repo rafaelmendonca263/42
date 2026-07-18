@@ -154,13 +154,22 @@ class Parser:
                 raise ParseError("Syntax Error: Metadata brackets cannot be empty")
 
             pairs = content.split()
-            for pair in pairs:
-                if "=" not in pair:
-                    raise ParseError(
-                        f"Invalid metadata format: '{pair}' (expected key=value)"
-                    )
+            i = 0
+            while i < len(pairs):
+                pair = pairs[i]
+                if "=" in pair:
+                    # A: format Key=Value
+                    key, value = pair.split("=", 1)
+                    i += 1
+                else:
+                    # B: format (Key Value)
+                    if i + 1 < len(pairs):
+                        key = pair
+                        value = pairs[i + 1]
+                        i += 2
+                    else:
+                        raise ParseError("Syntax Error: Metadata key missing its value")
 
-                key, _ = pair.split("=", 1)
                 if key.strip() not in allowed_keys:
                     raise ParseError(
                         f"Unknown metadata key discovered: '{key.strip()}'"
@@ -175,11 +184,12 @@ class Parser:
         ALLOWED_HUB_KEYS = {"color", "max_drones", "zone"}
         ALLOWED_CONN_KEYS = {"max_link_capacity"}
 
-        if nb_drones <= 0:
+        if nb_drones <= 0 or nb_drones > 100000:
             raise ParseError("Number of Drones are Invalid")
 
         valid_hub_names = set()
         seen_coordinates = set()
+        seen_names = set()
         final_hubs = []
         start_hub_count = 0
         end_hub_count = 0
@@ -189,20 +199,50 @@ class Parser:
 
             if metadata:
                 content = metadata.strip(" \t\n\r\xa0").rstrip("]")
-                for pair in content.split():
+                pairs = content.split()
+                seen_metadata_keys = set()
+                i = 0
+                while i < len(pairs):
+                    pair = pairs[i]
                     if "=" in pair:
                         k, v = pair.split("=", 1)
-                        if k.strip() == "max_drones":
-                            hub_obj.max_drones = int(v.strip())
-                        elif k.strip() == "zone":
-                            hub_obj.zone_type = v.strip()
-                        elif k.strip() == "color":
-                            hub_obj.color = v.strip()
+                        i += 1
+                    elif i + 1 < len(pairs):
+                        k, v = pairs[i], pairs[i+1]
+                        i += 2
+                    else:
+                        raise ParseError("Syntax Error: Metadata key missing its value")
+
+                    # Processamento e validação das chaves do Hub
+                    chave_limpa = k.strip()
+
+                    if chave_limpa in seen_metadata_keys:
+                        raise ParseError(f"Syntax Error: Duplicate metadata key '{chave_limpa}' found in hub definition.")
+                    seen_metadata_keys.add(chave_limpa)
+
+                    if chave_limpa == "max_drones":
+                        try:
+                            valor_num = int(v.strip())
+                            if valor_num <= 0 or valor_num > 100000:
+                                raise ParseError(f"Invalid integer value for key '{chave_limpa}': '{v.strip()}'")
+                            hub_obj.max_drones = valor_num
+                        except ValueError:
+                            raise ParseError(f"Invalid integer value for key '{chave_limpa}': '{v.strip()}'")
+                    elif chave_limpa == "zone":
+                        hub_obj.zone_type = v.strip()
+                    elif chave_limpa == "color":
+                        hub_obj.color = v.strip()
 
             if hub_obj.hub_type == "start":
                 start_hub_count += 1
             elif hub_obj.hub_type == "end":
                 end_hub_count += 1
+            
+            if hub_obj.name in seen_names:
+                raise ParseError(
+                    f"Business Logic Error: Duplicate hub name '{hub_obj.name}' found."
+                )
+            seen_names.add(hub_obj.name)
 
             coords = (hub_obj.x, hub_obj.y)
             if coords in seen_coordinates:
@@ -225,17 +265,42 @@ class Parser:
 
         final_connections = []
         seen_connections = set()
+        seen_metadata_keys = set()
 
         for conn_obj, metadata in raw_connections:
             Parser.validate_metadata(metadata, ALLOWED_CONN_KEYS)
 
             if metadata:
                 content = metadata.strip(" \t\n\r\xa0").rstrip("]")
-                for pair in content.split():
+                pairs = content.split()
+                seen_metadata_keys = set()
+                i = 0
+                while i < len(pairs):
+                    pair = pairs[i]
                     if "=" in pair:
                         k, v = pair.split("=", 1)
-                        if k.strip() == "max_link_capacity":
-                            conn_obj.max_drones = int(v.strip())
+                        i += 1
+                    elif i + 1 < len(pairs):
+                        k, v = pairs[i], pairs[i+1]
+                        i += 2
+                    else:
+                        raise ParseError("Syntax Error: Metadata key missing its value")
+
+                    # Processamento e validação das chaves da Conexão
+                    chave_limpa = k.strip()
+
+                    if chave_limpa in seen_metadata_keys:
+                        raise ParseError(f"Syntax Error: Duplicate metadata key '{chave_limpa}' found in connection definition.")
+                    seen_metadata_keys.add(chave_limpa)
+
+                    if chave_limpa == "max_link_capacity":
+                        try:
+                            valor_num = int(v.strip())
+                            if valor_num <= 0 or valor_num > 100000:
+                                raise ParseError(f"Invalid integer value for key '{chave_limpa}': '{v.strip()}'")
+                            conn_obj.max_drones = valor_num
+                        except ValueError:
+                            raise ParseError(f"Invalid integer value for key '{chave_limpa}': '{v.strip()}'")
 
             if (
                 conn_obj.from_hub not in valid_hub_names

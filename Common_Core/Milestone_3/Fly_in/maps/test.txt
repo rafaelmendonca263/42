@@ -1,0 +1,4 @@
+nb_drones : 10
+start_hub : Alfa 10 20
+end_hub   : Beta 30 40
+connection : Alfa - Beta [max_link_capacity 5 max_link_capacity 10]
