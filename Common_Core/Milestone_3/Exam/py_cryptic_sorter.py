@@ -1,12 +1,8 @@
 def helper(string: str):
     tamanho = len(string)
     ascii_ord = string.lower()
-    count = 0
-    for char in string:
-        if char in "aeiou":
-            count += 1
 
-    return (tamanho, ascii_ord, count, string)
+    return (tamanho, ascii_ord)
 
 
 def cryptic_sorter(strings: list[str]) -> list[str]:
@@ -25,3 +21,6 @@ def cryptic_sorter(strings: list[str]) -> list[str]:
         i = i + 1
 
     return res
+
+
+print(cryptic_sorter(['aaa', 'bbb', 'AAA', 'BBB']))

@@ -17,7 +17,7 @@ def main() -> None:
     try:
         parsed_data = parse_map_file(args.map_file)
         sim = Simulation(parsed_data, visual=args.visual)
-        sim.run()  # O sim.run() deve imprimir os turnos diretamente na consola (print)
+        sim.run()
 
     except ParseError as pe:
         print(f"Erro de Parsing: {pe}", file=sys.stderr)

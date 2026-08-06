@@ -1,7 +1,7 @@
-"""Motor de simulação otimizado pelo agendamento em Espaço-Tempo."""
+"""Simulation engine for Fly-in drone routing using Space-Time scheduling."""
 
-from typing import List, Dict, Any, Union
-from structure import Hub, Connection, Drone
+from typing import Any, Dict, List, Union
+from structure import Connection, Hub, Drone
 from reservation import ReservationTable
 from pathfinder import SpaceTimeAStar
 
@@ -13,24 +13,30 @@ class Simulation:
         visual: bool = False,
     ) -> None:
         self.hubs_list: List[Hub] = parsed_data["hubs"]
-        self.raw_connections: List[Union[Connection, str]] = parsed_data["connections"]
+        self.raw_connections: List[Union[Connection, str]] = parsed_data[
+            "connections"
+        ]
         self.nb_drones: int = parsed_data["nb_drones"]
         self.start_hub: str = parsed_data["start_hub"]
         self.end_hub: str = parsed_data["end_hub"]
         self.visual = visual
 
-        # Mapeamento O(1) de Hubs
+        # O(1) Hub mapping
         self.hubs: Dict[str, Hub] = {h.name: h for h in self.hubs_list}
         self.connections: Dict[str, Connection] = {}
         self.adj: Dict[str, List[str]] = {}
 
-        # Mapeamento seguro de Conexões (trata instâncias de Connection ou Strings)
+        # Connection mapping (handles Connection objects or string formatted links)
         for conn_item in self.raw_connections:
             if isinstance(conn_item, Connection):
                 u, v = conn_item.from_hub, conn_item.to_hub
                 conn_obj = conn_item
             elif isinstance(conn_item, str):
-                parts = conn_item.split("-") if "-" in conn_item else conn_item.split()
+                parts = (
+                    conn_item.split("-")
+                    if "-" in conn_item
+                    else conn_item.split()
+                )
                 if len(parts) >= 2:
                     u, v = parts[0].strip(), parts[1].strip()
                     conn_obj = Connection(from_hub=u, to_hub=v)
@@ -51,17 +57,21 @@ class Simulation:
             self.hubs, self.connections, self.adj, self.reservation_table
         )
 
-        # Inicialização dos Drones
+        # Drone initialization
         self.drones: List[Drone] = []
         self.drone_states: Dict[int, Dict[str, Any]] = {}
 
         for i in range(1, self.nb_drones + 1):
-            schedule = self.pathfinder.find_schedule(self.start_hub, self.end_hub)
+            schedule = self.pathfinder.find_schedule(
+                self.start_hub, self.end_hub
+            )
             if schedule:
                 self.pathfinder.commit_schedule(schedule, self.end_hub)
 
             path_nodes = [node for node, _ in schedule]
-            drone_obj = Drone(id_num=i, current_hub=self.start_hub, path=path_nodes)
+            drone_obj = Drone(
+                id_num=i, current_hub=self.start_hub, path=path_nodes
+            )
             self.drones.append(drone_obj)
 
             self.drone_states[i] = {
@@ -75,12 +85,23 @@ class Simulation:
         if self.visual:
             try:
                 from visualizer import DroneVisualizer
+
                 self.visualizer = DroneVisualizer(self)
             except ImportError:
                 self.visual = False
 
     def is_finished(self) -> bool:
-        return all(st["status"] == "finished" for st in self.drone_states.values())
+        return all(
+            st["status"] == "finished" for st in self.drone_states.values()
+        )
+
+    def _format_move(self, drone_id: int, target: str) -> str:
+        """Centralized move formatter.
+
+        Easy to extend during evaluations (e.g., adding occupancy [curr/max]).
+        """
+        # Formato padrão da norma: D<ID>-<target>
+        return f"D{drone_id}-{target}"
 
     def run_turn(self) -> List[str]:
         self.current_turn += 1
@@ -92,22 +113,19 @@ class Simulation:
             if st["status"] == "finished":
                 continue
 
-            # 1. Trânsito para Zonas Restritas (2º turno da transição)
+            # 1. End transit for restricted zones (2nd step)
             if st["status"] == "in_transit":
                 target_hub = st["in_transit_to"]
                 st["in_transit_to"] = None
                 drone.current_hub = target_hub
 
-                if target_hub == self.end_hub:
-                    st["status"] = "finished"
-                else:
-                    st["status"] = "moving"
-
-                # Formato Subject VII.5: D<ID>-<zone>
-                turn_moves.append(f"D{drone.id_num}-{target_hub}")
+                st["status"] = (
+                    "finished" if target_hub == self.end_hub else "moving"
+                )
+                turn_moves.append(self._format_move(drone.id_num, target_hub))
                 continue
 
-            # 2. Execução do movimento agendado
+            # 2. Execute scheduled movement step
             schedule = st["schedule"]
             idx = st["schedule_idx"]
 
@@ -115,32 +133,31 @@ class Simulation:
                 continue
 
             curr_hub, curr_t = schedule[idx]
-            next_hub, next_t = schedule[idx + 1]
+            next_hub, _ = schedule[idx + 1]
 
             if self.current_turn == curr_t:
                 st["schedule_idx"] += 1
 
-                # Se for espera agendada no mesmo nó, não emite instrução de movimento
+                # Skip scheduled wait step at the same node
                 if curr_hub == next_hub:
                     continue
 
                 next_hub_obj = self.hubs.get(next_hub)
-                zone_type = next_hub_obj.zone_type if next_hub_obj else "normal"
+                zone_type = (
+                    next_hub_obj.zone_type if next_hub_obj else "normal"
+                )
 
                 if zone_type == "restricted" and next_hub != self.end_hub:
                     st["status"] = "in_transit"
                     st["in_transit_to"] = next_hub
-                    # Formato Subject VII.5: D<ID>-<connection>
                     conn_name = f"{curr_hub}-{next_hub}"
-                    turn_moves.append(f"D{drone.id_num}-{conn_name}")
+                    turn_moves.append(self._format_move(drone.id_num, conn_name))
                 else:
                     drone.current_hub = next_hub
-                    if next_hub == self.end_hub:
-                        st["status"] = "finished"
-                    else:
-                        st["status"] = "moving"
-                    # Formato Subject VII.5: D<ID>-<zone>
-                    turn_moves.append(f"D{drone.id_num}-{next_hub}")
+                    st["status"] = (
+                        "finished" if next_hub == self.end_hub else "moving"
+                    )
+                    turn_moves.append(self._format_move(drone.id_num, next_hub))
 
         return turn_moves
 
@@ -155,17 +172,19 @@ class Simulation:
                 self.visualizer.update(self.drones, self.current_turn)
 
             if not moves and not self.is_finished():
-                if any(st["status"] == "in_transit" for st in self.drone_states.values()):
+                if any(
+                    st["status"] == "in_transit"
+                    for st in self.drone_states.values()
+                ):
                     continue
-                print("❌ Erro: Simulação em impasse.")
+                print("❌ Simulation error: Deadlock detected.")
                 break
 
     def save_output_txt(self, filepath: str = "output.txt") -> None:
-        """Opcional: Guarda a saída do terminal num ficheiro de texto (.txt)."""
         try:
             with open(filepath, "w", encoding="utf-8") as f:
                 for turn_moves in self.output_turns:
                     f.write(" ".join(turn_moves) + "\n")
-            print(f"\n💾 Output gravado com sucesso em: {filepath}")
+            print(f"\n💾 Output successfully saved to: {filepath}")
         except Exception as e:
-            print(f"❌ Erro ao gravar ficheiro de output: {e}")
+            print(f"❌ Error saving output file: {e}")

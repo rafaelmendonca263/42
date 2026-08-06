@@ -19,7 +19,7 @@ class NetworkGraph:
         self.hubs[hub.name] = hub
         if hub.name not in self.adj:
             self.adj[hub.name] = []
-        
+
         if hub.hub_type == "start":
             self.start_hub = hub.name
         elif hub.hub_type == "end":

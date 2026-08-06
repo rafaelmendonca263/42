@@ -14,7 +14,9 @@ class Hub:
     hub_type: str = "normal"  # "start", "end" ou "normal"
     color: Optional[str] = None
     max_drones: int = 1
-    zone_type: Literal["normal", "restricted", "priority", "blocked"] = "normal"
+    zone_type: Literal["normal", "restricted", "priority", "blocked"] = (
+        "normal"
+    )
 
 
 @dataclass
@@ -25,7 +27,8 @@ class Connection:
     to_hub: str
     max_drones: int = 1
 
-    # Aliases com @property para garantir compatibilidade total se usares u/v/max_link_capacity
+    # Aliases com @property para garantir compatibilidade total se usares
+    # u/v/max_link_capacity
     @property
     def u(self) -> str:
         return self.from_hub

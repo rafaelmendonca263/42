@@ -59,7 +59,10 @@ class SpaceTimeAStar:
                 if not neigh_obj:
                     continue
 
-                if neigh_obj.zone_type == "blocked" or neigh_obj.color == "black":
+                if (
+                    neigh_obj.zone_type == "blocked"
+                    or neigh_obj.color == "black"
+                ):
                     continue
 
                 link_key = self.get_link_key(curr, neighbor)
@@ -68,7 +71,9 @@ class SpaceTimeAStar:
                 max_l_cap = conn_obj.max_drones if conn_obj else 1
                 max_h_cap = neigh_obj.max_drones
 
-                travel_duration = 2 if neigh_obj.zone_type == "restricted" else 1
+                travel_duration = (
+                    2 if neigh_obj.zone_type == "restricted" else 1
+                )
                 arrival_turn = t + travel_duration
 
                 if not self.res.is_link_free(link_key, t, max_l_cap):
@@ -92,7 +97,9 @@ class SpaceTimeAStar:
 
         return []
 
-    def commit_schedule(self, schedule: List[Tuple[str, int]], end_hub: str) -> None:
+    def commit_schedule(
+        self, schedule: List[Tuple[str, int]], end_hub: str
+    ) -> None:
         for i in range(len(schedule) - 1):
             curr_hub, curr_turn = schedule[i]
             next_hub, next_turn = schedule[i + 1]

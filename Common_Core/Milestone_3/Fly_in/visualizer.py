@@ -2,26 +2,31 @@ import sys
 import pygame
 from typing import Dict, Any, List, Tuple
 
-
 COLOR_MAP: Dict[str, Tuple[int, int, int]] = {
-    "green": (46, 204, 113),       # Start
-    "red": (231, 76, 60),          # End / Danger
-    "blue": (52, 152, 219),        # Normal
-    "purple": (155, 89, 182),      # Maze traps
-    "orange": (230, 126, 34),      # Micro gates
-    "maroon": (128, 0, 0),         # Overflow
-    "brown": (139, 69, 19),        # Restricted loops
-    "gold": (241, 196, 15),        # Priority / False hope
-    "darkred": (139, 0, 0),        # Convergence
-    "violet": (142, 68, 173),      # Merge
-    "crimson": (220, 20, 60),      # Torture gauntlet
-    "black": (40, 40, 40),         # Dead ends / Blocked
-    "cyan": (26, 188, 156),        # Final stretch
+    "green": (46, 204, 113),  # Start
+    "red": (231, 76, 60),  # End / Danger
+    "blue": (52, 152, 219),  # Normal
+    "purple": (155, 89, 182),  # Maze traps
+    "orange": (230, 126, 34),  # Micro gates
+    "maroon": (128, 0, 0),  # Overflow
+    "brown": (139, 69, 19),  # Restricted loops
+    "gold": (241, 196, 15),  # Priority / False hope
+    "darkred": (139, 0, 0),  # Convergence
+    "violet": (142, 68, 173),  # Merge
+    "crimson": (220, 20, 60),  # Torture gauntlet
+    "black": (40, 40, 40),  # Dead ends / Blocked
+    "cyan": (26, 188, 156),  # Final stretch
 }
 
 
 class DroneVisualizer:
-    def __init__(self, simulation: Any, width: int = 1600, height: int = 950, bg_image_path: str = "Background.jpg"):
+    def __init__(
+        self,
+        simulation: Any,
+        width: int = 1600,
+        height: int = 950,
+        bg_image_path: str = "Background.jpg",
+    ):
         pygame.init()
         pygame.display.set_caption("Fly_in - Simulation Visualizer")
 
@@ -30,7 +35,7 @@ class DroneVisualizer:
         self.height = height
         self.screen = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
-        
+
         # 🔤 Fontes ultra-compactas (tamanho 8) para máxima clareza
         self.font = pygame.font.SysFont("Arial", 8, bold=True)
         self.title_font = pygame.font.SysFont("Arial", 15, bold=True)
@@ -38,15 +43,18 @@ class DroneVisualizer:
         self.bg_image = None
         try:
             image = pygame.image.load(bg_image_path)
-            self.bg_image = pygame.transform.scale(image, (width, height)).convert()
+            self.bg_image = pygame.transform.scale(
+                image, (width, height)
+            ).convert()
         except Exception as e:
-            print(f"⚠️ Não foi possível carregar a imagem '{bg_image_path}': {e}")
+            print(
+                f"⚠️ Não foi possível carregar a imagem '{bg_image_path}': {e}"
+            )
             print("A utilizar fundo escuro de reserva.")
 
         self.node_positions = self._calculate_node_positions()
 
     def _calculate_node_positions(self) -> Dict[str, Tuple[int, int]]:
-        """Mapeia e estica as coordenadas para afastar os nós ao máximo no ecrã."""
         hubs = getattr(self.sim, "hubs", {})
         if not hubs:
             return {}
@@ -65,13 +73,19 @@ class DroneVisualizer:
 
         positions = {}
         for name, hub in hubs.items():
-            px = padding_x + int((hub.x - min_x) / x_span * (self.width - 2 * padding_x))
-            py = padding_y + int((hub.y - min_y) / y_span * (self.height - 2 * padding_y))
+            px = padding_x + int(
+                (hub.x - min_x) / x_span * (self.width - 2 * padding_x)
+            )
+            py = padding_y + int(
+                (hub.y - min_y) / y_span * (self.height - 2 * padding_y)
+            )
             positions[name] = (px, py)
 
         return positions
 
-    def _get_hub_color(self, hub: Any, current_turn: int) -> Tuple[int, int, int]:
+    def _get_hub_color(
+        self, hub: Any, current_turn: int
+    ) -> Tuple[int, int, int]:
         color_attr = getattr(hub, "color", None)
 
         if color_attr and str(color_attr).lower() == "rainbow":
@@ -114,11 +128,19 @@ class DroneVisualizer:
         outline_color: Tuple[int, int, int],
         pos: Tuple[int, int],
     ) -> None:
-        """Desenha texto em preto com contorno branco para contraste perfeito."""
         text_surface = font.render(text, True, text_color)
         outline_surface = font.render(text, True, outline_color)
 
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (-1, 1), (1, -1)]:
+        for dx, dy in [
+            (-1, 0),
+            (1, 0),
+            (0, -1),
+            (0, 1),
+            (-1, -1),
+            (1, 1),
+            (-1, 1),
+            (1, -1),
+        ]:
             self.screen.blit(outline_surface, (pos[0] + dx, pos[1] + dy))
 
         self.screen.blit(text_surface, pos)
@@ -138,7 +160,9 @@ class DroneVisualizer:
         # 1. Conexões / Arestas
         connections = getattr(self.sim, "connections", {})
         conn_iterable = (
-            connections.values() if isinstance(connections, dict) else connections
+            connections.values()
+            if isinstance(connections, dict)
+            else connections
         )
 
         for conn in conn_iterable:
@@ -146,7 +170,9 @@ class DroneVisualizer:
                 u_pos = self.node_positions.get(conn.from_hub)
                 v_pos = self.node_positions.get(conn.to_hub)
                 if u_pos and v_pos:
-                    pygame.draw.line(self.screen, (180, 190, 210), u_pos, v_pos, 2)
+                    pygame.draw.line(
+                        self.screen, (180, 190, 210), u_pos, v_pos, 2
+                    )
 
         # 2. Hubs (Círculos + Nomes em fonte tamanho 8)
         hubs = getattr(self.sim, "hubs", {})
@@ -163,7 +189,9 @@ class DroneVisualizer:
             label = self.font.render(name, True, (0, 0, 0))
             text_x = pos[0] - label.get_width() // 2
             text_y = pos[1] - 18
-            self._draw_text_with_outline(name, self.font, (0, 0, 0), (255, 255, 255), (text_x, text_y))
+            self._draw_text_with_outline(
+                name, self.font, (0, 0, 0), (255, 255, 255), (text_x, text_y)
+            )
 
         # 3. Drones Ativos em Grelha (2 por linha com texto tamanho 8)
         MAX_PER_ROW = 2
@@ -196,8 +224,12 @@ class DroneVisualizer:
                 col = idx % MAX_PER_ROW
                 row = idx // MAX_PER_ROW
 
-                total_in_row = min(MAX_PER_ROW, len(hub_drones) - row * MAX_PER_ROW)
-                row_start_x = base_pos[0] - ((total_in_row - 1) * spacing_x) // 2
+                total_in_row = min(
+                    MAX_PER_ROW, len(hub_drones) - row * MAX_PER_ROW
+                )
+                row_start_x = (
+                    base_pos[0] - ((total_in_row - 1) * spacing_x) // 2
+                )
                 px = row_start_x + (col * spacing_x)
                 py = base_pos[1] + y_offset + (row * spacing_y)
 
@@ -207,10 +239,22 @@ class DroneVisualizer:
 
                 # ID do Drone
                 d_str = f"D{drone_id}"
-                self._draw_text_with_outline(d_str, self.font, (0, 0, 0), (255, 255, 255), (px - 4, py + 2))
+                self._draw_text_with_outline(
+                    d_str,
+                    self.font,
+                    (0, 0, 0),
+                    (255, 255, 255),
+                    (px - 4, py + 2),
+                )
 
         # 4. HUD do Turno
-        self._draw_text_with_outline(f"TURNO: {current_turn}", self.title_font, (0, 0, 0), (255, 255, 255), (20, 20))
+        self._draw_text_with_outline(
+            f"TURNO: {current_turn}",
+            self.title_font,
+            (0, 0, 0),
+            (255, 255, 255),
+            (20, 20),
+        )
 
         pygame.display.flip()
         self.clock.tick(3)
