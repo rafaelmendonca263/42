@@ -1,224 +1,216 @@
-import tkinter as tk
-import time
-from typing import Any, Dict, List
+import sys
+import pygame
+from typing import Dict, Any, List, Tuple
+
+
+COLOR_MAP: Dict[str, Tuple[int, int, int]] = {
+    "green": (46, 204, 113),       # Start
+    "red": (231, 76, 60),          # End / Danger
+    "blue": (52, 152, 219),        # Normal
+    "purple": (155, 89, 182),      # Maze traps
+    "orange": (230, 126, 34),      # Micro gates
+    "maroon": (128, 0, 0),         # Overflow
+    "brown": (139, 69, 19),        # Restricted loops
+    "gold": (241, 196, 15),        # Priority / False hope
+    "darkred": (139, 0, 0),        # Convergence
+    "violet": (142, 68, 173),      # Merge
+    "crimson": (220, 20, 60),      # Torture gauntlet
+    "black": (40, 40, 40),         # Dead ends / Blocked
+    "cyan": (26, 188, 156),        # Final stretch
+}
 
 
 class DroneVisualizer:
-    def __init__(self, graph: Any) -> None:
-        if isinstance(graph, dict):
-            self.hubs: List[Any] = graph.get("hubs", [])
-            self.connections: List[Any] = graph.get("Connection", [])
+    def __init__(self, simulation: Any, width: int = 1600, height: int = 950, bg_image_path: str = "Background.jpg"):
+        pygame.init()
+        pygame.display.set_caption("Fly_in - Simulation Visualizer")
+
+        self.sim = simulation
+        self.width = width
+        self.height = height
+        self.screen = pygame.display.set_mode((width, height))
+        self.clock = pygame.time.Clock()
+        
+        # 🔤 Fontes ultra-compactas (tamanho 8) para máxima clareza
+        self.font = pygame.font.SysFont("Arial", 8, bold=True)
+        self.title_font = pygame.font.SysFont("Arial", 15, bold=True)
+
+        self.bg_image = None
+        try:
+            image = pygame.image.load(bg_image_path)
+            self.bg_image = pygame.transform.scale(image, (width, height)).convert()
+        except Exception as e:
+            print(f"⚠️ Não foi possível carregar a imagem '{bg_image_path}': {e}")
+            print("A utilizar fundo escuro de reserva.")
+
+        self.node_positions = self._calculate_node_positions()
+
+    def _calculate_node_positions(self) -> Dict[str, Tuple[int, int]]:
+        """Mapeia e estica as coordenadas para afastar os nós ao máximo no ecrã."""
+        hubs = getattr(self.sim, "hubs", {})
+        if not hubs:
+            return {}
+
+        xs = [h.x for h in hubs.values()]
+        ys = [h.y for h in hubs.values()]
+
+        min_x, max_x = min(xs), max(xs)
+        min_y, max_y = min(ys), max(ys)
+
+        padding_x = 140
+        padding_y = 130
+
+        x_span = (max_x - min_x) if max_x != min_x else 1
+        y_span = (max_y - min_y) if max_y != min_y else 1
+
+        positions = {}
+        for name, hub in hubs.items():
+            px = padding_x + int((hub.x - min_x) / x_span * (self.width - 2 * padding_x))
+            py = padding_y + int((hub.y - min_y) / y_span * (self.height - 2 * padding_y))
+            positions[name] = (px, py)
+
+        return positions
+
+    def _get_hub_color(self, hub: Any, current_turn: int) -> Tuple[int, int, int]:
+        color_attr = getattr(hub, "color", None)
+
+        if color_attr and str(color_attr).lower() == "rainbow":
+            time_ms = pygame.time.get_ticks()
+            hue = (time_ms // 8) % 360
+            rainbow_color = pygame.Color(0)
+            rainbow_color.hsva = (hue, 100, 100, 100)
+            return (rainbow_color.r, rainbow_color.g, rainbow_color.b)
+
+        if color_attr and str(color_attr).lower() in COLOR_MAP:
+            return COLOR_MAP[str(color_attr).lower()]
+
+        hub_type = getattr(hub, "hub_type", "normal")
+        zone_type = getattr(hub, "zone_type", "normal")
+
+        if hub_type == "start":
+            return COLOR_MAP["green"]
+        if hub_type == "end":
+            return COLOR_MAP["red"]
+        if zone_type == "restricted":
+            return COLOR_MAP["orange"]
+        if zone_type == "priority":
+            return COLOR_MAP["gold"]
+        if zone_type == "blocked":
+            return COLOR_MAP["black"]
+
+        return COLOR_MAP["blue"]
+
+    def _draw_background(self) -> None:
+        if self.bg_image:
+            self.screen.blit(self.bg_image, (0, 0))
         else:
-            self.hubs = (
-                list(graph.hubs.values())
-                if hasattr(graph.hubs, "values")
-                else graph.hubs
-            )
-            self.connections = (
-                list(graph.connections.values())
-                if hasattr(graph.connections, "values")
-                else graph.connections
-            )
+            self.screen.fill((15, 23, 42))
 
-        self.root: tk.Tk = tk.Tk()
-        self.root.title("42 Fly-in: Drone Fleet Simulator 🛸")
-
-        # Alargamos a largura para 1380 para caber o painel de texto à direita
-        self.width: int = 1380
-        self.height: int = 750
-        self.canvas: tk.Canvas = tk.Canvas(
-            self.root, width=self.width, height=self.height, bg="#11111b"
-        )
-        self.canvas.pack()
-
-        self.hub_coords: Dict[str, tuple] = {}
-        self._scale_coordinates()
-
-        # Controlo de Input: Variável de bloqueio interativo
-        self.waiting_for_next_turn: bool = True
-        self.root.bind("<space>", self._on_space_pressed)
-
-    def _on_space_pressed(self, event: Any) -> None:
-        """Liberta o bloqueio quando carregas no Espaço."""
-        self.waiting_for_next_turn = False
-
-    def _scale_coordinates(self) -> None:
-        if not self.hubs:
-            return
-        min_x = min(h.x for h in self.hubs)
-        max_x = max(h.x for h in self.hubs)
-        min_y = min(h.y for h in self.hubs)
-        max_y = max(h.y for h in self.hubs)
-
-        padding = 80
-        # O mapa gráfico usa até aos 1100px de largura; o resto é painel
-        graph_width = 1100
-        span_x = (max_x - min_x) if (max_x - min_x) != 0 else 1
-        span_y = (max_y - min_y) if (max_y - min_y) != 0 else 1
-
-        for hub in self.hubs:
-            screen_x = padding + ((hub.x - min_x) / span_x) * (
-                graph_width - 2 * padding
-            )
-            screen_y = padding + ((hub.y - min_y) / span_y) * (
-                self.height - 2 * padding
-            )
-            self.hub_coords[hub.name] = (int(screen_x), int(screen_y))
-
-    def draw_state(
-        self, current_turn: int,
-        drones_list: List[dict],
-        turn_output: List[str]
+    def _draw_text_with_outline(
+        self,
+        text: str,
+        font: pygame.font.Font,
+        text_color: Tuple[int, int, int],
+        outline_color: Tuple[int, int, int],
+        pos: Tuple[int, int],
     ) -> None:
-        self.canvas.delete("all")
+        """Desenha texto em preto com contorno branco para contraste perfeito."""
+        text_surface = font.render(text, True, text_color)
+        outline_surface = font.render(text, True, outline_color)
 
-        # Título da Simulação
-        self.canvas.create_text(
-            1100 // 2,
-            35,
-            text=f"TURNO DE SIMULAÇÃO: {current_turn}",
-            fill="#cdd6f4",
-            font=("Helvetica", 22, "bold"),
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (-1, 1), (1, -1)]:
+            self.screen.blit(outline_surface, (pos[0] + dx, pos[1] + dy))
+
+        self.screen.blit(text_surface, pos)
+
+    def handle_events(self) -> None:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (
+                event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
+            ):
+                pygame.quit()
+                sys.exit(0)
+
+    def update(self, drones: Any, current_turn: int) -> None:
+        self.handle_events()
+        self._draw_background()
+
+        # 1. Conexões / Arestas
+        connections = getattr(self.sim, "connections", {})
+        conn_iterable = (
+            connections.values() if isinstance(connections, dict) else connections
         )
 
-        # 1. DESENHAR AS CONEXÕES DO GRAFO
-        for conn in self.connections:
+        for conn in conn_iterable:
             if hasattr(conn, "from_hub") and hasattr(conn, "to_hub"):
-                f_hub, t_hub = conn.from_hub, conn.to_hub
-            else:
+                u_pos = self.node_positions.get(conn.from_hub)
+                v_pos = self.node_positions.get(conn.to_hub)
+                if u_pos and v_pos:
+                    pygame.draw.line(self.screen, (180, 190, 210), u_pos, v_pos, 2)
+
+        # 2. Hubs (Círculos + Nomes em fonte tamanho 8)
+        hubs = getattr(self.sim, "hubs", {})
+        for name, pos in self.node_positions.items():
+            hub = hubs.get(name)
+            if not hub:
                 continue
-            if f_hub in self.hub_coords and t_hub in self.hub_coords:
-                x1, y1 = self.hub_coords[f_hub]
-                x2, y2 = self.hub_coords[t_hub]
-                self.canvas.create_line(x1, y1, x2, y2,
-                                        fill="#45475a", width=3)
 
-        # 2. DESENHAR OS HUBS (ZONAS)
-        for hub in self.hubs:
-            x, y = self.hub_coords[hub.name]
-            r = 25
-            if hub.hub_type == "start":
-                color = "#a6e3a1"
-            elif hub.hub_type == "end":
-                color = "#f9e2af"
-            elif getattr(hub, "zone_type", "") == "restricted":
-                color = "#f38ba8"
-            elif hasattr(hub, "color") and hub.color:
-                color = hub.color
-            else:
-                color = "#89b4fa"
+            color = self._get_hub_color(hub, current_turn)
 
-            self.canvas.create_oval(
-                x - r, y - r, x + r, y + r,
-                fill=color,
-                outline="#cdd6f4",
-                width=2
+            pygame.draw.circle(self.screen, color, pos, 12)
+            pygame.draw.circle(self.screen, (241, 245, 249), pos, 12, 2)
+
+            label = self.font.render(name, True, (0, 0, 0))
+            text_x = pos[0] - label.get_width() // 2
+            text_y = pos[1] - 18
+            self._draw_text_with_outline(name, self.font, (0, 0, 0), (255, 255, 255), (text_x, text_y))
+
+        # 3. Drones Ativos em Grelha (2 por linha com texto tamanho 8)
+        MAX_PER_ROW = 2
+        drones_by_hub: Dict[str, List[Any]] = {}
+        for drone in drones:
+            status = getattr(drone, "status", None) or (
+                drone.get("status") if isinstance(drone, dict) else None
             )
-            self.canvas.create_text(
-                x, y, text=hub.name[:7],
-                fill="#11111b",
-                font=("Helvetica", 9, "bold")
+            current_hub = getattr(drone, "current_hub", None) or (
+                drone.get("current_hub") if isinstance(drone, dict) else None
             )
-            if getattr(hub, "max_drones", 1) > 1:
-                self.canvas.create_text(
-                    x,
-                    y + 38,
-                    text=f"max:{hub.max_drones}",
-                    fill="#bac2de",
-                    font=("Helvetica", 8),
-                )
 
-        # 3. DESENHAR OS DRONES EM CADA HUB
-        hub_drone_counters: Dict[str, int] = {}
-        for drone in drones_list:
-            if (drone["current_hub"] == ("impossible_goal" and not
-                                         drone["is_flying"])):
+            if status != "finished" and current_hub:
+                drones_by_hub.setdefault(current_hub, []).append(drone)
+
+        for hub_name, hub_drones in drones_by_hub.items():
+            base_pos = self.node_positions.get(hub_name)
+            if not base_pos:
                 continue
-            current_hub = drone["current_hub"]
-            if current_hub in self.hub_coords:
-                x, y = self.hub_coords[current_hub]
-                count = hub_drone_counters.get(current_hub, 0)
-                hub_drone_counters[current_hub] = count + 1
-                offset_x = (count % 4) * 14 - 21
-                offset_y = (count // 4) * 14 + 38
-                dx, dy = x + offset_x, y + offset_y
-                self.canvas.create_rectangle(
-                    dx - 6,
-                    dy - 6,
-                    dx + 6,
-                    dy + 6,
-                    fill="#fab387",
-                    outline="#ffffff",
-                    width=1,
-                )
-                self.canvas.create_text(
-                    dx,
-                    dy - 12,
-                    text=f"D{drone['id']}",
-                    fill="#74c7ec",
-                    font=("Helvetica", 8, "bold"),
+
+            spacing_x = 14
+            spacing_y = 12
+            y_offset = 15
+
+            for idx, drone in enumerate(hub_drones):
+                drone_id = getattr(drone, "id_num", None) or (
+                    drone.get("id") if isinstance(drone, dict) else None
                 )
 
-        # 4. PAINEL DE LOGS LATERAL (Dos 1100px aos 1380px)
-        self.canvas.create_rectangle(
-            1100, 0, 1380, 750, fill="#1e1e2e", outline="#313244", width=2
-        )
-        self.canvas.create_text(
-            1240,
-            35,
-            text="MOVIMENTOS DO TURNO",
-            fill="#f5c2e7",
-            font=("Helvetica", 13, "bold"),
-        )
+                col = idx % MAX_PER_ROW
+                row = idx // MAX_PER_ROW
 
-        y_offset = 80
-        if not turn_output:
-            self.canvas.create_text(
-                1130,
-                y_offset,
-                text="• Nenhuns drones moveram-se.",
-                fill="#a6adc8",
-                font=("Helvetica", 11, "italic"),
-                anchor="w",
-            )
-        else:
-            for log in turn_output:
-                self.canvas.create_text(
-                    1130,
-                    y_offset,
-                    text=f"• {log}",
-                    fill="#a6e3a1",
-                    font=("Helvetica", 12, "bold"),
-                    anchor="w",
-                )
-                y_offset += 28
-                if y_offset > 650:
-                    self.canvas.create_text(
-                        1130,
-                        y_offset,
-                        text="... e mais",
-                        fill="#a6adc8",
-                        font=("Helvetica", 10),
-                        anchor="w",
-                    )
-                    break
+                total_in_row = min(MAX_PER_ROW, len(hub_drones) - row * MAX_PER_ROW)
+                row_start_x = base_pos[0] - ((total_in_row - 1) * spacing_x) // 2
+                px = row_start_x + (col * spacing_x)
+                py = base_pos[1] + y_offset + (row * spacing_y)
 
-        # Instrução de controlo no fundo do painel
-        self.canvas.create_rectangle(
-            1120, 680, 1360, 730, fill="#313244", outline="#45475a", width=1
-        )
-        self.canvas.create_text(
-            1240,
-            705,
-            text="Pressiona [ESPAÇO] p/ avançar",
-            fill="#f9e2af",
-            font=("Helvetica", 10, "bold"),
-        )
+                # Ponto do Drone
+                pygame.draw.circle(self.screen, (250, 204, 21), (px, py), 3)
+                pygame.draw.circle(self.screen, (15, 23, 42), (px, py), 3, 1)
 
-        self.root.update()
+                # ID do Drone
+                d_str = f"D{drone_id}"
+                self._draw_text_with_outline(d_str, self.font, (0, 0, 0), (255, 255, 255), (px - 4, py + 2))
 
-        # LOOP DE BLOQUEIO ATÉ PREMIR A BARRA DE ESPAÇOS
-        self.waiting_for_next_turn = True
-        while self.waiting_for_next_turn:
-            self.root.update()
-            time.sleep(0.02)
+        # 4. HUD do Turno
+        self._draw_text_with_outline(f"TURNO: {current_turn}", self.title_font, (0, 0, 0), (255, 255, 255), (20, 20))
+
+        pygame.display.flip()
+        self.clock.tick(3)

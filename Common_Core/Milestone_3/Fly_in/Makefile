@@ -11,7 +11,7 @@ install:
 		python3 -m venv $(VENV); \
 	fi
 	@$(PIP) install --upgrade pip setuptools wheel >/dev/null 2>&1
-	@$(PIP) install mypy flake8 >/dev/null 2>&1
+	@$(PIP) install mypy flake8 Pillow pygame >/dev/null 2>&1
 
 run: install
 	@if [ ! -d "$(VENV)" ]; then exit 1; fi
@@ -34,11 +34,17 @@ debug: install
 	fi; \
 	$(PYTHON) -m pdb main.py $$mapa --visual
 
-# Flags obrigatórias exigidas na página 7 do enunciado
+# Flags obrigatórias do Chapter III.2
 lint:
 	@if [ ! -d "$(VENV)" ]; then exit 1; fi
-	$(FLAKE8) main.py simulation.py visualizer.py network.py parser.py
-	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs main.py simulation.py visualizer.py network.py parser.py
+	$(FLAKE8) *.py
+	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs *.py
+
+# Verificação estrita opcional recomendada
+lint-strict:
+	@if [ ! -d "$(VENV)" ]; then exit 1; fi
+	$(FLAKE8) *.py
+	$(MYPY) --strict *.py
 
 clean:
 	rm -rf __pycache__ .mypy_cache .pytest_cache *.pyc **/__pycache__
@@ -48,8 +54,7 @@ fclean: clean
 
 re: fclean all
 
-# Truque para silenciar os argumentos de ficheiros (.txt) no Make
 %:
 	@:
 
-.PHONY: all install run debug lint clean fclean re
+.PHONY: all install run debug lint lint-strict clean fclean re

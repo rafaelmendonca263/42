@@ -1,39 +1,31 @@
+"""Ponto de entrada do simulador Fly-in."""
+
 import sys
-from parser import parse_config
-from network import NetworkGraph
+import argparse
+from parser import parse_map_file, ParseError
 from simulation import Simulation
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
-        print("Uso: python3 main.py <caminho_do_mapa> [--visual]")
-        sys.exit(1)
-
-    map_path = sys.argv[1]
-    visual_mode = "--visual" in sys.argv or "--gui" in sys.argv
-
-    data = parse_config(map_path)
-    graph = NetworkGraph(data)
-
-    hubs_list = data["hubs"]
-    num_drones = data["nb_drones"]
-
-    start_hub_name = next(h.name for h in hubs_list if h.hub_type == "start")
-    end_hub_name = next(h.name for h in hubs_list if h.hub_type == "end")
-
-    sim = Simulation(
-        graph, num_drones, start_hub_name, end_hub_name, visual=visual_mode
+    parser = argparse.ArgumentParser(description="Simulador de Drones Fly-in")
+    parser.add_argument("map_file", help="Caminho para o ficheiro do mapa")
+    parser.add_argument(
+        "--visual", action="store_true", help="Ativar representação visual"
     )
+    args = parser.parse_args()
 
-    sim.run()
+    try:
+        parsed_data = parse_map_file(args.map_file)
+        sim = Simulation(parsed_data, visual=args.visual)
+        sim.run()  # O sim.run() deve imprimir os turnos diretamente na consola (print)
 
-    if visual_mode and hasattr(sim, "visualizer"):
-        print("\n🏁 Simulação concluída! Fecha a janela gráfica para terminar.")
-        sim.visualizer.root.mainloop()
+    except ParseError as pe:
+        print(f"Erro de Parsing: {pe}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"❌ Erro de execução: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print(f"❌ Erro na execução: {e}")
+    main()
