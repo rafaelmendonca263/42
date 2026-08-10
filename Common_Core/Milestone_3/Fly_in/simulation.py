@@ -26,7 +26,8 @@ class Simulation:
         self.connections: Dict[str, Connection] = {}
         self.adj: Dict[str, List[str]] = {}
 
-        # Connection mapping (handles Connection objects or string formatted links)
+        # Connection mapping (handles Connection objects or string
+        # formatted links)
         for conn_item in self.raw_connections:
             if isinstance(conn_item, Connection):
                 u, v = conn_item.from_hub, conn_item.to_hub
@@ -151,13 +152,17 @@ class Simulation:
                     st["status"] = "in_transit"
                     st["in_transit_to"] = next_hub
                     conn_name = f"{curr_hub}-{next_hub}"
-                    turn_moves.append(self._format_move(drone.id_num, conn_name))
+                    turn_moves.append(
+                        self._format_move(drone.id_num, conn_name)
+                    )
                 else:
                     drone.current_hub = next_hub
                     st["status"] = (
                         "finished" if next_hub == self.end_hub else "moving"
                     )
-                    turn_moves.append(self._format_move(drone.id_num, next_hub))
+                    turn_moves.append(
+                        self._format_move(drone.id_num, next_hub)
+                    )
 
         return turn_moves
 

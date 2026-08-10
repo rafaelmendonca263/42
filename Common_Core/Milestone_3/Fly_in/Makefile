@@ -39,12 +39,12 @@ debug: install
 
 # Regras obrigatórias do Chapter III.2
 lint: install
-	$(FLAKE8) $(FLAKE8_FLAGS) *.py
-	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs *.py
+	@$(FLAKE8) $(FLAKE8_FLAGS) *.py
+	@$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs *.py
 
 lint-strict: install
-	$(FLAKE8) $(FLAKE8_FLAGS) *.py
-	$(MYPY) --strict *.py
+	@$(FLAKE8) $(FLAKE8_FLAGS) *.py
+	@$(MYPY) --strict *.py
 
 clean:
 	rm -rf __pycache__ .mypy_cache .pytest_cache *.pyc **/__pycache__

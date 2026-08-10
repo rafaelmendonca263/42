@@ -27,6 +27,9 @@ COLOR_MAP: Dict[str, Tuple[int, int, int]] = {
     "crimson": (220, 20, 60),  # Torture gauntlet
     "black": (40, 40, 40),     # Dead ends / Blocked
     "cyan": (26, 188, 156),    # Final stretch
+    "yellow": (255, 255, 0),   # Ok
+    "lime": (0, 255, 0),       # Ok
+    "magenta": (255, 0, 255),  # Ok
     "rainbow": (0, 0, 0)       # Rainbow
 }
 
@@ -166,6 +169,9 @@ class Parser:
 
                         name = coor[0].strip()
 
+                        # Subject rule: Hub names cannot contain dashes ('-')
+                        # as it's reserved for connections. Colons (':') and
+                        # other chars are allowed.
                         if "-" in name:
                             raise ParseError(
                                 "Syntax Error: Hub name "
@@ -233,8 +239,6 @@ class Parser:
                     f"metadata: '[{metadata_str.strip()}'"
                 )
 
-            # 1. Strip special whitespace characters (\xa0, \t, etc.)
-            # at the ends
             raw_check = metadata_str.strip(" \t\n\r\xa0")
             if not raw_check.endswith("]"):
                 raise ParseError(
@@ -248,16 +252,9 @@ class Parser:
                     "Syntax Error: Metadata brackets cannot be empty"
                 )
 
-            # 2. Normalize special whitespace characters (\xa0)
-            # to standard spaces
             content_clean = content.replace("\xa0", " ").replace("\t", " ")
-
-            # 3. Remove all whitespace surrounding '=' to join
-            # key and value into a single token
-            # Example: "color   =       blue" -> "color=blue"
             content_normalized = re.sub(r"\s*=\s*", "=", content_clean)
 
-            # 4. Split key-value pairs by whitespace
             pairs = content_normalized.split()
             seen_local_keys: Set[str] = set()
             i = 0
@@ -266,8 +263,6 @@ class Parser:
                 pair = pairs[i]
 
                 if "=" in pair:
-                    # Enforce exactly one '=' separator per pair
-                    # (e.g., rejects color==blue)
                     if pair.count("=") != 1:
                         raise ParseError(
                             "Syntax Error: Invalid key-value "
@@ -277,7 +272,6 @@ class Parser:
                     key, value = pair.split("=", 1)
                     i += 1
                 else:
-                    # Format without explicit '=' (e.g., 'zone restricted')
                     if i + 1 < len(pairs) and "=" not in pairs[i + 1]:
                         key = pair
                         value = pairs[i + 1]
