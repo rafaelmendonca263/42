@@ -1,5 +1,3 @@
-"""Simulation engine for Fly-in drone routing using Space-Time scheduling."""
-
 from typing import Any, Dict, List, Union
 from structure import Connection, Hub, Drone
 from reservation import ReservationTable
@@ -7,11 +5,25 @@ from pathfinder import SpaceTimeAStar
 
 
 class Simulation:
+    """Manages the overall drone routing simulation, executing turns,
+    tracking drone states, handling reservation updates, and
+    managing visualization.
+    """
+
     def __init__(
         self,
         parsed_data: Dict[str, Any],
         visual: bool = False,
     ) -> None:
+        """Initializes the simulation engine with parsed map data and
+        configuration parameters.
+
+        Args:
+            parsed_data (Dict[str, Any]): Dictionary containing parsed
+            hubs, connections, number of drones, start hub, and end hub.
+            visual (bool): Flag indicating whether to
+            enable graphical visualization.
+        """
         self.hubs_list: List[Hub] = parsed_data["hubs"]
         self.raw_connections: List[Union[Connection, str]] = parsed_data[
             "connections"
@@ -26,8 +38,7 @@ class Simulation:
         self.connections: Dict[str, Connection] = {}
         self.adj: Dict[str, List[str]] = {}
 
-        # Connection mapping (handles Connection objects or string
-        # formatted links)
+        # Connection mapping
         for conn_item in self.raw_connections:
             if isinstance(conn_item, Connection):
                 u, v = conn_item.from_hub, conn_item.to_hub
@@ -62,10 +73,13 @@ class Simulation:
         self.drones: List[Drone] = []
         self.drone_states: Dict[int, Dict[str, Any]] = {}
 
+        start_hub_obj = self.hubs.get(self.start_hub)
+
         for i in range(1, self.nb_drones + 1):
             schedule = self.pathfinder.find_schedule(
-                self.start_hub, self.end_hub
+                self.start_hub, self.end_hub, start_turn=1
             )
+
             if schedule:
                 self.pathfinder.commit_schedule(schedule, self.end_hub)
 
@@ -73,7 +87,12 @@ class Simulation:
             drone_obj = Drone(
                 id_num=i, current_hub=self.start_hub, path=path_nodes
             )
+            drone_obj.transit_connection = None
             self.drones.append(drone_obj)
+
+            # Register initial drones inside the start hub
+            if start_hub_obj:
+                start_hub_obj.drones_inside.add(i)
 
             self.drone_states[i] = {
                 "schedule": schedule,
@@ -92,19 +111,35 @@ class Simulation:
                 self.visual = False
 
     def is_finished(self) -> bool:
+        """Checks if all drones have successfully reached the end hub.
+
+        Returns:
+            bool: True if every drone's status is 'finished', False otherwise.
+        """
         return all(
             st["status"] == "finished" for st in self.drone_states.values()
         )
 
     def _format_move(self, drone_id: int, target: str) -> str:
-        """Centralized move formatter.
+        """Formats a move string for a specific drone and target
+        node or connection, including current occupancy and capacity.
 
-        Easy to extend during evaluations (e.g., adding occupancy [curr/max]).
+        Args:
+            drone_id (int): The unique identifier of the drone.
+            target (str): The target hub name or connection string.
+
+        Returns:
+            str: The formatted move command string (e.g., 'D1-hub2 [1/10]').
         """
-        # Formato padrão da norma: D<ID>-<target>
         return f"D{drone_id}-{target}"
 
     def run_turn(self) -> List[str]:
+        """Executes a single simulation turn, processing movements
+        and transitions for all active drones based on their scheduled paths.
+
+        Returns:
+            List[str]: A list of move strings executed during this turn.
+        """
         self.current_turn += 1
         turn_moves: List[str] = []
 
@@ -114,23 +149,35 @@ class Simulation:
             if st["status"] == "finished":
                 continue
 
-            # 1. End transit for restricted zones (2nd step)
             if st["status"] == "in_transit":
+                old_conn_key = (
+                    "-".join(sorted(drone.transit_connection))
+                    if drone.transit_connection
+                    else None
+                )
+                if old_conn_key and old_conn_key in self.connections:
+                    conn = self.connections[old_conn_key]
+                    conn.drones_inside.discard(drone.id_num)
+
                 target_hub = st["in_transit_to"]
                 st["in_transit_to"] = None
-                drone.current_hub = target_hub
 
+                target_hub_obj = self.hubs.get(target_hub)
+                if target_hub_obj:
+                    target_hub_obj.drones_inside.add(drone.id_num)
+
+                drone.current_hub = target_hub
+                drone.transit_connection = None
                 st["status"] = (
                     "finished" if target_hub == self.end_hub else "moving"
                 )
                 turn_moves.append(self._format_move(drone.id_num, target_hub))
                 continue
 
-            # 2. Execute scheduled movement step
             schedule = st["schedule"]
             idx = st["schedule_idx"]
 
-            if idx >= len(schedule) - 1:
+            if not schedule or idx >= len(schedule) - 1:
                 continue
 
             curr_hub, curr_t = schedule[idx]
@@ -139,9 +186,13 @@ class Simulation:
             if self.current_turn == curr_t:
                 st["schedule_idx"] += 1
 
-                # Skip scheduled wait step at the same node
                 if curr_hub == next_hub:
                     continue
+
+                # Remove from current hub
+                curr_hub_obj = self.hubs.get(curr_hub)
+                if curr_hub_obj:
+                    curr_hub_obj.drones_inside.discard(drone.id_num)
 
                 next_hub_obj = self.hubs.get(next_hub)
                 zone_type = (
@@ -149,14 +200,26 @@ class Simulation:
                 )
 
                 if zone_type == "restricted" and next_hub != self.end_hub:
+                    # Enters transit connection
                     st["status"] = "in_transit"
                     st["in_transit_to"] = next_hub
+                    drone.transit_connection = (curr_hub, next_hub)
                     conn_name = f"{curr_hub}-{next_hub}"
+
+                    conn_key = "-".join(sorted([curr_hub, next_hub]))
+                    if conn_key in self.connections:
+                        conn = self.connections[conn_key]
+                        conn.drones_inside.add(drone.id_num)
+
                     turn_moves.append(
                         self._format_move(drone.id_num, conn_name)
                     )
                 else:
+                    if next_hub_obj:
+                        next_hub_obj.drones_inside.add(drone.id_num)
+
                     drone.current_hub = next_hub
+                    drone.transit_connection = None
                     st["status"] = (
                         "finished" if next_hub == self.end_hub else "moving"
                     )
@@ -167,6 +230,10 @@ class Simulation:
         return turn_moves
 
     def run(self) -> None:
+        """Runs the complete simulation loop until all drones reach
+        the destination or a deadlock is detected. Handles
+        visualization updates and turn printing.
+        """
         while not self.is_finished():
             moves = self.run_turn()
             if moves:
@@ -186,6 +253,13 @@ class Simulation:
                 break
 
     def save_output_txt(self, filepath: str = "output.txt") -> None:
+        """Saves the complete sequence of simulation moves turn by turn to
+        a text file.
+
+        Args:
+            filepath (str): The destination file path for the output log.
+            Defaults to 'output.txt'.
+        """
         try:
             with open(filepath, "w", encoding="utf-8") as f:
                 for turn_moves in self.output_turns:

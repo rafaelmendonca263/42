@@ -4,25 +4,23 @@ PYTHON      = $(VENV)/bin/python3
 PIP         = $(VENV)/bin/pip3
 MYPY        = $(VENV)/bin/mypy
 FLAKE8      = $(VENV)/bin/flake8
-
-# Exclui ambientes virtuais para o flake8 não analisar pacotes de terceiros
-FLAKE8_FLAGS = --exclude=$(VENV),.venvC,__pycache__
+FLAKE8_FLAGS = --exclude=$(VENV),.venv,__pycache__
 
 all: install lint
 
 install:
-	@if [ ! -d "$(VENV)" ]; then \
+	if [ ! -d "$(VENV)" ]; then \
 		$(PYTHON_SYS) -m venv --without-pip $(VENV); \
 		curl -sS https://bootstrap.pypa.io/get-pip.py | $(PYTHON); \
 	fi
-	@$(PIP) install --upgrade pip setuptools wheel >/dev/null 2>&1
-	@$(PIP) install mypy flake8 Pillow pygame >/dev/null 2>&1
+	$(PIP) install --upgrade pip setuptools wheel >/dev/null 2>&1
+	$(PIP) install mypy flake8 Pillow pygame >/dev/null 2>&1
 
 run: install
 	@args="$(filter-out run,$(MAKECMDGOALS))"; \
 	if [ -z "$$args" ]; then \
-		echo "❌ Erro: Falta especificar o mapa!"; \
-		echo "👉 Uso correto: make run caminho/do/mapa.txt"; \
+		echo "Error: Map not specified!"; \
+		echo "Correct usage: make run path/to/map.txt"; \
 		exit 1; \
 	fi; \
 	mapa=$$(echo $$args | awk '{print $$1}'); \
@@ -32,12 +30,11 @@ debug: install
 	@args="$(filter-out debug,$(MAKECMDGOALS))"; \
 	mapa=$$(echo $$args | awk '{print $$1}'); \
 	if [ -z "$$mapa" ]; then \
-		echo "❌ Erro: Falta especificar o mapa!"; \
+		echo "Error: Map not specified!"; \
 		exit 1; \
 	fi; \
 	$(PYTHON) -m pdb main.py $$mapa --visual
 
-# Regras obrigatórias do Chapter III.2
 lint: install
 	@$(FLAKE8) $(FLAKE8_FLAGS) *.py
 	@$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs *.py

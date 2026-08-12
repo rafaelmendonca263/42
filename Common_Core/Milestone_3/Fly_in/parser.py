@@ -1,39 +1,35 @@
-"""Module responsible for parsing and validating map files for Fly-in."""
-
 import re
 from typing import Any, Dict, List, Set, Tuple
 from structure import Connection, Hub
 
 
 class ParseError(Exception):
-    """Custom exception raised for syntax or
-    business logic errors during parsing."""
+    """Custom exception raised for syntax or logic errors during parsing."""
 
     pass
 
 
-# Official color mapping for visual rendering
+# Official base color mapping for visual rendering
 COLOR_MAP: Dict[str, Tuple[int, int, int]] = {
-    "green": (46, 204, 113),   # Start
-    "red": (231, 76, 60),      # End / Danger
-    "blue": (52, 152, 219),    # Normal
+    "green": (46, 204, 113),  # Start
+    "red": (231, 76, 60),  # End / Danger
+    "blue": (52, 152, 219),  # Normal
     "purple": (155, 89, 182),  # Maze traps
     "orange": (230, 126, 34),  # Micro gates
-    "maroon": (128, 0, 0),     # Overflow
-    "brown": (139, 69, 19),    # Restricted loops
-    "gold": (241, 196, 15),    # Priority / False hope
-    "darkred": (139, 0, 0),    # Convergence
+    "maroon": (128, 0, 0),  # Overflow
+    "brown": (139, 69, 19),  # Restricted loops
+    "gold": (241, 196, 15),  # Priority / False hope
+    "darkred": (139, 0, 0),  # Convergence
     "violet": (142, 68, 173),  # Merge
     "crimson": (220, 20, 60),  # Torture gauntlet
-    "black": (40, 40, 40),     # Dead ends / Blocked
-    "cyan": (26, 188, 156),    # Final stretch
-    "yellow": (255, 255, 0),   # Ok
-    "lime": (0, 255, 0),       # Ok
+    "black": (40, 40, 40),  # Dead ends / Blocked
+    "cyan": (26, 188, 156),  # Final stretch
+    "yellow": (255, 255, 0),  # Ok
+    "lime": (0, 255, 0),  # Ok
     "magenta": (255, 0, 255),  # Ok
-    "rainbow": (0, 0, 0)       # Rainbow
+    "gray": (128, 128, 128),  # Gray
+    "grey": (128, 128, 128),  # Grey
 }
-
-VALID_COLORS: Set[str] = set(COLOR_MAP.keys())
 
 
 class Parser:
@@ -41,18 +37,29 @@ class Parser:
 
     @staticmethod
     def extract_info(filepath: str) -> Dict[str, Any]:
-        """Reads the input map file and extracts raw
-        hub and connection definitions."""
+        """Reads the input map file and extracts raw hub and
+        connection definitions.
+
+        Args:
+            filepath (str): Path to the map file.
+
+        Returns:
+            Dict[str, Any]: Dictionary containing lists of hubs, connections,
+            and extracted drone count.
+        """
+
+        line_idx = 0
         try:
             with open(filepath, "r", encoding="utf-8") as file:
-                hubs: List[Tuple[Hub, str]] = []
+                hubs: List[Tuple[Hub, str, int]] = []
                 num = 0
-                connections: List[Tuple[Connection, str]] = []
+                connections: List[Tuple[Connection, str, int]] = []
                 nb_drones_found = False
                 has_instructions = False
 
-                for line in file:
-                    line = line.rstrip("\r\n")
+                for raw_line in file:
+                    line_idx += 1
+                    line = raw_line.rstrip("\r\n")
                     if "#" in line:
                         line = line.split("#", 1)[0]
                     line = line.strip()
@@ -61,8 +68,8 @@ class Parser:
 
                     if ":" not in line:
                         raise ParseError(
-                            "Syntax Error: Invalid line format. "
-                            f"Missing ':' command separator in line: '{line}'"
+                            f"[{line_idx}] Syntax Error: Invalid line format. "
+                            "Missing ':' command separator"
                         )
 
                     part = line.split(":", 1)
@@ -71,24 +78,25 @@ class Parser:
                     if not has_instructions:
                         if command_type != "nb_drones":
                             raise ParseError(
-                                "Syntax Error: The first "
-                                "directive in the map file "
-                                f"must be 'nb_drones', got '{command_type}'."
+                                f"[{line_idx}] Syntax Error: The "
+                                "first directive in the map file must be "
+                                f"'nb_drones', got '{command_type}'"
                             )
                         has_instructions = True
 
                     if command_type == "nb_drones":
                         if nb_drones_found:
                             raise ParseError(
-                                "Syntax Error: Duplicate 'nb_drones' "
-                                "directive found."
+                                f"[{line_idx}] Syntax Error: "
+                                "Duplicate 'nb_drones' directive found"
                             )
                         try:
                             num = int(part[1].strip())
                         except ValueError:
                             raise ParseError(
-                                "Syntax Error: Number of drones must be "
-                                f"an integer, got '{part[1].strip()}'"
+                                f"[{line_idx}] Syntax Error: Number of "
+                                "drones must be an integer, "
+                                f"got '{part[1].strip()}'"
                             )
                         nb_drones_found = True
                         continue
@@ -99,8 +107,9 @@ class Parser:
                         else:
                             if "]" in part[1]:
                                 raise ParseError(
-                                    "Syntax Error: Found closing bracket ']'"
-                                    " without opening '['."
+                                    f"[{line_idx}] Syntax Error: "
+                                    "Found closing bracket ']' without "
+                                    "opening '['"
                                 )
                             link_data = part[1]
                             metadata = ""
@@ -112,20 +121,22 @@ class Parser:
                         )
                         if not clean_link:
                             raise ParseError(
-                                "Syntax Error: Empty connection definition."
+                                f"[{line_idx}] Syntax Error: "
+                                "Empty connection definition"
                             )
 
                         if clean_link.count("-") != 1:
                             raise ParseError(
-                                "Syntax Error: Invalid connection format "
+                                f"[{line_idx}] Syntax Error: "
+                                "Invalid connection format "
                                 "(must have exactly one '-'): "
                                 f"'{part[1].strip()}'"
                             )
 
                         if "]" in clean_link or "[" in clean_link:
                             raise ParseError(
-                                "Syntax Error: Unexpected tokens "
-                                "in connection: "
+                                f"[{line_idx}] Syntax Error: "
+                                "Unexpected tokens in connection: "
                                 f"'{part[1].strip()}'"
                             )
 
@@ -135,12 +146,17 @@ class Parser:
 
                         if not corridor0 or not corridor1:
                             raise ParseError(
-                                "Syntax Error: Malformed connection names: "
+                                f"[{line_idx}] Syntax Error: "
+                                "Malformed connection names: "
                                 f"'{part[1].strip()}'"
                             )
 
                         connections.append(
-                            (Connection(corridor0, corridor1), metadata)
+                            (
+                                Connection(corridor0, corridor1),
+                                metadata,
+                                line_idx,
+                            )
                         )
                         continue
 
@@ -152,8 +168,9 @@ class Parser:
                         else:
                             if "]" in part[1]:
                                 raise ParseError(
-                                    "Syntax Error: Found closing bracket ']' "
-                                    "without opening '['."
+                                    f"[{line_idx}] Syntax Error: "
+                                    "Found closing bracket ']' "
+                                    "without opening '['"
                                 )
                             mandatory = part[1].strip()
                             metadata = ""
@@ -161,21 +178,18 @@ class Parser:
                         coor = mandatory.split()
                         if len(coor) != 3:
                             raise ParseError(
-                                "Syntax Error: Invalid hub definition "
-                                f"'{part[1].strip()}'. Expected format: "
-                                "'name X Y' (exactly 3 "
-                                "space-separated tokens)."
+                                f"[{line_idx}] Syntax Error: "
+                                f"Invalid hub definition '{part[1].strip()}'. "
+                                "Expected format: 'name X Y'"
                             )
 
                         name = coor[0].strip()
 
-                        # Subject rule: Hub names cannot contain dashes ('-')
-                        # as it's reserved for connections. Colons (':') and
-                        # other chars are allowed.
                         if "-" in name:
                             raise ParseError(
-                                "Syntax Error: Hub name "
-                                f"'{name}' cannot contain dashes ('-')."
+                                f"[{line_idx}] Syntax Error: Hub name "
+                                f"'{name}' "
+                                "cannot contain dashes ('-')"
                             )
 
                         try:
@@ -183,18 +197,18 @@ class Parser:
                             y = int(coor[2].strip())
                         except ValueError:
                             raise ParseError(
-                                "Syntax Error: Coordinates for hub "
-                                f"'{name}' must be integers, got '{coor[1]}'"
-                                f" and '{coor[2]}'"
+                                f"[{line_idx}] Syntax Error: Coordinates "
+                                f"for hub '{name}' must be integers, "
+                                f"got '{coor[1]}' and '{coor[2]}'"
                             )
 
                         if not (-100000 <= x <= 100000) or not (
                             -100000 <= y <= 100000
                         ):
                             raise ParseError(
-                                "Syntax Error: Coordinates for hub "
-                                f"'{name}' are out of valid range "
-                                "(-100000 to 100000)."
+                                f"[{line_idx}] Syntax Error: Coordinates "
+                                f"for hub '{name}' are out of valid range "
+                                "(-100000 to 100000)"
                             )
 
                         hub_type = "normal"
@@ -204,19 +218,24 @@ class Parser:
                             hub_type = "end"
 
                         hubs.append(
-                            (Hub(name, x, y, hub_type, None, 1), metadata)
+                            (
+                                Hub(name, x, y, hub_type, None, 1),
+                                metadata,
+                                line_idx,
+                            )
                         )
                         continue
 
                     else:
                         raise ParseError(
-                            "Syntax Error: Unknown command type discovered: "
-                            f"'{command_type}'"
+                            f"[{line_idx}] Syntax Error: Unknown "
+                            f"command type discovered: '{command_type}'"
                         )
 
             if not nb_drones_found:
                 raise ParseError(
-                    "Syntax Error: Missing 'nb_drones' directive in map file."
+                    f"[{line_idx}] Syntax Error: Missing "
+                    "'nb_drones' directive in map file"
                 )
 
             return {"hubs": hubs, "connections": connections, "nb_drones": num}
@@ -225,31 +244,41 @@ class Parser:
             if isinstance(e, ParseError):
                 raise e
             raise ParseError(
-                f"Unexpected error while extracting information: {e}"
+                f"[{line_idx}] Unexpected error while extracting "
+                f"information: {e}"
             )
 
     @staticmethod
-    def validate_metadata(metadata_str: str, allowed_keys: Set[str]) -> None:
-        """Validates the syntax and keys of a metadata block,
-        accepting arbitrary spacing."""
-        if metadata_str:
+    def validate_metadata(
+        metadata_str: str, allowed_keys: Set[str], line_num: int = 0
+    ) -> None:
+        """Validates the syntax and keys of a metadata block.
+
+        Args:
+            metadata_str (str): String containing the metadata.
+            allowed_keys (Set[str]): Set of allowed keys.
+            line_num (int): Corresponding line number in the file.
+        """
+
+        prefix = f"[{line_num}] " if line_num > 0 else ""
+        if metadata_str is not None and metadata_str != "":
             if metadata_str.count("]") != 1 or "[" in metadata_str:
                 raise ParseError(
-                    "Syntax Error: Invalid or unbalanced brackets in "
-                    f"metadata: '[{metadata_str.strip()}'"
+                    f"{prefix}Syntax Error: Invalid or unbalanced "
+                    f"brackets in metadata: '[{metadata_str.strip()}'"
                 )
 
             raw_check = metadata_str.strip(" \t\n\r\xa0")
             if not raw_check.endswith("]"):
                 raise ParseError(
-                    "Syntax Error: Metadata must end with ']' "
-                    f"token: '[{metadata_str.strip()}'"
+                    f"{prefix}Syntax Error: Metadata must end with ']'"
+                    f" token: '[{metadata_str.strip()}'"
                 )
 
             content = raw_check.rstrip("]").strip(" \t\n\r\xa0")
             if not content:
                 raise ParseError(
-                    "Syntax Error: Metadata brackets cannot be empty"
+                    f"{prefix}Syntax Error: Metadata brackets cannot be empty"
                 )
 
             content_clean = content.replace("\xa0", " ").replace("\t", " ")
@@ -265,9 +294,9 @@ class Parser:
                 if "=" in pair:
                     if pair.count("=") != 1:
                         raise ParseError(
-                            "Syntax Error: Invalid key-value "
-                            "format in metadata "
-                            f"'{pair}'. Expected single '=' separator."
+                            f"{prefix}Syntax Error: Invalid key-value "
+                            f"format in metadata '{pair}'. Expected single "
+                            "'=' separator."
                         )
                     key, value = pair.split("=", 1)
                     i += 1
@@ -278,8 +307,8 @@ class Parser:
                         i += 2
                     else:
                         raise ParseError(
-                            f"Syntax Error: Metadata key '{pair}' missing "
-                            "its value."
+                            f"{prefix}Syntax Error: Metadata key '{pair}' "
+                            "missing its value."
                         )
 
                 clean_key = key.strip()
@@ -287,20 +316,21 @@ class Parser:
 
                 if not clean_key or not clean_val:
                     raise ParseError(
-                        "Syntax Error: Empty key or value in "
+                        f"{prefix}Syntax Error: Empty key or value in "
                         "metadata expression."
                     )
 
                 if clean_key not in allowed_keys:
                     raise ParseError(
-                        "Syntax Error: Unknown metadata key discovered: "
-                        f"'{clean_key}'"
+                        f"{prefix}Syntax Error: Unknown metadata "
+                        f"key discovered: '{clean_key}'"
                     )
 
                 if clean_key in seen_local_keys:
                     raise ParseError(
-                        f"Syntax Error: Duplicate metadata key '{clean_key}' "
-                        "discovered during syntax validation."
+                        f"{prefix}Syntax Error: Duplicate metadata "
+                        f"key '{clean_key}' discovered during syntax "
+                        "validation."
                     )
                 seen_local_keys.add(clean_key)
 
@@ -310,23 +340,38 @@ class Parser:
         connections: List[Connection],
         start_name: str,
         end_name: str,
+        start_line: int,
+        end_line: int,
     ) -> None:
-        """Verifies that at least one valid path exists between
-        start_hub and end_hub using BFS."""
-        adj: Dict[str, List[str]] = {h.name: [] for h in hubs}
-        for conn in connections:
-            adj[conn.from_hub].append(conn.to_hub)
-            adj[conn.to_hub].append(conn.from_hub)
+        """Verifies that at least one valid path exists between start_hub
+        and end_hub using BFS.
 
-        if not adj[start_name]:
+        Args:
+            hubs (List[Hub]): List of hubs in the graph.
+            connections (List[Connection]): List of connections in the graph.
+            start_name (str): Name of the start hub.
+            end_name (str): Name of the end hub.
+            start_line (int): Line number of the start hub.
+            end_line (int): Line number of the end hub.
+        """
+
+        adj: Dict[str, List[str]] = {
+            h.name: [] for h in hubs if h.zone_type != "blocked"
+        }
+        for conn in connections:
+            if conn.from_hub in adj and conn.to_hub in adj:
+                adj[conn.from_hub].append(conn.to_hub)
+                adj[conn.to_hub].append(conn.from_hub)
+
+        if not adj.get(start_name):
             raise ParseError(
-                f"Business Logic Error: Start hub '{start_name}' "
-                "has no connections."
+                f"[{start_line}] Logic Error: Start hub '{start_name}' has "
+                "no valid connections."
             )
-        if not adj[end_name]:
+        if not adj.get(end_name):
             raise ParseError(
-                f"Business Logic Error: End hub '{end_name}'"
-                " has no connections."
+                f"[{end_line}] Logic Error: End hub '{end_name}' has "
+                "no valid connections."
             )
 
         visited = set([start_name])
@@ -343,14 +388,23 @@ class Parser:
                     queue.append(neighbor)
 
         raise ParseError(
-            "Business Logic Error: No valid path exists from start hub "
-            f"'{start_name}' to end hub '{end_name}'."
+            f"[{start_line}] Logic Error: No valid path exists from "
+            f"start hub '{start_name}' to end hub '{end_name}'."
         )
 
     @staticmethod
     def parse_info(dict_hubs: Dict[str, Any]) -> Dict[str, Any]:
-        """Processes metadata, validates types/values, and enforces
-        graph reachability rules."""
+        """Processes metadata, validates types/values, and enforces graph
+        accessibility rules.
+
+        Args:
+            dict_hubs (Dict[str, Any]): Raw dictionary containing hubs,
+            connections, and drones.
+
+        Returns:
+            Dict[str, Any]: Validated and structured map configuration.
+        """
+
         raw_hubs = dict_hubs["hubs"]
         raw_connections = dict_hubs["connections"]
         nb_drones = dict_hubs["nb_drones"]
@@ -361,8 +415,8 @@ class Parser:
 
         if nb_drones <= 0 or nb_drones > 100000:
             raise ParseError(
-                "Business Logic Error: Number of drones must be "
-                "between 1 and 100000."
+                "[1] Logic Error: Number of drones must "
+                "be between 1 and 100000."
             )
 
         valid_hub_names = set()
@@ -371,12 +425,14 @@ class Parser:
         final_hubs = []
         start_hub_count = 0
         end_hub_count = 0
+        start_line_num = 1
+        end_line_num = 1
 
-        for hub_obj, metadata in raw_hubs:
+        for hub_obj, metadata, line_num in raw_hubs:
             hub_obj.zone_type = getattr(hub_obj, "zone_type", "normal")
             hub_obj.color = getattr(hub_obj, "color", None)
             hub_obj.max_drones = getattr(hub_obj, "max_drones", 1)
-            Parser.validate_metadata(metadata, ALLOWED_HUB_KEYS)
+            Parser.validate_metadata(metadata, ALLOWED_HUB_KEYS, line_num)
 
             if metadata:
                 content = metadata.strip(" \t\n\r\xa0").rstrip("]")
@@ -396,7 +452,8 @@ class Parser:
                         i += 2
                     else:
                         raise ParseError(
-                            "Syntax Error: Metadata key missing its value"
+                            f"[{line_num}] Syntax Error: Metadata key "
+                            "missing its value"
                         )
 
                     clean_key = k.strip()
@@ -404,14 +461,15 @@ class Parser:
 
                     if not clean_val:
                         raise ParseError(
-                            f"Syntax Error: Metadata key '{clean_key}' has "
-                            "an empty value."
+                            f"[{line_num}] Syntax Error: Metadata "
+                            f"key '{clean_key}' has an empty value."
                         )
 
                     if clean_key in seen_metadata_keys:
                         raise ParseError(
-                            "Syntax Error: Duplicate metadata "
-                            f"key '{clean_key}' found in hub definition."
+                            f"[{line_num}] Syntax Error: Duplicate "
+                            f"metadata key '{clean_key}' found in "
+                            "hub definition."
                         )
                     seen_metadata_keys.add(clean_key)
 
@@ -420,53 +478,57 @@ class Parser:
                             value_num = int(clean_val)
                             if value_num <= 0 or value_num > 100000:
                                 raise ParseError(
-                                    "Business Logic Error: Invalid integer "
-                                    "value for key "
-                                    f"'{clean_key}': '{clean_val}'"
+                                    f"[{line_num}] Logic Error: "
+                                    f"Invalid integer value for "
+                                    f"key '{clean_key}': '{clean_val}'"
                                 )
                             hub_obj.max_drones = value_num
                         except ValueError:
                             raise ParseError(
-                                "Business Logic Error: Invalid integer "
-                                f"value for key '{clean_key}': '{clean_val}'"
+                                f"[{line_num}] Logic Error: "
+                                f"Invalid integer value for key '{clean_key}':"
+                                f" '{clean_val}'"
                             )
                     elif clean_key == "zone":
                         zone_val = clean_val.lower()
                         if zone_val not in VALID_ZONE_TYPES:
                             raise ParseError(
-                                "Syntax Error: Invalid zone "
-                                f"type '{clean_val}'. "
-                                "Must be one of: "
-                                f"{', '.join(sorted(VALID_ZONE_TYPES))}."
+                                f"[{line_num}] Syntax Error: Invalid zone "
+                                f"type '{clean_val}'. Must be one "
+                                f"of: {', '.join(sorted(VALID_ZONE_TYPES))}."
                             )
                         hub_obj.zone_type = zone_val
                     elif clean_key == "color":
                         color_val = clean_val.lower()
-                        if color_val not in VALID_COLORS:
+                        if not re.match(r"^[a-zA-Z0-9_]+$", color_val):
                             raise ParseError(
-                                f"Syntax Error: Invalid color '{clean_val}'. "
-                                "Must be one of: "
-                                f"{', '.join(sorted(VALID_COLORS))}."
+                                f"[{line_num}] Syntax Error: Invalid "
+                                f"color '{clean_val}'. Color must be "
+                                "a single word string."
                             )
                         hub_obj.color = color_val
 
             if hub_obj.hub_type == "start":
                 start_hub_count += 1
+                hub_obj.max_drones = 1000000
+                start_line_num = line_num
             elif hub_obj.hub_type == "end":
                 end_hub_count += 1
+                hub_obj.max_drones = 1000000
+                end_line_num = line_num
 
             if hub_obj.name in seen_names:
                 raise ParseError(
-                    "Business Logic Error: Duplicate "
-                    f"hub name '{hub_obj.name}' found."
+                    f"[{line_num}] Logic Error: Duplicate hub "
+                    f"name '{hub_obj.name}' found."
                 )
             seen_names.add(hub_obj.name)
 
             coords = (hub_obj.x, hub_obj.y)
             if coords in seen_coordinates:
                 raise ParseError(
-                    "Business Logic Error: Duplicate coordinates "
-                    f"{coords} found for hub '{hub_obj.name}'."
+                    f"[{line_num}] Logic Error: Duplicate "
+                    f"coordinates {coords} found for hub '{hub_obj.name}'."
                 )
 
             seen_coordinates.add(coords)
@@ -475,21 +537,21 @@ class Parser:
 
         if start_hub_count != 1:
             raise ParseError(
-                "Business Logic Error: Map must contain exactly "
+                f"[{start_line_num}] Logic Error: Map must contain exactly "
                 f"one 'start_hub' (found {start_hub_count})"
             )
         if end_hub_count != 1:
             raise ParseError(
-                "Business Logic Error: Map must contain exactly one "
+                f"[{end_line_num}] Logic Error: Map must contain exactly one "
                 f"'end_hub' (found {end_hub_count})"
             )
 
         final_connections = []
         seen_connections = set()
 
-        for conn_obj, metadata in raw_connections:
+        for conn_obj, metadata, line_num in raw_connections:
             conn_obj.max_drones = getattr(conn_obj, "max_drones", 1)
-            Parser.validate_metadata(metadata, ALLOWED_CONN_KEYS)
+            Parser.validate_metadata(metadata, ALLOWED_CONN_KEYS, line_num)
 
             if metadata:
                 content = metadata.strip(" \t\n\r\xa0").rstrip("]")
@@ -509,7 +571,8 @@ class Parser:
                         i += 2
                     else:
                         raise ParseError(
-                            "Syntax Error: Metadata key missing its value"
+                            f"[{line_num}] Syntax Error: Metadata key "
+                            "missing its value"
                         )
 
                     clean_key = k.strip()
@@ -517,14 +580,15 @@ class Parser:
 
                     if not clean_val:
                         raise ParseError(
-                            f"Syntax Error: Metadata key '{clean_key}' has "
-                            "an empty value."
+                            f"[{line_num}] Syntax Error: Metadata "
+                            f"key '{clean_key}' has an empty value."
                         )
 
                     if clean_key in seen_metadata_keys:
                         raise ParseError(
-                            "Syntax Error: Duplicate metadata key "
-                            f"'{clean_key}' found in connection definition."
+                            f"[{line_num}] Syntax Error: Duplicate "
+                            f"metadata key '{clean_key}' found in "
+                            "connection definition."
                         )
                     seen_metadata_keys.add(clean_key)
 
@@ -533,15 +597,16 @@ class Parser:
                             value_num = int(clean_val)
                             if value_num <= 0 or value_num > 100000:
                                 raise ParseError(
-                                    "Business Logic Error: Invalid "
-                                    "capacity value for connection "
-                                    f"key '{clean_key}': '{clean_val}'."
+                                    f"[{line_num}] Logic Error: "
+                                    f"Invalid capacity value "
+                                    f"for connection key '{clean_key}':"
+                                    f" '{clean_val}'."
                                 )
                             conn_obj.max_drones = value_num
                         except ValueError:
                             raise ParseError(
-                                "Business Logic Error: Invalid capacity "
-                                "value for connection "
+                                f"[{line_num}] Logic Error: "
+                                "Invalid capacity value for connection "
                                 f"key '{clean_key}': '{clean_val}'."
                             )
 
@@ -550,21 +615,22 @@ class Parser:
                 or conn_obj.to_hub not in valid_hub_names
             ):
                 raise ParseError(
-                    "Business Logic Error: Invalid hub in "
-                    f"Connections: {conn_obj.from_hub} -> {conn_obj.to_hub}"
+                    f"[{line_num}] Logic Error: Invalid hub "
+                    f"in Connections: {conn_obj.from_hub} -> {conn_obj.to_hub}"
                 )
 
             if conn_obj.from_hub == conn_obj.to_hub:
                 raise ParseError(
-                    "Syntax Error: Self-loop detected. "
+                    f"[{line_num}] Syntax Error: Self-loop detected. "
                     f"Hub '{conn_obj.from_hub}' cannot connect to itself."
                 )
 
             conn_pair = frozenset([conn_obj.from_hub, conn_obj.to_hub])
             if conn_pair in seen_connections:
                 raise ParseError(
-                    "Business Logic Error: Duplicate connection "
-                    f"detected: {conn_obj.from_hub} <-> {conn_obj.to_hub}"
+                    f"[{line_num}] Logic Error: Duplicate "
+                    f"connection detected: {conn_obj.from_hub} <-> "
+                    f"{conn_obj.to_hub}"
                 )
 
             seen_connections.add(conn_pair)
@@ -576,7 +642,12 @@ class Parser:
         end_hub_name = next(h.name for h in final_hubs if h.hub_type == "end")
 
         Parser.validate_graph_reachability(
-            final_hubs, final_connections, start_hub_name, end_hub_name
+            final_hubs,
+            final_connections,
+            start_hub_name,
+            end_hub_name,
+            start_line_num,
+            end_line_num,
         )
 
         return {
@@ -589,7 +660,15 @@ class Parser:
 
 
 def parse_map_file(filepath: str) -> Dict[str, Any]:
-    """Main entry point function for map file parsing."""
+    """Main entry point function for map file parsing.
+
+    Args:
+        filepath (str): Path to the map file.
+
+    Returns:
+        Dict[str, Any]: Complete and validated map configuration.
+    """
+
     raw_data = Parser.extract_info(filepath)
     return Parser.parse_info(raw_data)
 

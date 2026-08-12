@@ -7,9 +7,7 @@ class ReservationTable:
     """Tabela de reservas temporal para nós e conexões no grafo."""
 
     def __init__(self) -> None:
-        # (hub_name, turn) -> count
         self.hub_reservations: Dict[Tuple[str, int], int] = {}
-        # (link_key, turn) -> count
         self.link_reservations: Dict[Tuple[str, int], int] = {}
 
     def is_hub_free(self, hub_name: str, turn: int, max_cap: int) -> bool:

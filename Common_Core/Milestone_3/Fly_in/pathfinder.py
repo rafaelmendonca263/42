@@ -1,7 +1,5 @@
-"""Módulo de pesquisa de caminhos em Espaço-Tempo (Space-Time A*)."""
-
 import heapq
-from typing import List, Tuple, Set, Dict, Optional
+from typing import List, Tuple, Dict, Optional
 from structure import Hub, Connection
 from reservation import ReservationTable
 
@@ -28,32 +26,39 @@ class SpaceTimeAStar:
     def find_schedule(
         self, start_hub: str, end_hub: str, start_turn: int = 1
     ) -> List[Tuple[str, int]]:
-        pq: List[Tuple[int, int, str, List[Tuple[str, int]]]] = [
-            (0, start_turn, start_hub, [(start_hub, start_turn)])
+
+        start_obj = self.hubs.get(start_hub)
+        initial_priority_count = (1 if start_obj and
+                                  start_obj.zone_type == "priority" else 0)
+
+        pq: List[Tuple[int, int, int, str, List[Tuple[str, int]]]] = [
+            (0, -initial_priority_count, start_turn, start_hub, [(start_hub,
+                                                                  start_turn)])
         ]
-        visited: Set[Tuple[str, int]] = set()
+
+        visited: Dict[Tuple[str, int], int] = {}
 
         while pq:
-            _, t, curr, path = heapq.heappop(pq)
+            _, neg_prio, t, curr, path = heapq.heappop(pq)
+            prio_count = -neg_prio
 
             if curr == end_hub:
                 return path
 
             state = (curr, t)
-            if state in visited:
+            if state in visited and visited[state] >= prio_count:
                 continue
-            visited.add(state)
+            visited[state] = prio_count
 
             curr_hub_obj = self.hubs.get(curr)
             max_c = curr_hub_obj.max_drones if curr_hub_obj else 1
 
-            # 1. ESPERA (Wait Action) no nó atual
             if curr == start_hub or self.res.is_hub_free(curr, t + 1, max_c):
                 heapq.heappush(
-                    pq, (t + 1, t + 1, curr, path + [(curr, t + 1)])
+                    pq, (t + 1, -prio_count, t + 1, curr, path +
+                         [(curr, t + 1)])
                 )
 
-            # 2. MOVIMENTO para nós vizinhos
             for neighbor in self.adj.get(curr, []):
                 neigh_obj = self.hubs.get(neighbor)
                 if not neigh_obj:
@@ -84,11 +89,15 @@ class SpaceTimeAStar:
                 ):
                     continue
 
+                new_prio_count = prio_count + (1 if neigh_obj.zone_type ==
+                                               "priority" else 0)
                 f_score = arrival_turn
+
                 heapq.heappush(
                     pq,
                     (
                         f_score,
+                        -new_prio_count,
                         arrival_turn,
                         neighbor,
                         path + [(neighbor, arrival_turn)],

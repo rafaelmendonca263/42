@@ -1,4 +1,3 @@
-"""Ponto de entrada do simulador Fly-in."""
 
 import sys
 import argparse
@@ -7,11 +6,9 @@ from simulation import Simulation
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Simulador de Drones Fly-in")
-    parser.add_argument("map_file", help="Caminho para o ficheiro do mapa")
-    parser.add_argument(
-        "--visual", action="store_true", help="Ativar representação visual"
-    )
+    parser = argparse.ArgumentParser(description="Fly-in Drone Simulator")
+    parser.add_argument("map_file")
+    parser.add_argument("--visual", action="store_true")
     args = parser.parse_args()
 
     try:
@@ -19,13 +16,16 @@ def main() -> None:
         sim = Simulation(parsed_data, visual=args.visual)
         sim.run()
 
-    except ParseError as pe:
-        print(f"Erro de Parsing: {pe}", file=sys.stderr)
+    except ParseError as e:
+        print(f"Parsing Error: {e}", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Erro de execução: {e}", file=sys.stderr)
+        print(f"Execution error: {e}", file=sys.stderr)
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(e)
