@@ -9,12 +9,12 @@ FLAKE8_FLAGS = --exclude=$(VENV),.venv,__pycache__
 all: install lint
 
 install:
-	if [ ! -d "$(VENV)" ]; then \
+	@if [ ! -d "$(VENV)" ]; then \
 		$(PYTHON_SYS) -m venv --without-pip $(VENV); \
 		curl -sS https://bootstrap.pypa.io/get-pip.py | $(PYTHON); \
 	fi
-	$(PIP) install --upgrade pip setuptools wheel >/dev/null 2>&1
-	$(PIP) install mypy flake8 Pillow pygame >/dev/null 2>&1
+	@$(PIP) install --upgrade pip setuptools wheel >/dev/null 2>&1
+	@$(PIP) install mypy flake8 Pillow pygame >/dev/null 2>&1
 
 run: install
 	@args="$(filter-out run,$(MAKECMDGOALS))"; \
@@ -47,7 +47,7 @@ clean:
 	rm -rf __pycache__ .mypy_cache .pytest_cache *.pyc **/__pycache__
 
 fclean: clean
-	rm -rf $(VENV) .venvC
+	rm -rf $(VENV) .venv
 
 re: fclean all
 

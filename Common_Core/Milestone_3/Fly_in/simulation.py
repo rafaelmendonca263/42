@@ -1,7 +1,50 @@
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 from structure import Connection, Hub, Drone
 from reservation import ReservationTable
 from pathfinder import SpaceTimeAStar
+
+COLOR_MAP: Dict[str, str] = {
+    # Colors ANSI
+    "black": "\033[30m",
+    "red": "\033[91m",
+    "green": "\033[92m",
+    "yellow": "\033[93m",
+    "blue": "\033[94m",
+    "magenta": "\033[95m",
+    "purple": "\033[95m",
+    "cyan": "\033[96m",
+    "white": "\033[97m",
+    "gray": "\033[90m",
+    "grey": "\033[90m",
+    # Expanded colors (ANSI 256)
+    "orange": "\033[38;5;208m",
+    "pink": "\033[38;5;205m",
+    "brown": "\033[38;5;130m",
+    "gold": "\033[38;5;220m",
+    "lime": "\033[38;5;118m",
+    "teal": "\033[38;5;37m",
+    "navy": "\033[38;5;19m",
+    "violet": "\033[38;5;135m",
+    "indigo": "\033[38;5;54m",
+    "reset": "\033[0m",
+}
+
+
+def get_ansi_color(color_name: Optional[str]) -> str:
+    """Converts the name of a color to its corresponding ANSI sequence.
+    If the color is unknown, it uses a deterministic hash to generate a
+    unique color from the ANSI spectrum of 256 colors.
+    """
+    if not color_name or color_name.lower() in ("none", "null"):
+        return ""
+
+    color_key = color_name.lower().strip()
+    if color_key in COLOR_MAP:
+        return COLOR_MAP[color_key]
+
+    # Deterministic fallback for any string of arbitrary color
+    color_code = (abs(hash(color_key)) % 216) + 16
+    return f"\033[38;5;{color_code}m"
 
 
 class Simulation:
@@ -17,12 +60,6 @@ class Simulation:
     ) -> None:
         """Initializes the simulation engine with parsed map data and
         configuration parameters.
-
-        Args:
-            parsed_data (Dict[str, Any]): Dictionary containing parsed
-            hubs, connections, number of drones, start hub, and end hub.
-            visual (bool): Flag indicating whether to
-            enable graphical visualization.
         """
         self.hubs_list: List[Hub] = parsed_data["hubs"]
         self.raw_connections: List[Union[Connection, str]] = parsed_data[
@@ -111,35 +148,17 @@ class Simulation:
                 self.visual = False
 
     def is_finished(self) -> bool:
-        """Checks if all drones have successfully reached the end hub.
-
-        Returns:
-            bool: True if every drone's status is 'finished', False otherwise.
-        """
+        """Checks if all drones have successfully reached the end hub."""
         return all(
             st["status"] == "finished" for st in self.drone_states.values()
         )
 
     def _format_move(self, drone_id: int, target: str) -> str:
-        """Formats a move string for a specific drone and target
-        node or connection, including current occupancy and capacity.
-
-        Args:
-            drone_id (int): The unique identifier of the drone.
-            target (str): The target hub name or connection string.
-
-        Returns:
-            str: The formatted move command string (e.g., 'D1-hub2 [1/10]').
-        """
+        """Formats a move string for a specific drone and target node."""
         return f"D{drone_id}-{target}"
 
     def run_turn(self) -> List[str]:
-        """Executes a single simulation turn, processing movements
-        and transitions for all active drones based on their scheduled paths.
-
-        Returns:
-            List[str]: A list of move strings executed during this turn.
-        """
+        """Executes a single simulation turn, processing movements."""
         self.current_turn += 1
         turn_moves: List[str] = []
 
@@ -189,7 +208,6 @@ class Simulation:
                 if curr_hub == next_hub:
                     continue
 
-                # Remove from current hub
                 curr_hub_obj = self.hubs.get(curr_hub)
                 if curr_hub_obj:
                     curr_hub_obj.drones_inside.discard(drone.id_num)
@@ -200,7 +218,6 @@ class Simulation:
                 )
 
                 if zone_type == "restricted" and next_hub != self.end_hub:
-                    # Enters transit connection
                     st["status"] = "in_transit"
                     st["in_transit_to"] = next_hub
                     drone.transit_connection = (curr_hub, next_hub)
@@ -230,15 +247,50 @@ class Simulation:
         return turn_moves
 
     def run(self) -> None:
-        """Runs the complete simulation loop until all drones reach
-        the destination or a deadlock is detected. Handles
-        visualization updates and turn printing.
+        """Runs the complete simulation loop until all drones
+        reach destination.
+        Handles visualization updates and full ANSI colored turn printing.
         """
+        reset_code = COLOR_MAP["reset"]
+
         while not self.is_finished():
             moves = self.run_turn()
             if moves:
                 self.output_turns.append(moves)
-                print(" ".join(moves))
+
+                # Building the line with dynamic colors for the terminal
+                colored_moves: List[str] = []
+                for move in moves:
+                    target = move.split("-", 1)[1]
+                    element: Any = self.hubs.get(target)
+
+                    if not element and "-" in target:
+                        parts = target.split("-")
+                        if len(parts) == 2:
+                            conn_key = "-".join(sorted(parts))
+                            element = self.connections.get(conn_key)
+
+                    color_code = ""
+
+                    if element:
+                        if hasattr(element, "color") and element.color:
+                            color_code = get_ansi_color(str(element.color))
+
+                        if not color_code and hasattr(element, "zone_type"):
+                            zt = element.zone_type
+                            if zt == "restricted":
+                                color_code = COLOR_MAP["orange"]
+                            elif zt == "priority":
+                                color_code = COLOR_MAP["gold"]
+                            elif zt == "blocked":
+                                color_code = COLOR_MAP["gray"]
+
+                    if not color_code:
+                        color_code = COLOR_MAP["cyan"]
+
+                    colored_moves.append(f"{color_code}{move}{reset_code}")
+
+                print(" ".join(colored_moves))
 
             if self.visualizer:
                 self.visualizer.update(self.drones, self.current_turn)
@@ -249,21 +301,9 @@ class Simulation:
                     for st in self.drone_states.values()
                 ):
                     continue
-                print("❌ Simulation error: Deadlock detected.")
+                err_msg = (
+                    f"{COLOR_MAP['red']}❌ Simulation error: "
+                    f"Deadlock detected.{reset_code}"
+                )
+                print(err_msg)
                 break
-
-    def save_output_txt(self, filepath: str = "output.txt") -> None:
-        """Saves the complete sequence of simulation moves turn by turn to
-        a text file.
-
-        Args:
-            filepath (str): The destination file path for the output log.
-            Defaults to 'output.txt'.
-        """
-        try:
-            with open(filepath, "w", encoding="utf-8") as f:
-                for turn_moves in self.output_turns:
-                    f.write(" ".join(turn_moves) + "\n")
-            print(f"\n💾 Output successfully saved to: {filepath}")
-        except Exception as e:
-            print(f"❌ Error saving output file: {e}")
