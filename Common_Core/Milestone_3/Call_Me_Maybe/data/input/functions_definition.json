@@ -1,0 +1,41 @@
+[
+  {
+    "name": "get_weather",
+    "description": "Devolve a temperatura e o clima de uma cidade.",
+    "parameters": {
+      "city": {
+        "type": "string",
+        "description": "Nome da cidade"
+      }
+    },
+    "returns": {
+      "type": "object"
+    }
+  },
+  {
+    "name": "search_information",
+    "description": "Pesquisa informação geral sobre um tema ou entidade.",
+    "parameters": {
+      "query": {
+        "type": "string",
+        "description": "Termo ou entidade a procurar"
+      }
+    },
+    "returns": {
+      "type": "object"
+    }
+  },
+  {
+    "name": "get_current_time",
+    "description": "Devolve a hora atual de uma localização.",
+    "parameters": {
+      "location": {
+        "type": "string",
+        "description": "Localização para obter a hora"
+      }
+    },
+    "returns": {
+      "type": "string"
+    }
+  }
+]
