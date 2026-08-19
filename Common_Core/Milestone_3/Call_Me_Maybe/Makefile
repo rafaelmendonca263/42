@@ -24,6 +24,9 @@ clean:
 	find . -type d -name '__pycache__' -prune -exec rm -rf {} +
 	find . -type f -name '*.pyc' -delete
 
+fclean: clean
+	rm -rf $(VENV) .venv
+
 lint:
 	.venv/bin/python3 -m flake8 src tests llm_sdk
 	.venv/bin/python3 -m mypy src tests llm_sdk \
