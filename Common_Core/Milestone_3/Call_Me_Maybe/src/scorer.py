@@ -1,4 +1,4 @@
-"""Módulo responsável pela pontuação e seleção de funções."""
+"""Module responsible for scoring and selecting functions."""
 
 import re
 from typing import List
@@ -8,10 +8,10 @@ from src.models import FunctionDefinition
 
 
 class FunctionScorer:
-    """Avaliador de funções candidatas com base em semântica textual."""
+    """Candidate function evaluator based on textual semantics."""
 
     def __init__(self, llm: Small_LLM_Model) -> None:
-        """Inicializa o scorer com a instância da LLM SDK."""
+        """Initialize the scorer with a local LLM SDK instance."""
         self.llm = llm
 
     @staticmethod
@@ -46,14 +46,29 @@ class FunctionScorer:
 
         keyword_groups = {
             "weather": {
+                "temperature",
+                "weather",
+                "climate",
+                "city",
+                "today",
+                "hot",
+                "cold",
+                "sunny",
+                "rain",
                 "temperatura",
                 "clima",
                 "tempo",
                 "cidade",
-                "today",
                 "hoje",
             },
             "search": {
+                "search",
+                "information",
+                "find",
+                "lookup",
+                "about",
+                "topic",
+                "entity",
                 "procura",
                 "pesquisa",
                 "buscar",
@@ -64,6 +79,14 @@ class FunctionScorer:
                 "entidade",
             },
             "time": {
+                "time",
+                "hour",
+                "now",
+                "current",
+                "location",
+                "london",
+                "lisbon",
+                "weather",
                 "hora",
                 "agora",
                 "atual",
@@ -89,15 +112,26 @@ class FunctionScorer:
         prompt: str,
         candidate_name: str,
     ) -> float:
-        """Calcula uma pontuação heurística de compatibilidade."""
+        """Calculate a heuristic compatibility score."""
         prompt = prompt.lower()
         candidate_name = candidate_name.lower()
 
         base = 0.0
-        if "temperatura" in prompt or "clima" in prompt:
+        if (
+            "temperature" in prompt
+            or "weather" in prompt
+            or "climate" in prompt
+            or "temperatura" in prompt
+            or "clima" in prompt
+        ):
             base += 3.0 if "weather" in candidate_name else 0.0
         if (
-            "procura" in prompt
+            "search" in prompt
+            or "information" in prompt
+            or "find" in prompt
+            or "lookup" in prompt
+            or "about" in prompt
+            or "procura" in prompt
             or "pesquisa" in prompt
             or "buscar" in prompt
             or "informacao" in prompt
@@ -105,7 +139,11 @@ class FunctionScorer:
         ):
             base += 3.0 if "search" in candidate_name else 0.0
         if (
-            "hora" in prompt
+            "time" in prompt
+            or "hour" in prompt
+            or "now" in prompt
+            or "current" in prompt
+            or "hora" in prompt
             or "agora" in prompt
             or "atual" in prompt
         ):
@@ -118,7 +156,7 @@ class FunctionScorer:
         prompt: str,
         functions: List[FunctionDefinition],
     ) -> FunctionDefinition:
-        """Escolhe a melhor função para o prompt dado."""
+        """Choose the best function for the given prompt."""
         best_score = float("-inf")
         best_fn = functions[0]
 

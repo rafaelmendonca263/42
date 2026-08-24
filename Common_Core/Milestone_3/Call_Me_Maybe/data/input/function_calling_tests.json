@@ -1,11 +1,11 @@
 [
   {
-    "prompt": "Qual é a temperatura em Lisboa hoje?"
+    "prompt": "What is the temperature in Lisbon today?"
   },
   {
-    "prompt": "Procura informação sobre o Rio de Janeiro."
+    "prompt": "Search for information about Rio de Janeiro."
   },
   {
-    "prompt": "Qual é a hora atual em Londres?"
+    "prompt": "What is the current time in London?"
   }
 ]

@@ -1,11 +1,11 @@
 [
   {
     "name": "get_weather",
-    "description": "Devolve a temperatura e o clima de uma cidade.",
+    "description": "Returns the temperature and weather for a city.",
     "parameters": {
       "city": {
         "type": "string",
-        "description": "Nome da cidade"
+        "description": "City name"
       }
     },
     "returns": {
@@ -14,11 +14,11 @@
   },
   {
     "name": "search_information",
-    "description": "Pesquisa informação geral sobre um tema ou entidade.",
+    "description": "Searches for general information about a topic or entity.",
     "parameters": {
       "query": {
         "type": "string",
-        "description": "Termo ou entidade a procurar"
+        "description": "Term or entity to search for"
       }
     },
     "returns": {
@@ -27,11 +27,11 @@
   },
   {
     "name": "get_current_time",
-    "description": "Devolve a hora atual de uma localização.",
+    "description": "Returns the current time for a location.",
     "parameters": {
       "location": {
         "type": "string",
-        "description": "Localização para obter a hora"
+        "description": "Location to get the time for"
       }
     },
     "returns": {

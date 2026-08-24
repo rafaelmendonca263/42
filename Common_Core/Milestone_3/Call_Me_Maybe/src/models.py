@@ -1,4 +1,4 @@
-"""Modelos Pydantic para validação de dados de entrada e saída."""
+"""Pydantic models for validating input and output data."""
 
 from typing import Any, Dict, Optional
 
@@ -6,44 +6,44 @@ from pydantic import BaseModel, Field
 
 
 class FunctionParameterSchema(BaseModel):
-    """Esquema de um parâmetro de função."""
+    """Schema for a function parameter."""
 
     type: str = Field(
-        description="Tipo do parâmetro (number, string, boolean, etc.)",
+        description="Parameter type (number, string, boolean, etc.)",
     )
     description: Optional[str] = Field(
         default=None,
-        description="Descrição do parâmetro",
+        description="Parameter description",
     )
 
 
 class FunctionDefinition(BaseModel):
-    """Definição de uma função disponível."""
+    """Definition of an available function."""
 
-    name: str = Field(description="Nome único da função")
-    description: str = Field(description="Descrição do que a função faz")
+    name: str = Field(description="Unique function name")
+    description: str = Field(description="What the function does")
     parameters: Dict[str, FunctionParameterSchema] = Field(
         default_factory=dict,
-        description="Mapeamento de parâmetros esperados",
+        description="Mapping of expected parameters",
     )
     returns: Optional[Dict[str, Any]] = Field(
         default=None,
-        description="Tipo de retorno da função",
+        description="Function return type",
     )
 
 
 class TestPrompt(BaseModel):
-    """Estrutura do caso de teste de entrada."""
+    """Input test case structure."""
 
-    prompt: str = Field(description="O pedido em linguagem natural")
+    prompt: str = Field(description="Natural-language request")
 
 
 class FunctionCallResult(BaseModel):
-    """Estrutura do resultado exigida no output JSON."""
+    """Structure required in the JSON output."""
 
-    prompt: str = Field(description="O pedido em linguagem natural original")
-    name: str = Field(description="Nome da função selecionada")
+    prompt: str = Field(description="Original natural-language request")
+    name: str = Field(description="Selected function name")
     parameters: Dict[str, Any] = Field(
         default_factory=dict,
-        description="Argumentos extraídos com tipos corretos",
+        description="Extracted arguments with correct types",
     )
