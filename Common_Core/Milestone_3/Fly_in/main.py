@@ -1,4 +1,5 @@
 
+import os
 import sys
 import argparse
 from parser import parse_map_file, ParseError
@@ -7,9 +8,17 @@ from simulation import Simulation
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Fly-in Drone Simulator")
-    parser.add_argument("map_file")
+    parser.add_argument("map_file", help="path to the map file")
     parser.add_argument("--visual", action="store_true")
     args = parser.parse_args()
+
+    if (
+        not os.path.isfile(args.map_file)
+        or not os.access(args.map_file, os.R_OK)
+    ):
+        parser.error(
+            f"map file not found or not readable: {args.map_file}"
+        )
 
     try:
         parsed_data = parse_map_file(args.map_file)

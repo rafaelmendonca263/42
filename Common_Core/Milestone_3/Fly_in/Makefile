@@ -23,17 +23,16 @@ run: install
 		echo "Correct usage: make run path/to/map.txt"; \
 		exit 1; \
 	fi; \
-	mapa=$$(echo $$args | awk '{print $$1}'); \
-	$(PYTHON) main.py $$mapa --visual
+	$(PYTHON) main.py $$args --visual
 
 debug: install
 	@args="$(filter-out debug,$(MAKECMDGOALS))"; \
-	mapa=$$(echo $$args | awk '{print $$1}'); \
-	if [ -z "$$mapa" ]; then \
+	if [ -z "$$args" ]; then \
 		echo "Error: Map not specified!"; \
+		echo "Correct usage: make debug path/to/map.txt"; \
 		exit 1; \
 	fi; \
-	$(PYTHON) -m pdb main.py $$mapa --visual
+	$(PYTHON) -m pdb main.py $$args --visual
 
 lint: install
 	@$(FLAKE8) $(FLAKE8_FLAGS) *.py
