@@ -1,37 +1,67 @@
 [
   {
-    "name": "get_weather",
-    "description": "Devolve a temperatura e o clima de uma cidade.",
+    "name": "fn_add_numbers",
+    "description": "Add two numbers together and return their sum.",
     "parameters": {
-      "city": {
-        "type": "string",
-        "description": "Nome da cidade"
+      "a": {
+        "type": "number"
+      },
+      "b": {
+        "type": "number"
       }
     },
     "returns": {
-      "type": "object"
+      "type": "number"
     }
   },
   {
-    "name": "search_information",
-    "description": "Pesquisa informação geral sobre um tema ou entidade.",
+    "name": "fn_greet",
+    "description": "Generate a greeting message for a person by name.",
     "parameters": {
-      "query": {
-        "type": "string",
-        "description": "Termo ou entidade a procurar"
+      "name": {
+        "type": "string"
       }
     },
     "returns": {
-      "type": "object"
+      "type": "string"
     }
   },
   {
-    "name": "get_current_time",
-    "description": "Devolve a hora atual de uma localização.",
+    "name": "fn_reverse_string",
+    "description": "Reverse a string and return the reversed result.",
     "parameters": {
-      "location": {
-        "type": "string",
-        "description": "Localização para obter a hora"
+      "s": {
+        "type": "string"
+      }
+    },
+    "returns": {
+      "type": "string"
+    }
+  },
+  {
+    "name": "fn_get_square_root",
+    "description": "Calculate the square root of a number.",
+    "parameters": {
+      "a": {
+        "type": "number"
+      }
+    },
+    "returns": {
+      "type": "number"
+    }
+  },
+  {
+    "name": "fn_substitute_string_with_regex",
+    "description": "Replace all occurrences matching a regex pattern in a string.",
+    "parameters": {
+      "source_string": {
+        "type": "string"
+      },
+      "regex": {
+        "type": "string"
+      },
+      "replacement": {
+        "type": "string"
       }
     },
     "returns": {
