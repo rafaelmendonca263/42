@@ -239,10 +239,9 @@ class Parser:
                 )
 
             return {"hubs": hubs, "connections": connections, "nb_drones": num}
-
+        except FileNotFoundError:
+            raise ParseError(f"[{line_idx}] File not found")
         except Exception as e:
-            if isinstance(e, ParseError):
-                raise e
             raise ParseError(
                 f"[{line_idx}] Unexpected error while extracting "
                 f"information: {e}"

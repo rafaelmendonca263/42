@@ -25,6 +25,9 @@ def main() -> None:
         sim = Simulation(parsed_data, visual=args.visual)
         sim.run()
 
+    except FileNotFoundError as e:
+        print(f"File not found: {e}", file=sys.stderr)
+        sys.exit(1)
     except ParseError as e:
         print(f"Parsing Error: {e}", file=sys.stderr)
         sys.exit(1)

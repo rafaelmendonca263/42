@@ -201,9 +201,6 @@ AI tools were used only to improve the clarity and quality of the project docume
 
 Their usage was limited to:
 - refining the README structure and wording,
-- clarifying technical explanations,
-- checking that the documentation matches the actual implementation,
-- helping summarize the algorithm and project behavior in English.
 
 The core algorithm design, graph modeling, reservation logic, parsing strategy, and validation mechanisms were developed and verified by the project author. AI was used as a support tool for explanation and documentation, not as a replacement for the technical implementation itself.
 
