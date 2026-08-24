@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by <rmedonca>.*
+*This project has been created as part of the 42 curriculum by rmedonca.*
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
 ![School](https://img.shields.io/badge/School-42-black)
@@ -9,108 +9,206 @@
 ![UI](https://img.shields.io/badge/UI-Pygame%20%7C%20Terminal-red)
 ![Status](https://img.shields.io/badge/Status-Completed-success)
 
-# Fly-in — Drone Fleet Pathfinding & Simulation
+# Fly-in
 
 ## Description
 
-**Fly-in** is an algorithmic simulation engine designed to coordinate and optimize the navigation of multiple drones through a complex, spatial graph of interconnected hubs (zones) and air corridors (connections). The primary goal is to route all drones from a designated `start_hub` to an `end_hub` in the minimal number of simulation turns while satisfying real-time space-time capacity constraints.
+Fly-in is a multi-drone simulation and routing project designed to model a constrained network of hubs and connections. Each drone must reach a destination while respecting the state of the network at every turn: hub capacities, link capacities, restricted zones, priority zones, and temporal conflicts.
 
-Key features of the simulator include:
-- **Space-Time Pathfinding (A*)**: Calculates conflict-free routes across spatial nodes and time dimensions, avoiding node and link capacity bottlenecks.
-- **Dynamic Capacity Management**: Supports node capacities (`max_drones`) and corridor link capacities (`max_link_capacity`).
-- **Zone Mechanics**: Handles varying cost and transition dynamics across zone types:
-  - `normal`: 1 turn traversal cost.
-  - `priority`: 1 turn cost, prioritized during route optimization.
-  - `restricted`: 2 turns transition (1 turn on connection link + 1 turn to land on hub).
-  - `blocked`: Inaccessible zones.
-- **Strict Parsing & Validation**: Validates map syntax, coordinates, node naming (dashes disallowed), and logical consistency.
-- **Real-Time Visualization**: Powered by Pygame to render drone movements, hub capacities, and zone types visually.
+The project is built around a graph-based environment where movement is not simply a shortest-path problem. A route is only valid if it respects the reservations made for hubs and corridors over time. This transforms the problem into a space-time scheduling challenge, where both the location and the turn index determine whether a move is feasible.
+
+The system reads custom map files, validates them, schedules drone movements, and simulates their progression until all drones have reached the end hub. It also includes a visual representation that makes the global behavior of the system easier to understand and debug.
 
 ---
 
-## Architecture & Algorithm Design
+## Algorithm and implementation strategy
 
-### 1. Reservation Table & Space-Time A*
-Unlike standard pathfinding (which only considers 2D/3D spatial coordinates), Fly-in handles multi-drone interaction over time. The **SpaceTimeAStar** pathfinder uses a shared `ReservationTable`:
-- Nodes and connections are reserved at specific discrete time steps `(location, time)`.
-- Drones can perform waiting maneuvers (staying at a hub) if a downstream corridor or destination hub is temporarily saturated.
-- Route planning is executed iteratively for each drone and committed to the central space-time schedule to prevent mid-air collisions or capacity overfills.
+The project relies on a reservation-based planner inspired by A* search but adapted to time-aware routing.
 
-### 2. Immediate Capacity Liberation
-The simulation engine processes turns dynamically: as a drone departs a hub during a turn, it frees capacity for another drone arriving in that same turn, ensuring optimal throughput without overstepping capacity limits.
+### Graph model
+
+The world is represented as an undirected graph:
+- hubs are nodes,
+- connections are edges,
+- each hub may accept only a limited number of drones at the same time,
+- each connection may carry only a limited number of simultaneous crossings.
+
+### Route planning
+
+Instead of computing a single static path, the planner builds a schedule as a sequence of states `(hub, turn)`. For each drone, a candidate move is accepted only if:
+- the destination hub is available at arrival time,
+- the connecting edge is free during the move,
+- the zone type does not impose an invalid condition,
+- the reservation table shows that no conflict occurs.
+
+This reservation table is central to the project. It stores the occupancy of hubs and links at each turn and prevents collisions, bottlenecks, and invalid simultaneous use.
+
+### Zone handling
+
+The project supports several hub states and routing constraints:
+- `normal`: standard movement,
+- `priority`: preferred route, typically favored by the planner,
+- `restricted`: slower or more constrained movement,
+- `blocked`: not traversable,
+- `max_drones`: hub limit,
+- connection limits also controlled by capacity metadata.
+
+### Validation layer
+
+Before simulation starts, the parser validates:
+- the presence of `nb_drones`,
+- the syntax of every command,
+- uniqueness and validity of start and end hubs,
+- coordinate correctness,
+- metadata consistency,
+- graph feasibility and path existence.
+
+The goal of this validation layer is to reject malformed or logically inconsistent maps before execution begins.
+
+---
+
+## Visual representation
+
+The project includes a visualizer built with Pygame and a terminal-based output mode.
+
+The visual component displays:
+- hubs and connections on a graph,
+- drones moving across the network,
+- capacity usage and congestion,
+- waiting behavior when a route is temporarily blocked,
+- the final state of the fleet at destination.
+
+This helps users understand why a route was chosen, where bottlenecks occur, and how the shared reservation system affects the global flow. In other words, the visualizer is not only for presentation: it is also a debugging and analysis tool that makes simulation behavior easier to interpret.
 
 ---
 
 ## Instructions
 
-### Prerequisites
+### Requirements
+
 - Python 3.10 or higher
-- `virtualenv` / `venv` support
+- `make`
+- `venv` support
 
-### Building & Running via Makefile
+### Installation
 
-The project includes a fully featured `Makefile` to handle environment setup, dependencies, linting, and execution.
+From the project root, run:
 
-1. **Install Dependencies**
-   Creates a `.venv` virtual environment and installs required packages (`pygame`, `mypy`, `flake8`):
-   ```
-   make install
-   ```
-
-2. **Run the Simulation**
-    Execute the simulation with a map file. The --visual flag activates the graphical interface:
-    ```
-    make run maps/example_map.txt
-    ```
-    Or execute directly with Python:
-    ```
-    .venv/bin/python main.py maps/example_map.txt --visual
-    ```
-
-3. **Debug Mode**
-    Runs the program using the built-in Python debugger (pdb):
-    ```
-    make debug maps/example_map.txt
-    ```
-
-4. **Code Quality & Type Checking**
-    Runs flake8 and mypy with strict type checks required by the 42 standard:
-    ```
-    make lint
-    ```
-
-5. **Clean Up**
-    Removes caches and build artifacts:
-    ```
-    make clean
-    # Or remove the .venv completely:
-    make fclean
-    ```
-
-## Map File Format Example
-```
-    nb_drones: 3
-    start_hub: roof1 0 0 [max_drones=5]
-    hub: corridorA 10 0 [zone=priority max_drones=2]
-    hub: bridge1 20 0 [zone=restricted max_drones=1]
-    end_hub: zoneEnd 30 0 [max_drones=5]
-
-    connection: roof1-corridorA [max_link_capacity=2]
-    connection: corridorA-bridge1
-    connection: bridge1-zoneEnd
+```bash
+make install
 ```
 
-## Resources & Artificial Intelligence (AI) Usage
-In compliance with 42 curriculum guidelines regarding AI assistance:
+This creates a local virtual environment and installs the dependencies required for the project, including `pygame`, `mypy`, and `flake8`.
 
-**AI Collaboration:** Generative AI tools (ChatGPT/Gemini) were used during the project as a pair-programming partner.
+### Running the simulation
 
-**Tasks Assisted by AI:**
+To run the project with a map file:
 
-- Refining edge-case handling in syntax parsing (e.g., verifying dash prohibitions in hub names and validating enum values for zone types).
+```bash
+make run maps/easy/01_linear_path.txt
+```
 
-- Structuring type annotations (mypy) and enforcing PEP-8 compliance (flake8).
+To launch the graphical visualizer:
 
-- Formatting project documentation (README.md).
+```bash
+.venv/bin/python main.py maps/easy/01_linear_path.txt --visual
+```
 
-**Core Implementation:** All algorithms (Space-Time A*, Graph Representation, Reservation System, Simulation Engine) were studied, designed, and verified by the author.
+To run the project in debug mode:
+
+```bash
+make debug maps/easy/01_linear_path.txt
+```
+
+### Static analysis and cleanup
+
+```bash
+make lint
+```
+
+Typical cleanup commands:
+
+```bash
+make clean
+make fclean
+```
+
+---
+
+## Project structure
+
+```text
+.
+├── main.py              # entry point
+├── parser.py            # map parsing and validation
+├── pathfinder.py        # space-time scheduling logic
+├── reservation.py       # reservation table for hubs and links
+├── simulation.py        # main simulation loop
+├── structure.py         # dataclasses for hubs, connections and drones
+├── visualizer.py        # graphical rendering
+├── network.py           # network-related helpers
+├── Makefile             # installation and execution commands
+├── maps/                # challenge maps
+├── README.md            # documentation
+└── .venv/               # generated virtual environment
+```
+
+---
+
+## Example input
+
+```text
+nb_drones: 2
+
+start_hub: start 0 0 [color=green]
+hub: waypoint1 1 0 [color=blue]
+hub: waypoint2 2 0 [color=blue]
+end_hub: goal 3 0 [zone=priority]
+
+connection: start-waypoint1
+connection: waypoint1-waypoint2
+connection: waypoint2-goal
+```
+
+## Expected output
+
+A successful simulation should complete without capacity violations and should show the drones advancing through the network turn by turn.
+
+```text
+D1-waypoint1
+D1-waypoint2 D2-waypoint1
+D1-goal D2-waypoint2
+D2-goal
+```
+
+This illustrates the expected behavior: all drones reach the destination while respecting the reservation system and avoiding invalid simultaneous occupancy.
+
+---
+
+## Resources
+
+### References
+
+- A* Search Algorithm: https://en.wikipedia.org/wiki/A*_search_algorithm
+- Red Blob Games — A* tutorial: https://www.redblobgames.com/pathfinding/a-star/introduction.html
+- Graph theory overview: https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)
+- Python documentation: https://docs.python.org/3/
+- Pygame documentation: https://www.pygame.org/docs/
+
+### AI usage
+
+AI tools were used only to improve the clarity and quality of the project documentation and communication.
+
+Their usage was limited to:
+- refining the README structure and wording,
+- clarifying technical explanations,
+- checking that the documentation matches the actual implementation,
+- helping summarize the algorithm and project behavior in English.
+
+The core algorithm design, graph modeling, reservation logic, parsing strategy, and validation mechanisms were developed and verified by the project author. AI was used as a support tool for explanation and documentation, not as a replacement for the technical implementation itself.
+
+---
+
+## Conclusion
+
+Fly-in is a graph-based multi-drone simulation project focused on constrained path planning under temporal and capacity restrictions. It brings together parsing, validation, scheduling, reservation management, and visualization into a single system designed to challenge route planning in realistic congestion scenarios.
