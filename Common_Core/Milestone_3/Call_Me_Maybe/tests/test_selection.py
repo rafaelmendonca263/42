@@ -1,6 +1,7 @@
 import unittest
 
 from llm_sdk import Small_LLM_Model
+from src.__main__ import extract_parameters
 from src.models import FunctionDefinition, FunctionParameterSchema
 from src.scorer import FunctionScorer
 
@@ -85,6 +86,30 @@ class TestFunctionSelection(unittest.TestCase):
             self.functions,
         )
         self.assertEqual(selected.name, "get_current_time")
+
+    def test_extract_parameters_removes_articles_and_time_words(self) -> None:
+        cases = [
+            (
+                "Qual é a temperatura em Lisboa hoje?",
+                "get_weather",
+                {"city": "Lisboa"},
+            ),
+            (
+                "Procura informação sobre o Rio de Janeiro.",
+                "search_information",
+                {"query": "Rio de Janeiro"},
+            ),
+            (
+                "Qual é a hora atual em Londres?",
+                "get_current_time",
+                {"location": "Londres"},
+            ),
+        ]
+
+        for prompt, function_name, expected in cases:
+            selected = self.scorer.select_best_function(prompt, self.functions)
+            self.assertEqual(selected.name, function_name)
+            self.assertEqual(extract_parameters(prompt, selected), expected)
 
 
 if __name__ == "__main__":

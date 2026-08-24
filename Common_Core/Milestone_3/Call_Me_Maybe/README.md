@@ -1,3 +1,5 @@
+*This project has been created as part of the 42 curriculum by rmedonca.*
+
 # Call Me Maybe
 
 ![Python](https://img.shields.io/badge/Python-3.12-blue) ![Build](https://img.shields.io/badge/Build-Makefile-orange) ![Code Style](https://img.shields.io/badge/Code%20Style-Flake8-green) ![Typing](https://img.shields.io/badge/Type%20Checking-MyPy-blueviolet) ![Testing](https://img.shields.io/badge/Testing-Pytest-brightgreen) ![Status](https://img.shields.io/badge/Status-Completed-success) ![42](https://img.shields.io/badge/School-42-black) ![Language](https://img.shields.io/badge/Language-Python-blue)
@@ -150,3 +152,18 @@ Running the program produces output similar to this:
   }
 ]
 ```
+
+---
+
+## AI Usage
+
+This project is intentionally lightweight and mostly deterministic, but AI tools were still useful during development for a few specific tasks.
+
+AI was used to:
+
+- clarify project structure and separation of responsibilities;
+- propose or refine the README and explanatory text;
+- help reason about edge cases in prompt parsing and function selection;
+- review the logic for parameter extraction and possible failure modes.
+
+The generated suggestions were then checked manually against the actual code and validated through the project tests before being accepted. The final behavior of the project depends on the implemented scoring and extraction logic, not on hidden AI-generated runtime behavior.

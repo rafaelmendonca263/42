@@ -12,6 +12,24 @@ from src.parser import load_functions, load_test_prompts, save_results
 from src.scorer import FunctionScorer
 
 
+def _clean_entity(value: str) -> str:
+    """Remove prepositions, articles, and trailing time words."""
+    cleaned = re.sub(
+        r"^(?:em|na|no|de|do|da|sobre|sobre\s+o|sobre\s+a|o|a|as|os)\s+",
+        "",
+        value,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"\s+(?:hoje|agora|atual|atualmente|hoy|today)\s*$",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(r"[.?!]+$", "", cleaned).strip()
+    return cleaned
+
+
 def extract_parameters(
     prompt: str,
     selected_fn: FunctionDefinition,
@@ -36,20 +54,20 @@ def extract_parameters(
                 flags=re.IGNORECASE,
             )
         if city_match:
-            params["city"] = city_match.group(1).strip()
+            params["city"] = _clean_entity(city_match.group(1))
         elif "lisboa" in normalized:
             params["city"] = "Lisboa"
 
     elif selected_fn.name == "search_information":
         query_match = re.search(
-            r"(?:sobre|de|sobre o|sobre a)\s+(.+?)(?:\.|$)",
+            r"(?:sobre|de|sobre\s+o|sobre\s+a)\s+(.+?)(?:\.|$)",
             prompt,
             flags=re.IGNORECASE,
         )
         if query_match:
-            params["query"] = query_match.group(1).strip()
+            params["query"] = _clean_entity(query_match.group(1))
         else:
-            params["query"] = prompt.strip()
+            params["query"] = _clean_entity(prompt.strip())
 
     elif selected_fn.name == "get_current_time":
         location_pattern = (
@@ -61,7 +79,7 @@ def extract_parameters(
             flags=re.IGNORECASE,
         )
         if location_match:
-            params["location"] = location_match.group(1).strip()
+            params["location"] = _clean_entity(location_match.group(1))
         elif "londres" in normalized:
             params["location"] = "Londres"
         elif "lisboa" in normalized:

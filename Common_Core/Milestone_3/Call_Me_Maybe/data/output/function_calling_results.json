@@ -3,14 +3,14 @@
     "prompt": "Qual é a temperatura em Lisboa hoje?",
     "name": "get_weather",
     "parameters": {
-      "city": "Lisboa hoje"
+      "city": "Lisboa"
     }
   },
   {
     "prompt": "Procura informação sobre o Rio de Janeiro.",
     "name": "search_information",
     "parameters": {
-      "query": "o Rio de Janeiro"
+      "query": "Rio de Janeiro"
     }
   },
   {
