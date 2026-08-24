@@ -1,10 +1,10 @@
-"""Módulo para gestão da tabela de reservas em espaço-tempo."""
+"""Module for managing the space-time reservation table."""
 
 from typing import Dict, Tuple
 
 
 class ReservationTable:
-    """Tabela de reservas temporal para nós e conexões no grafo."""
+    """Temporal reservation table for hubs and connections in the graph."""
 
     def __init__(self) -> None:
         self.hub_reservations: Dict[Tuple[str, int], int] = {}

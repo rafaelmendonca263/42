@@ -5,7 +5,7 @@ from reservation import ReservationTable
 
 
 class SpaceTimeAStar:
-    """Calculador de rotas em espaço-tempo prevenindo colisões e atrasos."""
+    """Space-time route planner that prevents collisions and delays."""
 
     def __init__(
         self,

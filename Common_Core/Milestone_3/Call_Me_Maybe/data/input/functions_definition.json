@@ -1,67 +1,37 @@
 [
   {
-    "name": "fn_add_numbers",
-    "description": "Add two numbers together and return their sum.",
+    "name": "get_weather",
+    "description": "Returns the temperature and weather for a city.",
     "parameters": {
-      "a": {
-        "type": "number"
-      },
-      "b": {
-        "type": "number"
+      "city": {
+        "type": "string",
+        "description": "City name"
       }
     },
     "returns": {
-      "type": "number"
+      "type": "object"
     }
   },
   {
-    "name": "fn_greet",
-    "description": "Generate a greeting message for a person by name.",
+    "name": "search_information",
+    "description": "Searches for general information about a topic or entity.",
     "parameters": {
-      "name": {
-        "type": "string"
+      "query": {
+        "type": "string",
+        "description": "Term or entity to search for"
       }
     },
     "returns": {
-      "type": "string"
+      "type": "object"
     }
   },
   {
-    "name": "fn_reverse_string",
-    "description": "Reverse a string and return the reversed result.",
+    "name": "get_current_time",
+    "description": "Returns the current time for a location.",
     "parameters": {
-      "s": {
-        "type": "string"
-      }
-    },
-    "returns": {
-      "type": "string"
-    }
-  },
-  {
-    "name": "fn_get_square_root",
-    "description": "Calculate the square root of a number.",
-    "parameters": {
-      "a": {
-        "type": "number"
-      }
-    },
-    "returns": {
-      "type": "number"
-    }
-  },
-  {
-    "name": "fn_substitute_string_with_regex",
-    "description": "Replace all occurrences matching a regex pattern in a string.",
-    "parameters": {
-      "source_string": {
-        "type": "string"
-      },
-      "regex": {
-        "type": "string"
-      },
-      "replacement": {
-        "type": "string"
+      "location": {
+        "type": "string",
+        "description": "Location to get the time for"
       }
     },
     "returns": {

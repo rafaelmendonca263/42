@@ -12,34 +12,34 @@ class TestFunctionSelection(unittest.TestCase):
         self.functions = [
             FunctionDefinition(
                 name="get_weather",
-                description="Devolve a temperatura e o clima de uma cidade.",
+                description="Returns the temperature and weather for a city.",
                 parameters={
                     "city": FunctionParameterSchema(
                         type="string",
-                        description="Nome da cidade",
+                        description="City name",
                     )
                 },
             ),
             FunctionDefinition(
                 name="search_information",
                 description=(
-                    "Pesquisa informação geral sobre um tema "
-                    "ou entidade."
+                    "Searches for general information about a topic "
+                    "or entity."
                 ),
                 parameters={
                     "query": FunctionParameterSchema(
                         type="string",
-                        description="Termo ou entidade a procurar",
+                        description="Term or entity to search for",
                     )
                 },
             ),
             FunctionDefinition(
                 name="get_current_time",
-                description="Devolve a hora atual de uma localização.",
+                description="Returns the current time for a location.",
                 parameters={
                     "location": FunctionParameterSchema(
                         type="string",
-                        description="Localização para obter a hora",
+                        description="Location to get the time for",
                     )
                 },
             ),
@@ -47,42 +47,42 @@ class TestFunctionSelection(unittest.TestCase):
 
     def test_weather_prompt_selects_weather_function(self) -> None:
         selected = self.scorer.select_best_function(
-            "Qual é a temperatura em Lisboa hoje?",
+            "What is the temperature in Lisbon today?",
             self.functions,
         )
         self.assertEqual(selected.name, "get_weather")
 
     def test_search_prompt_selects_search_function(self) -> None:
         selected = self.scorer.select_best_function(
-            "Procura informação sobre o Rio de Janeiro.",
+            "Search for information about Rio de Janeiro.",
             self.functions,
         )
         self.assertEqual(selected.name, "search_information")
 
     def test_time_prompt_selects_time_function(self) -> None:
         selected = self.scorer.select_best_function(
-            "Qual é a hora atual em Londres?",
+            "What is the current time in London?",
             self.functions,
         )
         self.assertEqual(selected.name, "get_current_time")
 
     def test_weather_variant_prompt_selects_weather_function(self) -> None:
         selected = self.scorer.select_best_function(
-            "Quão quente está o clima em Porto hoje?",
+            "How hot is the weather in Porto today?",
             self.functions,
         )
         self.assertEqual(selected.name, "get_weather")
 
     def test_search_variant_prompt_selects_search_function(self) -> None:
         selected = self.scorer.select_best_function(
-            "Preciso de informações sobre a UNESCO.",
+            "I need information about UNESCO.",
             self.functions,
         )
         self.assertEqual(selected.name, "search_information")
 
     def test_time_variant_prompt_selects_time_function(self) -> None:
         selected = self.scorer.select_best_function(
-            "Que horas são agora na cidade de Lisboa?",
+            "What time is it now in the city of Lisbon?",
             self.functions,
         )
         self.assertEqual(selected.name, "get_current_time")
@@ -90,19 +90,19 @@ class TestFunctionSelection(unittest.TestCase):
     def test_extract_parameters_removes_articles_and_time_words(self) -> None:
         cases = [
             (
-                "Qual é a temperatura em Lisboa hoje?",
+                "What is the temperature in Lisbon today?",
                 "get_weather",
-                {"city": "Lisboa"},
+                {"city": "Lisbon"},
             ),
             (
-                "Procura informação sobre o Rio de Janeiro.",
+                "Search for information about Rio de Janeiro.",
                 "search_information",
                 {"query": "Rio de Janeiro"},
             ),
             (
-                "Qual é a hora atual em Londres?",
+                "What is the current time in London?",
                 "get_current_time",
-                {"location": "Londres"},
+                {"location": "London"},
             ),
         ]
 
