@@ -1,0 +1,16 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^make clean && make$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^make clean && make && ls -l codexion$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^make norm$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
