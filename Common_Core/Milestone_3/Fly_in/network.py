@@ -1,4 +1,3 @@
-
 from typing import Dict, List, Optional
 from structure import Connection, Hub
 

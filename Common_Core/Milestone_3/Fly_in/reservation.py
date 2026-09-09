@@ -1,5 +1,3 @@
-"""Module for managing the space-time reservation table."""
-
 from typing import Dict, Tuple
 
 

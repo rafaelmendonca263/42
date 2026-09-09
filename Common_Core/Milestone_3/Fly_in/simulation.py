@@ -155,7 +155,10 @@ class Simulation:
 
     def _format_move(self, drone_id: int, target: str) -> str:
         """Formats a move string for a specific drone and target node."""
-        return f"D{drone_id}-{target}"
+        hub = (self.hubs.get(target)
+               or self.connections.get("-".join(sorted(target.split("-")))))
+        current_drones = len(hub.drones_inside)
+        return f"D{drone_id}-{target} [{current_drones}|{hub.max_drones}]"
 
     def run_turn(self) -> List[str]:
         """Executes a single simulation turn, processing movements."""

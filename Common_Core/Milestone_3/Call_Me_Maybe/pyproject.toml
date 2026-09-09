@@ -1,16 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "call-me-maybe"
 version = "0.1.0"
-description = "Function calling project with candidate scoring and LLM logits"
+description = "Function calling implementation with local LLM"
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.26.0",
-    "pydantic>=2.7.0",
+    "pydantic>=2.7.0"
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src"]
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true

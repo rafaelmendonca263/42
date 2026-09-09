@@ -1,9 +1,13 @@
 [project]
 name = "llm-sdk"
 version = "0.1.0"
-description = "Lightweight local LLM SDK with an offline fallback"
+description = "LLM SDK for local model inference"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "torch>=2.0.0",
+    "transformers>=4.40.0",
+    "huggingface-hub>=0.20.0",
+]
 
 [build-system]
 requires = ["hatchling"]
