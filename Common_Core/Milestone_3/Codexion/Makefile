@@ -2,23 +2,33 @@ NAME = codexion
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -pthread -I include
 SRCS = src/main.c src/init.c src/time_utils.c src/log.c src/scheduler.c src/sim.c src/coder.c src/monitor.c
-
 TEST_PQ = src/test_pq.c
+VENV = .venv
+NORMINNETTE = $(VENV)/bin/norminette
+NORM_PATHS = src include
+
+.DEFAULT_GOAL := all
 
 all: $(NAME)
 
 $(NAME): $(SRCS)
 	$(CC) $(CFLAGS) -o $(NAME) $(SRCS)
 
+install-norminette:
+	@python3 -m venv $(VENV)
+	@$(VENV)/bin/pip install --upgrade pip
+	@$(VENV)/bin/pip install norminette
+
 clean:
 	rm -f *.o
 
 fclean: clean
 	rm -f $(NAME)
+	rm -rf $(VENV)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re test test-pq codexion_asan asan-run norm install-norminette
 
 test: $(NAME)
 	sh ./tests/run_tests.sh
@@ -33,6 +43,6 @@ codexion_asan: $(SRCS)
 asan-run: codexion_asan
 	./codexion_asan 3 200 50 50 50 1 10 fifo
 
-norm:
-	@command -v norminette >/dev/null 2>&1 && norminette . || { echo "norminette not found — install with: python3 -m pip install --user norminette"; exit 1; }
-
+norm: all
+	@if [ ! -x "$(NORMINNETTE)" ]; then $(MAKE) install-norminette; fi
+	@$(NORMINNETTE) $(NORM_PATHS)
