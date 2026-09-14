@@ -8,13 +8,16 @@ install: venv
 	.venv/bin/python3 -m pip install --upgrade pip
 	.venv/bin/python3 -m pip install -e ./llm_sdk
 	.venv/bin/python3 -m pip install -e .
-	.venv/bin/python3 -m pip install flake8 mypy
+	.venv/bin/python3 -m pip install flake8 mypy pytest
 
 run: install
 	.venv/bin/python3 -m src \
 		--functions_definition data/input/functions_definition.json \
 		--input data/input/function_calling_tests.json \
 		--output data/output/function_calling_results.json
+
+test: install
+	.venv/bin/python3 -m pytest tests/ -v
 
 debug: install
 	.venv/bin/python3 -m pdb -m src --functions_definition data/input/functions_definition.json --input data/input/function_calling_tests.json --output data/output/function_calling_results.json

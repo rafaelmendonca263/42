@@ -1,0 +1,23 @@
+[
+  {
+    "prompt": "What is the temperature in Lisbon today?",
+    "name": "get_weather",
+    "parameters": {
+      "city": "Lisbon"
+    }
+  },
+  {
+    "prompt": "Search for information about Rio de Janeiro.",
+    "name": "search_information",
+    "parameters": {
+      "query": "Rio de Janeiro"
+    }
+  },
+  {
+    "prompt": "What is the current time in London?",
+    "name": "get_current_time",
+    "parameters": {
+      "location": "London"
+    }
+  }
+]

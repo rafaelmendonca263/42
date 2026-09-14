@@ -42,7 +42,7 @@ def extract_parameters(
     if selected_fn.name == "get_weather":
         city_pattern = (
             r"\b(?:in|at|for|on)\b\s+(?:the\s+)?([A-ZÀ-ÖØ-Ý][\wÀ-ÖØ-Ý\- ]+?)"
-            r"(?=\s+(?:today|now|currently|current|at\s+the\s+moment|[.?!]|$))"
+            r"(?=\s+(?:today|now|currently|current|at\s+the\s+moment)\b|[.?!]|\s*$)"
         )
         city_match = re.search(city_pattern, prompt, flags=re.IGNORECASE)
         if not city_match:
@@ -51,7 +51,7 @@ def extract_parameters(
                     r"(?:temperature|weather|climate|temperatura|clima)\s+"
                     r"\b(?:in|at|for|on|em|na|no)\b\s*"
                     r"([A-ZÀ-ÖØ-Ý][\wÀ-ÖØ-Ý\- ]+?)"
-                    r"(?=\s+(?:today|now|currently|current|at\s+the\s+moment|[.?!]|$))"
+                    r"(?=\s+(?:today|now|currently|current|at\s+the\s+moment)\b|[.?!]|\s*$)"
                 ),
                 prompt,
                 flags=re.IGNORECASE,

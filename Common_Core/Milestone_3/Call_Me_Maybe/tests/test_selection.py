@@ -87,6 +87,36 @@ class TestFunctionSelection(unittest.TestCase):
         )
         self.assertEqual(selected.name, "get_current_time")
 
+    def test_multi_word_locations_parameter_extraction(self) -> None:
+        """Test extraction for locations with multiple words."""
+        selected = self.scorer.select_best_function(
+            "What is the weather like in New York?",
+            self.functions,
+        )
+        self.assertEqual(selected.name, "get_weather")
+        params = extract_parameters("What is the weather like in New York?", selected)
+        self.assertEqual(params, {"city": "New York"})
+
+    def test_time_in_capitalized_location(self) -> None:
+        """Test time query with different phrasing and capitalization."""
+        selected = self.scorer.select_best_function(
+            "Tell me the current time in Tokyo",
+            self.functions,
+        )
+        self.assertEqual(selected.name, "get_current_time")
+        params = extract_parameters("Tell me the current time in Tokyo", selected)
+        self.assertEqual(params, {"location": "Tokyo"})
+
+    def test_search_complex_query_parameter_extraction(self) -> None:
+        """Test search parameter extraction with diverse phrasing."""
+        selected = self.scorer.select_best_function(
+            "Search for information about artificial intelligence.",
+            self.functions,
+        )
+        self.assertEqual(selected.name, "search_information")
+        params = extract_parameters("Search for information about artificial intelligence.", selected)
+        self.assertEqual(params, {"query": "artificial intelligence"})
+
     def test_extract_parameters_removes_articles_and_time_words(self) -> None:
         cases = [
             (
@@ -103,6 +133,21 @@ class TestFunctionSelection(unittest.TestCase):
                 "What is the current time in London?",
                 "get_current_time",
                 {"location": "London"},
+            ),
+            (
+                "How hot is the weather in Porto today?",
+                "get_weather",
+                {"city": "Porto"},
+            ),
+            (
+                "I need information about UNESCO.",
+                "search_information",
+                {"query": "UNESCO"},
+            ),
+            (
+                "What time is it now in the city of Lisbon?",
+                "get_current_time",
+                {"location": "Lisbon"},
             ),
         ]
 
