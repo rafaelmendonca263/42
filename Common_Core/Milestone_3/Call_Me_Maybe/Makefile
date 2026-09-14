@@ -29,6 +29,7 @@ clean:
 
 fclean: clean
 	rm -rf $(VENV) .venv
+	rm -rf data/output
 
 lint:
 	.venv/bin/python3 -m flake8 src tests llm_sdk
