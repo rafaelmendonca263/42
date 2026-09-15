@@ -3,6 +3,7 @@
 import json
 from typing import Any, Dict
 
+import numpy as np
 from llm_sdk import Small_LLM_Model
 
 from src.models import FunctionDefinition
@@ -22,9 +23,17 @@ class ConstrainedJSONDecoder:
     """
 
     def __init__(self, llm: Small_LLM_Model) -> None:
-        """Initialize with LLM instance."""
+        """Initialize with LLM instance and build vocabulary index."""
         self.llm = llm
         self._vocab: dict[str, int] | None = None
+        self.char_to_tokens: dict[str, list[int]] = {}
+        
+        # ⚙️ Pré-processa o vocabulário na inicialização para otimizar buscas
+        vocab = self._load_vocab()
+        for token_str, token_id in vocab.items():
+            if token_str:
+                first_char = token_str[0]
+                self.char_to_tokens.setdefault(first_char, []).append(token_id)
 
     def _load_vocab(self) -> dict[str, int]:
         """Load and cache vocabulary from LLM's tokenizer."""
@@ -45,40 +54,26 @@ class ConstrainedJSONDecoder:
         current_json: str,
         schema: Dict[str, Any],
     ) -> set[int]:
-        """
-        Determine which tokens keep JSON valid and schema-compliant.
-
-        At each step, only certain tokens maintain valid JSON:
-        - After '{': only '"' (start of key) or '}' (empty object)
-        - After '"key"': only ':' (colon)
-        - After ':': values matching schema type
-        - After value: ',' (next pair) or '}' (end)
-
-        This is the core of constrained decoding.
-        """
+        """Determine which tokens keep JSON valid and schema-compliant."""
         vocab = self._load_vocab()
         valid_tokens: set[int] = set()
 
-        # Initial state: start with opening brace
+        # 🚀 Exemplo de uso do índice para o estado inicial
         if not current_json.strip():
-            for token_str, token_id in vocab.items():
-                if '{' in token_str:
-                    valid_tokens.add(token_id)
+            for token_id in self.char_to_tokens.get('{', []):
+                valid_tokens.add(token_id)
             return valid_tokens if valid_tokens else set()
 
         current_json = current_json.strip()
 
         # JSON state machine - determine what's valid next
         if current_json.endswith('{'):
-            # After opening brace: expect key or closing brace
-            for token_str, token_id in vocab.items():
-                if '"' in token_str or '}' in token_str:
+            for char in ['"', '}']:
+                for token_id in self.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         elif current_json.endswith(':'):
-            # After colon: expect value (string, number, boolean, null, object, array)
             for token_str, token_id in vocab.items():
-                stripped = token_str.strip()
                 if ('"' in token_str or
                     '{' in token_str or
                     '[' in token_str or
@@ -89,30 +84,25 @@ class ConstrainedJSONDecoder:
                     valid_tokens.add(token_id)
 
         elif current_json.endswith('"') or current_json.endswith(']'):
-            # After quoted string or array: expect colon, comma, or closing brace
             for token_str, token_id in vocab.items():
                 if ':' in token_str or ',' in token_str or '}' in token_str:
                     valid_tokens.add(token_id)
 
         elif current_json.endswith(','):
-            # After comma: expect quoted key or values
             for token_str, token_id in vocab.items():
                 if '"' in token_str or '{' in token_str or '[' in token_str:
                     valid_tokens.add(token_id)
 
         elif current_json.endswith('}'):
-            # After closing brace: JSON is complete, or expect comma/bracket
             for token_str, token_id in vocab.items():
                 if ',' in token_str or '}' in token_str:
                     valid_tokens.add(token_id)
 
         else:
-            # Default: allow closing brace to end
             for token_str, token_id in vocab.items():
                 if '}' in token_str or ',' in token_str or '"' in token_str:
                     valid_tokens.add(token_id)
 
-        # Return valid tokens, or fallback to a reasonable set
         return valid_tokens if valid_tokens else set(range(min(100, len(vocab))))
 
     def _validate_json_schema(
@@ -121,14 +111,12 @@ class ConstrainedJSONDecoder:
         function: FunctionDefinition,
     ) -> bool:
         """Validate that parsed JSON matches function schema."""
-        # Check all required parameters are present
         for param_name, param_schema in function.parameters.items():
             if param_name not in parsed_json:
                 return False
 
             value = parsed_json[param_name]
 
-            # Type checking
             if param_schema.type == "string" and not isinstance(value, str):
                 return False
             elif param_schema.type == "number" and not isinstance(value, (int, float)):
@@ -143,16 +131,7 @@ class ConstrainedJSONDecoder:
         prompt: str,
         function: FunctionDefinition,
     ) -> Dict[str, Any]:
-        """
-        Extract parameters using constrained decoding to generate JSON.
-
-        Process:
-        1. Build a prompt asking for parameters
-        2. Generate JSON token-by-token with constraints
-        3. Validate against schema
-        4. Return valid JSON or empty dict on failure
-        """
-        # Build prompt for LLM
+        """Extract parameters using constrained decoding to generate JSON."""
         param_descriptions = "\n".join(
             [
                 f"  - {name}: {param.type} ({param.description})"
@@ -168,66 +147,52 @@ class ConstrainedJSONDecoder:
             f"Return ONLY a JSON object with the extracted parameters (no explanation):\n"
         )
 
-        # Encode prompt
-        input_ids = self.llm.encode(prompt_text)
-
-        # Generate JSON with constrained decoding
+        input_ids = self.llm.encode(prompt_text).tolist()[0]
         generated_json = "{"
         max_tokens = 500
-        token_count = 0
 
         for step in range(max_tokens):
-            token_count += 1
-
-            # Get logits from LLM
             logits = self.llm.get_logits_from_input_ids(input_ids)
+            if hasattr(logits, "detach"):
+                logits_arr = logits.detach().cpu().numpy()
+            else:
+                logits_arr = np.array(logits)
 
-            # Apply constraints
+            if logits_arr.ndim > 1:
+                logits_arr = logits_arr[-1]
+
             valid_ids = self._get_valid_json_tokens(generated_json, function.parameters)
 
             if not valid_ids:
-                # No valid tokens available - complete with closing brace
                 generated_json += "}"
                 break
 
-            # Mask invalid tokens (set to -infinity)
-            masked_logits = [-float('inf')] * len(logits)
-            for valid_id in valid_ids:
-                if valid_id < len(logits):
-                    masked_logits[valid_id] = logits[valid_id]
+            masked_logits = np.full(len(logits_arr), -np.inf)
+            valid_array = [v for v in valid_ids if v < len(logits_arr)]
+            if valid_array:
+                masked_logits[valid_array] = logits_arr[valid_array]
 
-            # Select best valid token (argmax of masked logits)
-            best_token_id = max(
-                range(len(masked_logits)),
-                key=lambda i: masked_logits[i],
-                default=0,
-            )
+            best_token_id = int(np.argmax(masked_logits))
 
-            if best_token_id >= len(logits):
+            if best_token_id >= len(logits_arr):
                 generated_json += "}"
                 break
 
-            # Decode token and add to JSON
             token_text = self.llm.decode([best_token_id])
             generated_json += token_text
 
-            # Check if JSON is complete and valid
             try:
                 if generated_json.strip().endswith("}"):
                     result = json.loads(generated_json)
                     if isinstance(result, dict):
-                        # Validate schema compliance
                         if self._validate_json_schema(result, function):
                             return result
             except json.JSONDecodeError:
                 pass
 
-            # Add token to input for next iteration
             input_ids.append(best_token_id)
 
-        # Attempt to parse generated JSON (may be incomplete)
         try:
-            # Try to clean up and complete the JSON
             if not generated_json.endswith("}"):
                 generated_json += "}"
 
@@ -238,5 +203,4 @@ class ConstrainedJSONDecoder:
         except json.JSONDecodeError:
             pass
 
-        # Fallback: return empty parameters dict on parse failure
         return {}
