@@ -1,4 +1,4 @@
-"""LLM-based function selection using constrained decoding."""
+"""LLM-based function selection using constrained decoding with a Trie."""
 
 import json
 from typing import List
@@ -7,22 +7,29 @@ import numpy as np
 from llm_sdk import Small_LLM_Model
 
 from src.models import FunctionDefinition
+from src.structure import Trie
 
 
 class ConstrainedFunctionSelector:
-    """
-    Selects the best function using the LLM with constrained decoding.
+    """Selects the best function using the LLM with constrained decoding backed by a Trie."""
 
-    This implementation:
-    1. Uses the LLM's logits (not heuristics) to score function names
-    2. Applies constrained decoding to ensure only valid function names are generated
-    3. Uses the vocabulary to restrict token generation
-    """
-
-    def __init__(self, llm: Small_LLM_Model) -> None:
-        """Initialize with LLM instance."""
+    def __init__(self, llm: Small_LLM_Model, functions: List[FunctionDefinition]) -> None:
+        """Initialize with LLM instance, build vocabulary index, and construct the Trie."""
         self.llm = llm
         self._vocab: dict[str, int] | None = None
+        self.char_to_tokens: dict[str, list[int]] = {}
+
+        # 🪵 Constrói a Trie uma única vez na inicialização
+        self.trie = Trie()
+        for fn in functions:
+            self.trie.insert(fn.name)
+
+        # ⚙️ Pré-processa o vocabulário
+        vocab = self._load_vocab()
+        for token_str, token_id in vocab.items():
+            if token_str:
+                first_char = token_str[0]
+                self.char_to_tokens.setdefault(first_char, []).append(token_id)
 
     def _load_vocab(self) -> dict[str, int]:
         """Load vocabulary from LLM's vocab file."""
@@ -38,26 +45,15 @@ class ConstrainedFunctionSelector:
 
         return self._vocab
 
-    def _get_valid_token_ids(
-        self,
-        functions: List[FunctionDefinition],
-        partial_name: str,
-    ) -> set[int]:
-        """Get token IDs that continue valid function names."""
-        vocab = self._load_vocab()
+    def _get_valid_token_ids(self, partial_name: str) -> set[int]:
+        """Get token IDs using the pre-built Trie structure."""
         valid_token_ids: set[int] = set()
 
-        valid_names = [fn.name for fn in functions]
-
-        for name in valid_names:
-            if name.startswith(partial_name):
-                remainder = name[len(partial_name):]
-                if remainder:
-                    next_char = remainder[0]
-                    for token_str, token_id in vocab.items():
-                        if ((token_str.startswith(next_char) or
-                             token_str.lstrip().startswith(next_char))):
-                            valid_token_ids.add(token_id)
+        current_node = self.trie.search_prefix(partial_name)
+        if current_node:
+            for char in current_node.children:
+                for token_id in self.char_to_tokens.get(char, []):
+                    valid_token_ids.add(token_id)
 
         return valid_token_ids
 
@@ -66,7 +62,7 @@ class ConstrainedFunctionSelector:
         prompt: str,
         functions: List[FunctionDefinition],
     ) -> FunctionDefinition:
-        """Select best function using LLM logits with constrained decoding."""
+        """Select best function using LLM logits with constrained decoding via Trie."""
         if not functions:
             raise ValueError("No functions available to select from")
 
@@ -94,18 +90,16 @@ class ConstrainedFunctionSelector:
             if logits_arr.ndim > 1:
                 logits_arr = logits_arr[-1] 
 
-            valid_ids = self._get_valid_token_ids(functions, selected_name)
+            valid_ids = self._get_valid_token_ids(selected_name)
 
             if not valid_ids:
                 break
 
-            # 🛑 Máscara com NumPy
             masked_logits = np.full(len(logits_arr), -np.inf)
             valid_array = [v for v in valid_ids if v < len(logits_arr)]
             if valid_array:
                 masked_logits[valid_array] = logits_arr[valid_array]
 
-            # 🎯 Seleção do melhor token com np.argmax()
             best_token_id = int(np.argmax(masked_logits))
 
             if best_token_id >= len(logits_arr):

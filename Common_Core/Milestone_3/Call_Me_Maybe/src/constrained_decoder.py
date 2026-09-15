@@ -54,11 +54,11 @@ class ConstrainedJSONDecoder:
         current_json: str,
         schema: Dict[str, Any],
     ) -> set[int]:
-        """Determine which tokens keep JSON valid and schema-compliant."""
+        """Determine which tokens keep JSON valid and schema-compliant using index lookups."""
         vocab = self._load_vocab()
         valid_tokens: set[int] = set()
 
-        # 🚀 Exemplo de uso do índice para o estado inicial
+        # Initial state: start with opening brace
         if not current_json.strip():
             for token_id in self.char_to_tokens.get('{', []):
                 valid_tokens.add(token_id)
@@ -66,41 +66,36 @@ class ConstrainedJSONDecoder:
 
         current_json = current_json.strip()
 
-        # JSON state machine - determine what's valid next
+        # JSON state machine - determine what's valid next using indexed lookups
         if current_json.endswith('{'):
             for char in ['"', '}']:
                 for token_id in self.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         elif current_json.endswith(':'):
-            for token_str, token_id in vocab.items():
-                if ('"' in token_str or
-                    '{' in token_str or
-                    '[' in token_str or
-                    'true' in token_str or
-                    'false' in token_str or
-                    'null' in token_str or
-                    any(c.isdigit() for c in token_str)):
+            target_chars = ['"', '{', '[', 't', 'f', 'n'] + [str(i) for i in range(10)]
+            for char in target_chars:
+                for token_id in self.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         elif current_json.endswith('"') or current_json.endswith(']'):
-            for token_str, token_id in vocab.items():
-                if ':' in token_str or ',' in token_str or '}' in token_str:
+            for char in [':', ',', '}']:
+                for token_id in self.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         elif current_json.endswith(','):
-            for token_str, token_id in vocab.items():
-                if '"' in token_str or '{' in token_str or '[' in token_str:
+            for char in ['"', '{', '[']:
+                for token_id in self.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         elif current_json.endswith('}'):
-            for token_str, token_id in vocab.items():
-                if ',' in token_str or '}' in token_str:
+            for char in [',', '}']:
+                for token_id in self.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         else:
-            for token_str, token_id in vocab.items():
-                if '}' in token_str or ',' in token_str or '"' in token_str:
+            for char in ['}', ',', '"']:
+                for token_id in self.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         return valid_tokens if valid_tokens else set(range(min(100, len(vocab))))

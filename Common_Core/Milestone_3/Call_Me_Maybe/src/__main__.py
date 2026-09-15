@@ -39,13 +39,13 @@ def main() -> None:
         test_prompts = load_test_prompts(args.input)
 
         llm = Small_LLM_Model()
-        selector = ConstrainedFunctionSelector(llm)
+        # 🪵 Instancia o seletor passando a lista de funções carregadas
+        selector = ConstrainedFunctionSelector(llm, functions)
         decoder = ConstrainedJSONDecoder(llm)
 
         results: list[FunctionCallResult] = []
 
         for test in test_prompts:
-            # 🎯 Seleção da função e extração de parâmetros totalmente por decodificação restrita e NumPy
             best_fn = selector.select_best_function(test.prompt, functions)
             parameters = decoder.extract_parameters(test.prompt, best_fn)
 
