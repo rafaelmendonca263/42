@@ -7,47 +7,16 @@ import numpy as np
 from llm_sdk import Small_LLM_Model
 
 from src.models import FunctionDefinition
+from src.structure import VocabularyManager
 
 
 class ConstrainedJSONDecoder:
-    """
-    Generates valid JSON with schema constraints using constrained decoding.
+    """Generates valid JSON with schema constraints using constrained decoding."""
 
-    Core technique:
-    1. Know what JSON structure is valid at each step
-    2. Mask tokens that would break JSON validity or schema compliance
-    3. Only sample from valid tokens
-    4. Repeat token-by-token until output is complete
-
-    This ensures 100% JSON validity and schema compliance.
-    """
-
-    def __init__(self, llm: Small_LLM_Model) -> None:
-        """Initialize with LLM instance and build vocabulary index."""
+    def __init__(self, llm: Small_LLM_Model, vocab_manager: VocabularyManager) -> None:
+        """Initialize with LLM instance and vocabulary manager."""
         self.llm = llm
-        self._vocab: dict[str, int] | None = None
-        self.char_to_tokens: dict[str, list[int]] = {}
-        
-        # ⚙️ Pré-processa o vocabulário na inicialização para otimizar buscas
-        vocab = self._load_vocab()
-        for token_str, token_id in vocab.items():
-            if token_str:
-                first_char = token_str[0]
-                self.char_to_tokens.setdefault(first_char, []).append(token_id)
-
-    def _load_vocab(self) -> dict[str, int]:
-        """Load and cache vocabulary from LLM's tokenizer."""
-        if self._vocab is not None:
-            return self._vocab
-
-        vocab_path = self.llm.get_path_to_vocab_file()
-        try:
-            with open(vocab_path, 'r', encoding='utf-8') as f:
-                self._vocab = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            self._vocab = {}
-
-        return self._vocab
+        self.vocab_manager = vocab_manager
 
     def _get_valid_json_tokens(
         self,
@@ -55,47 +24,45 @@ class ConstrainedJSONDecoder:
         schema: Dict[str, Any],
     ) -> set[int]:
         """Determine which tokens keep JSON valid and schema-compliant using index lookups."""
-        vocab = self._load_vocab()
+        vocab = self.vocab_manager.vocab
         valid_tokens: set[int] = set()
 
-        # Initial state: start with opening brace
         if not current_json.strip():
-            for token_id in self.char_to_tokens.get('{', []):
+            for token_id in self.vocab_manager.char_to_tokens.get('{', []):
                 valid_tokens.add(token_id)
             return valid_tokens if valid_tokens else set()
 
         current_json = current_json.strip()
 
-        # JSON state machine - determine what's valid next using indexed lookups
         if current_json.endswith('{'):
             for char in ['"', '}']:
-                for token_id in self.char_to_tokens.get(char, []):
+                for token_id in self.vocab_manager.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         elif current_json.endswith(':'):
             target_chars = ['"', '{', '[', 't', 'f', 'n'] + [str(i) for i in range(10)]
             for char in target_chars:
-                for token_id in self.char_to_tokens.get(char, []):
+                for token_id in self.vocab_manager.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         elif current_json.endswith('"') or current_json.endswith(']'):
             for char in [':', ',', '}']:
-                for token_id in self.char_to_tokens.get(char, []):
+                for token_id in self.vocab_manager.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         elif current_json.endswith(','):
             for char in ['"', '{', '[']:
-                for token_id in self.char_to_tokens.get(char, []):
+                for token_id in self.vocab_manager.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         elif current_json.endswith('}'):
             for char in [',', '}']:
-                for token_id in self.char_to_tokens.get(char, []):
+                for token_id in self.vocab_manager.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         else:
             for char in ['}', ',', '"']:
-                for token_id in self.char_to_tokens.get(char, []):
+                for token_id in self.vocab_manager.char_to_tokens.get(char, []):
                     valid_tokens.add(token_id)
 
         return valid_tokens if valid_tokens else set(range(min(100, len(vocab))))

@@ -1,49 +1,31 @@
 """LLM-based function selection using constrained decoding with a Trie."""
 
-import json
 from typing import List
 
 import numpy as np
 from llm_sdk import Small_LLM_Model
 
 from src.models import FunctionDefinition
-from src.structure import Trie
+from src.structure import Trie, VocabularyManager
 
 
 class ConstrainedFunctionSelector:
     """Selects the best function using the LLM with constrained decoding backed by a Trie."""
 
-    def __init__(self, llm: Small_LLM_Model, functions: List[FunctionDefinition]) -> None:
-        """Initialize with LLM instance, build vocabulary index, and construct the Trie."""
+    def __init__(
+        self,
+        llm: Small_LLM_Model,
+        functions: List[FunctionDefinition],
+        vocab_manager: VocabularyManager,
+    ) -> None:
+        """Initialize with LLM instance, vocabulary manager, and construct the Trie."""
         self.llm = llm
-        self._vocab: dict[str, int] | None = None
-        self.char_to_tokens: dict[str, list[int]] = {}
+        self.vocab_manager = vocab_manager
 
         # 🪵 Constrói a Trie uma única vez na inicialização
         self.trie = Trie()
         for fn in functions:
             self.trie.insert(fn.name)
-
-        # ⚙️ Pré-processa o vocabulário
-        vocab = self._load_vocab()
-        for token_str, token_id in vocab.items():
-            if token_str:
-                first_char = token_str[0]
-                self.char_to_tokens.setdefault(first_char, []).append(token_id)
-
-    def _load_vocab(self) -> dict[str, int]:
-        """Load vocabulary from LLM's vocab file."""
-        if self._vocab is not None:
-            return self._vocab
-
-        vocab_path = self.llm.get_path_to_vocab_file()
-        try:
-            with open(vocab_path, 'r', encoding='utf-8') as f:
-                self._vocab = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            self._vocab = {}
-
-        return self._vocab
 
     def _get_valid_token_ids(self, partial_name: str) -> set[int]:
         """Get token IDs using the pre-built Trie structure."""
@@ -52,7 +34,7 @@ class ConstrainedFunctionSelector:
         current_node = self.trie.search_prefix(partial_name)
         if current_node:
             for char in current_node.children:
-                for token_id in self.char_to_tokens.get(char, []):
+                for token_id in self.vocab_manager.char_to_tokens.get(char, []):
                     valid_token_ids.add(token_id)
 
         return valid_token_ids

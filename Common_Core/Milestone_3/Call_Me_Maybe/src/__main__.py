@@ -9,6 +9,7 @@ from src.constrained_decoder import ConstrainedJSONDecoder
 from src.llm_selector import ConstrainedFunctionSelector
 from src.models import FunctionCallResult
 from src.parser import load_functions, load_test_prompts, save_results
+from src.structure import VocabularyManager
 
 
 def main() -> None:
@@ -39,9 +40,13 @@ def main() -> None:
         test_prompts = load_test_prompts(args.input)
 
         llm = Small_LLM_Model()
-        # 🪵 Instancia o seletor passando a lista de funções carregadas
-        selector = ConstrainedFunctionSelector(llm, functions)
-        decoder = ConstrainedJSONDecoder(llm)
+        vocab_path = llm.get_path_to_vocab_file()
+
+        # 📂 Inicializa o gerenciador de vocabulário centralizado
+        vocab_manager = VocabularyManager(vocab_path)
+
+        selector = ConstrainedFunctionSelector(llm, functions, vocab_manager)
+        decoder = ConstrainedJSONDecoder(llm, vocab_manager)
 
         results: list[FunctionCallResult] = []
 
