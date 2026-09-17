@@ -1,5 +1,4 @@
-"""Trie structure and VocabularyManager for efficient constrained decoding."""
-
+from typing import cast
 import json
 
 
@@ -39,15 +38,17 @@ class VocabularyManager:
         self.vocab = self._load_vocab(vocab_path)
         self.char_to_tokens: dict[str, list[int]] = {}
 
-        # ⚙️ Mapeia os caracteres iniciais uma única vez
+        # ⚙️ Mapeia os caracteres limpando espaços ou prefixos dos tokens
         for token_str, token_id in self.vocab.items():
             if token_str:
-                first_char = token_str[0]
-                self.char_to_tokens.setdefault(first_char, []).append(token_id)
+                clean_str = token_str.strip()
+                for char in clean_str:
+                    self.char_to_tokens.setdefault(char, []).append(token_id)
 
     def _load_vocab(self, path: str) -> dict[str, int]:
         try:
             with open(path, 'r', encoding='utf-8') as f:
-                return json.load(f)
+                data = json.load(f)
+                return cast(dict[str, int], data)
         except (FileNotFoundError, json.JSONDecodeError):
             return {}

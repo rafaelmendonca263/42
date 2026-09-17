@@ -1,5 +1,3 @@
-"""Module for reading, writing, and validating JSON files."""
-
 import json
 from pathlib import Path
 from typing import List

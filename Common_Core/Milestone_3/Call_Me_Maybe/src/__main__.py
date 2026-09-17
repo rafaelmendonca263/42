@@ -1,9 +1,7 @@
-"""Entry point for the src module (CLI)."""
-
 import argparse
 import sys
 
-from llm_sdk import Small_LLM_Model
+from llm_sdk import Small_LLM_Model  # type: ignore
 
 from src.constrained_decoder import ConstrainedJSONDecoder
 from src.llm_selector import ConstrainedFunctionSelector
@@ -50,7 +48,7 @@ def main() -> None:
 
         results: list[FunctionCallResult] = []
 
-        for test in test_prompts:
+        for i, test in enumerate(test_prompts, 1):
             best_fn = selector.select_best_function(test.prompt, functions)
             parameters = decoder.extract_parameters(test.prompt, best_fn)
 
@@ -62,7 +60,6 @@ def main() -> None:
             results.append(result)
 
         save_results(args.output, results)
-        print(f"✅ Processing completed successfully. Results saved to: {args.output}")
 
     except Exception as err:
         print(f"❌ Execution error: {err}", file=sys.stderr)

@@ -1,161 +1,180 @@
-import unittest
-
-from llm_sdk import Small_LLM_Model
-from src.__main__ import extract_parameters
+from typing import Any
+import pytest
 from src.models import FunctionDefinition, FunctionParameterSchema
-from src.scorer import FunctionScorer
+from src.constrained_decoder import ConstrainedJSONDecoder
+from src.structure import VocabularyManager
+from llm_sdk import Small_LLM_Model  # type: ignore
 
 
-class TestFunctionSelection(unittest.TestCase):
-    def setUp(self) -> None:
-        self.scorer = FunctionScorer(Small_LLM_Model())
-        self.functions = [
-            FunctionDefinition(
-                name="get_weather",
-                description="Returns the temperature and weather for a city.",
-                parameters={
-                    "city": FunctionParameterSchema(
-                        type="string",
-                        description="City name",
-                    )
-                },
-            ),
-            FunctionDefinition(
-                name="search_information",
-                description=(
-                    "Searches for general information about a topic "
-                    "or entity."
-                ),
-                parameters={
-                    "query": FunctionParameterSchema(
-                        type="string",
-                        description="Term or entity to search for",
-                    )
-                },
-            ),
-            FunctionDefinition(
-                name="get_current_time",
-                description="Returns the current time for a location.",
-                parameters={
-                    "location": FunctionParameterSchema(
-                        type="string",
-                        description="Location to get the time for",
-                    )
-                },
-            ),
-        ]
-
-    def test_weather_prompt_selects_weather_function(self) -> None:
-        selected = self.scorer.select_best_function(
-            "What is the temperature in Lisbon today?",
-            self.functions,
-        )
-        self.assertEqual(selected.name, "get_weather")
-
-    def test_search_prompt_selects_search_function(self) -> None:
-        selected = self.scorer.select_best_function(
-            "Search for information about Rio de Janeiro.",
-            self.functions,
-        )
-        self.assertEqual(selected.name, "search_information")
-
-    def test_time_prompt_selects_time_function(self) -> None:
-        selected = self.scorer.select_best_function(
-            "What is the current time in London?",
-            self.functions,
-        )
-        self.assertEqual(selected.name, "get_current_time")
-
-    def test_weather_variant_prompt_selects_weather_function(self) -> None:
-        selected = self.scorer.select_best_function(
-            "How hot is the weather in Porto today?",
-            self.functions,
-        )
-        self.assertEqual(selected.name, "get_weather")
-
-    def test_search_variant_prompt_selects_search_function(self) -> None:
-        selected = self.scorer.select_best_function(
-            "I need information about UNESCO.",
-            self.functions,
-        )
-        self.assertEqual(selected.name, "search_information")
-
-    def test_time_variant_prompt_selects_time_function(self) -> None:
-        selected = self.scorer.select_best_function(
-            "What time is it now in the city of Lisbon?",
-            self.functions,
-        )
-        self.assertEqual(selected.name, "get_current_time")
-
-    def test_multi_word_locations_parameter_extraction(self) -> None:
-        """Test extraction for locations with multiple words."""
-        selected = self.scorer.select_best_function(
-            "What is the weather like in New York?",
-            self.functions,
-        )
-        self.assertEqual(selected.name, "get_weather")
-        params = extract_parameters("What is the weather like in New York?", selected)
-        self.assertEqual(params, {"city": "New York"})
-
-    def test_time_in_capitalized_location(self) -> None:
-        """Test time query with different phrasing and capitalization."""
-        selected = self.scorer.select_best_function(
-            "Tell me the current time in Tokyo",
-            self.functions,
-        )
-        self.assertEqual(selected.name, "get_current_time")
-        params = extract_parameters("Tell me the current time in Tokyo", selected)
-        self.assertEqual(params, {"location": "Tokyo"})
-
-    def test_search_complex_query_parameter_extraction(self) -> None:
-        """Test search parameter extraction with diverse phrasing."""
-        selected = self.scorer.select_best_function(
-            "Search for information about artificial intelligence.",
-            self.functions,
-        )
-        self.assertEqual(selected.name, "search_information")
-        params = extract_parameters("Search for information about artificial intelligence.", selected)
-        self.assertEqual(params, {"query": "artificial intelligence"})
-
-    def test_extract_parameters_removes_articles_and_time_words(self) -> None:
-        cases = [
-            (
-                "What is the temperature in Lisbon today?",
-                "get_weather",
-                {"city": "Lisbon"},
-            ),
-            (
-                "Search for information about Rio de Janeiro.",
-                "search_information",
-                {"query": "Rio de Janeiro"},
-            ),
-            (
-                "What is the current time in London?",
-                "get_current_time",
-                {"location": "London"},
-            ),
-            (
-                "How hot is the weather in Porto today?",
-                "get_weather",
-                {"city": "Porto"},
-            ),
-            (
-                "I need information about UNESCO.",
-                "search_information",
-                {"query": "UNESCO"},
-            ),
-            (
-                "What time is it now in the city of Lisbon?",
-                "get_current_time",
-                {"location": "Lisbon"},
-            ),
-        ]
-
-        for prompt, function_name, expected in cases:
-            selected = self.scorer.select_best_function(prompt, self.functions)
-            self.assertEqual(selected.name, function_name)
-            self.assertEqual(extract_parameters(prompt, selected), expected)
+@pytest.fixture
+def mock_setup() -> tuple[Any, VocabularyManager]:
+    llm = Small_LLM_Model()
+    vocab_path = llm.get_path_to_vocab_file()
+    vocab_manager = VocabularyManager(vocab_path)
+    return llm, vocab_manager
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_1_add_numbers_small(
+    mock_setup: tuple[Any, VocabularyManager],
+) -> None:
+    llm, vocab_manager = mock_setup
+    decoder = ConstrainedJSONDecoder(llm, vocab_manager)
+    fn_def = FunctionDefinition(
+        name="fn_add_numbers",
+        description="Add two numbers",
+        parameters={
+            "a": FunctionParameterSchema(type="number"),
+            "b": FunctionParameterSchema(type="number")
+        }
+    )
+    result = decoder.extract_parameters("What is the sum of 2 and 3?", fn_def)
+    assert result.get("a") == 2
+    assert result.get("b") == 3
+
+
+def test_2_add_numbers_large(
+    mock_setup: tuple[Any, VocabularyManager],
+) -> None:
+    llm, vocab_manager = mock_setup
+    decoder = ConstrainedJSONDecoder(llm, vocab_manager)
+    fn_def = FunctionDefinition(
+        name="fn_add_numbers",
+        description="Add two numbers",
+        parameters={
+            "a": FunctionParameterSchema(type="number"),
+            "b": FunctionParameterSchema(type="number")
+        }
+    )
+    result = decoder.extract_parameters("What is the sum of 265 and 345?",
+                                        fn_def)
+    assert result.get("a") == 265
+    assert result.get("b") == 345
+
+
+def test_3_greet_shrek(
+    mock_setup: tuple[Any, VocabularyManager],
+) -> None:
+    llm, vocab_manager = mock_setup
+    decoder = ConstrainedJSONDecoder(llm, vocab_manager)
+    fn_def = FunctionDefinition(
+        name="fn_greet",
+        description="Greet a person",
+        parameters={"name": FunctionParameterSchema(type="string")}
+    )
+    result = decoder.extract_parameters("Greet shrek", fn_def)
+    assert result.get("name") == "shrek"
+
+
+def test_4_greet_john(
+    mock_setup: tuple[Any, VocabularyManager],
+) -> None:
+    llm, vocab_manager = mock_setup
+    decoder = ConstrainedJSONDecoder(llm, vocab_manager)
+    fn_def = FunctionDefinition(
+        name="fn_greet",
+        description="Greet a person",
+        parameters={"name": FunctionParameterSchema(type="string")}
+    )
+    result = decoder.extract_parameters("Greet john", fn_def)
+    assert result.get("name") == "john"
+
+
+def test_5_reverse_string_hello(
+    mock_setup: tuple[Any, VocabularyManager],
+) -> None:
+    llm, vocab_manager = mock_setup
+    decoder = ConstrainedJSONDecoder(llm, vocab_manager)
+    fn_def = FunctionDefinition(
+        name="fn_reverse_string",
+        description="Reverse string",
+        parameters={"s": FunctionParameterSchema(type="string")}
+    )
+    result = decoder.extract_parameters("Reverse the string 'hello'", fn_def)
+    assert result.get("s") == "hello"
+
+
+def test_6_reverse_string_world(
+    mock_setup: tuple[Any, VocabularyManager],
+) -> None:
+    llm, vocab_manager = mock_setup
+    decoder = ConstrainedJSONDecoder(llm, vocab_manager)
+    fn_def = FunctionDefinition(
+        name="fn_reverse_string",
+        description="Reverse string",
+        parameters={"s": FunctionParameterSchema(type="string")}
+    )
+    result = decoder.extract_parameters("Reverse the string 'world'", fn_def)
+    assert result.get("s") == "world"
+
+
+def test_7_square_root_small(
+    mock_setup: tuple[Any, VocabularyManager],
+) -> None:
+    llm, vocab_manager = mock_setup
+    decoder = ConstrainedJSONDecoder(llm, vocab_manager)
+    fn_def = FunctionDefinition(
+        name="fn_get_square_root",
+        description="Square root",
+        parameters={"a": FunctionParameterSchema(type="number")}
+    )
+    result = decoder.extract_parameters("What is the square root of 16?",
+                                        fn_def)
+    assert result.get("a") == 16
+
+
+def test_8_square_root_large(
+    mock_setup: tuple[Any, VocabularyManager],
+) -> None:
+    llm, vocab_manager = mock_setup
+    decoder = ConstrainedJSONDecoder(llm, vocab_manager)
+    fn_def = FunctionDefinition(
+        name="fn_get_square_root",
+        description="Square root",
+        parameters={"a": FunctionParameterSchema(type="number")}
+    )
+    result = decoder.extract_parameters("Calculate the square root of 144",
+                                        fn_def)
+    assert result.get("a") == 144
+
+
+def test_9_regex_substitution(
+    mock_setup: tuple[Any, VocabularyManager],
+) -> None:
+    llm, vocab_manager = mock_setup
+    decoder = ConstrainedJSONDecoder(llm, vocab_manager)
+    fn_def = FunctionDefinition(
+        name="fn_substitute_string_with_regex",
+        description="Substitute with regex",
+        parameters={
+            "source_string": FunctionParameterSchema(type="string"),
+            "regex": FunctionParameterSchema(type="string"),
+            "replacement": FunctionParameterSchema(type="string")
+        }
+    )
+    result = decoder.extract_parameters(
+        "Substitute the word 'cat' with 'dog' "
+        "in 'The cat sat on the mat with another cat'",
+        fn_def,
+    )
+    assert "source_string" in result
+    assert result.get("regex") == "cat"
+    assert result.get("replacement") == "dog"
+
+
+def test_10_edge_case_special_chars(
+    mock_setup: tuple[Any, VocabularyManager],
+) -> None:
+    llm, vocab_manager = mock_setup
+    decoder = ConstrainedJSONDecoder(llm, vocab_manager)
+    fn_def = FunctionDefinition(
+        name="fn_reverse_string",
+        description="Reverse string with special chars",
+        parameters={"s": FunctionParameterSchema(type="string")}
+    )
+    # Testing with special characters and numbers as requested in the subject
+    result = decoder.extract_parameters(
+        "Reverse the string 'hello-world! 123'",
+        fn_def,
+    )
+    assert isinstance(result, dict)
+    assert "s" in result

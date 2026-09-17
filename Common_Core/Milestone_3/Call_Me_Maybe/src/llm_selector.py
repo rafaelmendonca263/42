@@ -1,16 +1,13 @@
-"""LLM-based function selection using constrained decoding with a Trie."""
-
 from typing import List
-
 import numpy as np
-from llm_sdk import Small_LLM_Model
-
+from llm_sdk import Small_LLM_Model  # type: ignore
 from src.models import FunctionDefinition
-from src.structure import Trie, VocabularyManager
+from src.structure import VocabularyManager
 
 
 class ConstrainedFunctionSelector:
-    """Selects the best function using the LLM with constrained decoding backed by a Trie."""
+    """Selects the best function using LLM logits
+    with strict prefix constraints."""
 
     def __init__(
         self,
@@ -18,24 +15,35 @@ class ConstrainedFunctionSelector:
         functions: List[FunctionDefinition],
         vocab_manager: VocabularyManager,
     ) -> None:
-        """Initialize with LLM instance, vocabulary manager, and construct the Trie."""
         self.llm = llm
         self.vocab_manager = vocab_manager
+        self.valid_names = [fn.name for fn in functions]
 
-        # 🪵 Constrói a Trie uma única vez na inicialização
-        self.trie = Trie()
-        for fn in functions:
-            self.trie.insert(fn.name)
+        # Maps and cleans the vocabulary once at startup
+        self._token_str_map: dict[int, str] = {}
+        for token_str, token_id in self.vocab_manager.vocab.items():
+            clean = token_str.lstrip('Ġ ')
+            self._token_str_map[int(token_id)] = clean
 
     def _get_valid_token_ids(self, partial_name: str) -> set[int]:
-        """Get token IDs using the pre-built Trie structure."""
+        """Returns token IDs that build a valid function
+        name from available functions efficiently."""
         valid_token_ids: set[int] = set()
 
-        current_node = self.trie.search_prefix(partial_name)
-        if current_node:
-            for char in current_node.children:
-                for token_id in self.vocab_manager.char_to_tokens.get(char, []):
-                    valid_token_ids.add(token_id)
+        for fn_name in self.valid_names:
+            if fn_name.startswith(partial_name):
+                rem = fn_name[len(partial_name):]
+                if rem:
+                    first_char = rem[0]
+                    candidate_tokens = (
+                        self.vocab_manager.char_to_tokens.get(first_char, [])
+                    )
+                    for token_id in candidate_tokens:
+                        clean = self._token_str_map.get(token_id, "")
+                        if not clean:
+                            continue
+                        if rem.startswith(clean) or clean.startswith(rem):
+                            valid_token_ids.add(token_id)
 
         return valid_token_ids
 
@@ -44,36 +52,40 @@ class ConstrainedFunctionSelector:
         prompt: str,
         functions: List[FunctionDefinition],
     ) -> FunctionDefinition:
-        """Select best function using LLM logits with constrained decoding via Trie."""
+        """Selects the best function using constrained logits
+        decoding with clear guidance."""
         if not functions:
             raise ValueError("No functions available to select from")
+
+        fn_map = {fn.name: fn for fn in functions}
+        self.valid_names = list(fn_map.keys())
 
         function_list = "\n".join(
             [f"- {fn.name}: {fn.description}" for fn in functions]
         )
 
+        # Refined prompt to better guide the Small LLM in making the choice
         prompt_text = (
-            f"Given the following functions:\n{function_list}\n\n"
+            f"Analyze the user request carefully and select the"
+            f"best matching function.\n\n"
+            f"Available functions:\n{function_list}\n\n"
             f"User request: {prompt}\n\n"
-            f"Select the function name (just the name, nothing else):\n"
+            f"Instructions: Output ONLY the exact name of "
+            f"the correct function.\n"
+            f"Function name:"
         )
 
         input_ids = self.llm.encode(prompt_text).tolist()[0]
         selected_name = ""
-        max_tokens = 50
+        max_tokens = 30
 
-        for step in range(max_tokens):
+        for _ in range(max_tokens):
             logits = self.llm.get_logits_from_input_ids(input_ids)
-            if hasattr(logits, "detach"):
-                logits_arr = logits.detach().cpu().numpy()
-            else:
-                logits_arr = np.array(logits)
-
+            logits_arr = np.array(logits)
             if logits_arr.ndim > 1:
-                logits_arr = logits_arr[-1] 
+                logits_arr = logits_arr[-1]
 
             valid_ids = self._get_valid_token_ids(selected_name)
-
             if not valid_ids:
                 break
 
@@ -83,22 +95,20 @@ class ConstrainedFunctionSelector:
                 masked_logits[valid_array] = logits_arr[valid_array]
 
             best_token_id = int(np.argmax(masked_logits))
-
             if best_token_id >= len(logits_arr):
                 break
 
-            token_text = self.llm.decode([best_token_id])
-            selected_name += token_text.strip()
+            token_text = self.llm.decode([best_token_id]).lstrip('Ġ ')
+            selected_name += token_text
 
-            for fn in functions:
-                if fn.name == selected_name.strip():
-                    return fn
+            if selected_name in fn_map:
+                return fn_map[selected_name]
 
             input_ids.append(best_token_id)
 
-        selected_name = selected_name.strip()
-        for fn in functions:
-            if fn.name.lower() in selected_name.lower():
+        # Fallback para correspondência parcial mais próxima
+        for name, fn in fn_map.items():
+            if selected_name and name.startswith(selected_name):
                 return fn
 
         return functions[0]
