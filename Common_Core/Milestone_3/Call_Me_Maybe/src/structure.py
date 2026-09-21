@@ -35,17 +35,16 @@ class VocabularyManager:
     """Gerencia e indexa o vocabulário do LLM uma única vez."""
 
     def __init__(self, vocab_path: str) -> None:
-        self.vocab = self._load_vocab(vocab_path)
+        self.vocab = self.load_vocab(vocab_path)
         self.char_to_tokens: dict[str, list[int]] = {}
 
-        # ⚙️ Mapeia os caracteres limpando espaços ou prefixos dos tokens
         for token_str, token_id in self.vocab.items():
             if token_str:
                 clean_str = token_str.strip()
                 for char in clean_str:
                     self.char_to_tokens.setdefault(char, []).append(token_id)
 
-    def _load_vocab(self, path: str) -> dict[str, int]:
+    def load_vocab(self, path: str) -> dict[str, int]:
         try:
             with open(path, 'r', encoding='utf-8') as f:
                 data = json.load(f)

@@ -40,7 +40,6 @@ def main() -> None:
         llm = Small_LLM_Model()
         vocab_path = llm.get_path_to_vocab_file()
 
-        # 📂 Inicializa o gerenciador de vocabulário centralizado
         vocab_manager = VocabularyManager(vocab_path)
 
         selector = ConstrainedFunctionSelector(llm, functions, vocab_manager)
@@ -62,9 +61,12 @@ def main() -> None:
         save_results(args.output, results)
 
     except Exception as err:
-        print(f"❌ Execution error: {err}", file=sys.stderr)
+        print(f"Execution error: {err}", file=sys.stderr)
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        raise e

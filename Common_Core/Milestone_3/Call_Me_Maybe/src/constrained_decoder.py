@@ -9,7 +9,7 @@ from src.models import FunctionDefinition
 from src.structure import VocabularyManager
 
 
-def _safe_loads(s: str) -> Any:
+def safe_loads(s: str) -> Any:
     """Parse JSON string safely, allowing trailing commas,
     quotes, and regex escape fixes."""
     cleaned = re.sub(r',\s*([\]}])', r'\1', s)
@@ -44,7 +44,7 @@ class ConstrainedJSONDecoder:
             clean = token_str.lstrip('Ġ ')
             self._token_str_map[token_id] = clean
 
-    def _sample_token(self, logits: Any, valid_tokens: set[int]) -> int:
+    def sample_token(self, logits: Any, valid_tokens: set[int]) -> int:
         if hasattr(logits, "detach"):
             logits_arr = logits.detach().cpu().numpy()
         else:
@@ -62,16 +62,16 @@ class ConstrainedJSONDecoder:
 
         return int(np.argmax(logits_arr))
 
-    def _get_tokens_for_chars(self, chars: list[str]) -> set[int]:
+    def get_tokens_for_chars(self, chars: list[str]) -> set[int]:
         valid_tokens: set[int] = set()
         for char in chars:
             if char in self.vocab_manager.char_to_tokens:
                 valid_tokens.update(self.vocab_manager.char_to_tokens[char])
         return valid_tokens
 
-    def _get_valid_key_tokens(self,
-                              prefix: str,
-                              pending_params: list[str]) -> set[int]:
+    def get_valid_key_tokens(self,
+                             prefix: str,
+                             pending_params: list[str]) -> set[int]:
         """Filter tokens so candidate keys can only
         match pending parameter names efficiently."""
         valid_tokens: set[int] = set()
@@ -93,11 +93,11 @@ class ConstrainedJSONDecoder:
                         ):
                             valid_tokens.add(token_id)
                 elif prefix == param:
-                    valid_tokens.update(self._get_tokens_for_chars(['"']))
+                    valid_tokens.update(self.get_tokens_for_chars(['"']))
 
         return valid_tokens
 
-    def _get_valid_json_tokens(
+    def get_valid_json_tokens(
         self,
         current_json: str,
         function: FunctionDefinition,
@@ -135,8 +135,8 @@ class ConstrainedJSONDecoder:
 
             if is_key:
                 current_key_prefix = cleaned[last_quote_idx + 1:]
-                return self._get_valid_key_tokens(current_key_prefix,
-                                                  pending_params)
+                return self.get_valid_key_tokens(current_key_prefix,
+                                                 pending_params)
             else:
                 valid_tokens = set()
                 allowed_chars = set(prompt).union(
@@ -145,7 +145,7 @@ class ConstrainedJSONDecoder:
                     .union(set(' _-.,!?/\\()[]{}*+?|^$@#%&=:;"\'\n\t'))
                 )
                 for char in allowed_chars:
-                    valid_tokens.update(self._get_tokens_for_chars([char]))
+                    valid_tokens.update(self.get_tokens_for_chars([char]))
                 return valid_tokens
 
         # CASE B: Outside string
@@ -157,8 +157,8 @@ class ConstrainedJSONDecoder:
 
         if last_char in ['{', ',']:
             if pending_params:
-                return self._get_tokens_for_chars(['"'])
-            return self._get_tokens_for_chars(['}'])
+                return self.get_tokens_for_chars(['"'])
+            return self.get_tokens_for_chars(['}'])
 
         if last_char == ':':
             active_param = found_keys[-1] if found_keys else None
@@ -173,7 +173,7 @@ class ConstrainedJSONDecoder:
             else:
                 target_chars = ['"']
 
-            return self._get_tokens_for_chars(target_chars)
+            return self.get_tokens_for_chars(target_chars)
 
         if last_char == '"':
             last_q = cleaned.rfind('"')
@@ -187,24 +187,24 @@ class ConstrainedJSONDecoder:
                 )
 
                 if is_key_string:
-                    return self._get_tokens_for_chars([':'])
+                    return self.get_tokens_for_chars([':'])
 
             if pending_params:
-                return self._get_tokens_for_chars([','])
-            return self._get_tokens_for_chars(['}'])
+                return self.get_tokens_for_chars([','])
+            return self.get_tokens_for_chars(['}'])
 
         if last_char.isdigit() or last_char in ['.', '-']:
             if pending_params:
                 target_chars = [str(i) for i in range(10)] + ['.', ',']
             else:
                 target_chars = [str(i) for i in range(10)] + ['.', '}']
-            return self._get_tokens_for_chars(target_chars)
+            return self.get_tokens_for_chars(target_chars)
 
         if pending_params:
-            return self._get_tokens_for_chars([','])
-        return self._get_tokens_for_chars(['}'])
+            return self.get_tokens_for_chars([','])
+        return self.get_tokens_for_chars(['}'])
 
-    def _validate_json_schema(
+    def validate_json_schema(
         self,
         parsed_json: Dict[str, Any],
         function: FunctionDefinition,
@@ -264,25 +264,25 @@ class ConstrainedJSONDecoder:
                     stripped_json.startswith("{")
                     and stripped_json.endswith("}")
                 ):
-                    result = _safe_loads(stripped_json)
+                    result = safe_loads(stripped_json)
                     if (
                         isinstance(result, dict)
-                        and self._validate_json_schema(result,
-                                                       function)
+                        and self.validate_json_schema(result,
+                                                      function)
                     ):
                         return result
             except Exception:
                 pass
 
             logits = self.llm.get_logits_from_input_ids(input_ids)
-            valid_tokens = self._get_valid_json_tokens(generated_text,
-                                                       function,
-                                                       prompt)
+            valid_tokens = self.get_valid_json_tokens(generated_text,
+                                                      function,
+                                                      prompt)
 
             if not valid_tokens:
                 break
 
-            next_token_id = self._sample_token(logits, valid_tokens)
+            next_token_id = self.sample_token(logits, valid_tokens)
             input_ids.append(next_token_id)
             generated_part_ids.append(next_token_id)
 
@@ -290,7 +290,7 @@ class ConstrainedJSONDecoder:
             final_text = self.llm.decode(generated_part_ids).strip()
             if final_text.startswith("{") and not final_text.endswith("}"):
                 final_text += "}"
-            parsed = _safe_loads(final_text)
+            parsed = safe_loads(final_text)
             if isinstance(parsed, dict):
                 return parsed
         except Exception:
