@@ -4,9 +4,19 @@ version = "0.1.0"
 description = "Function calling project with candidate scoring and LLM logits"
 requires-python = ">=3.10"
 dependencies = [
-    "numpy>=1.26.0",
-    "pydantic>=2.7.0",
+    "torch==2.3.1",
+    "transformers<5.0.0",
+    "accelerate",
+    "numpy",
+    "pydantic",
+    "llm-sdk",
+    "flake8",
+    "mypy"
 ]
+
+# Informar o uv onde encontrar o pacote local llm_sdk
+[tool.uv.sources]
+llm-sdk = { path = "llm_sdk" }
 
 [build-system]
 requires = ["hatchling"]

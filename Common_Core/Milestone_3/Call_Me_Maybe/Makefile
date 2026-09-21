@@ -1,48 +1,66 @@
-.PHONY: install run debug clean lint lint-strict re
+.PHONY: install run debug clean lint lint-strict re setup-cache test
 
+setup-cache:
+	@if [ -d $$HOME/sgoinfre ]; then \
+		mkdir -p $$HOME/sgoinfre/.cache; \
+		if [ -d $$HOME/.cache ] && [ ! -L $$HOME/.cache ]; then \
+			cp -rn $$HOME/.cache/. $$HOME/sgoinfre/.cache/ 2>/dev/null || true; \
+			rm -rf $$HOME/.cache; \
+		fi; \
+		if [ ! -e $$HOME/.cache ]; then \
+			ln -s $$HOME/sgoinfre/.cache $$HOME/.cache; \
+		fi; \
+	else \
+		echo "AVISO: sgoinfre não encontrado. A usar cache local."; \
+		mkdir -p $$HOME/.cache; \
+	fi
 
-venv:
-	python3 -m venv .venv
-
-install: venv
-	@.venv/bin/python3 -m pip install --upgrade pip
-	@.venv/bin/python3 -m pip install "torch==2.3.1"
-	@.venv/bin/python3 -m pip install "transformers<5.0.0"
-	@.venv/bin/python3 -m pip install -e ./llm_sdk
-	@.venv/bin/python3 -m pip install -e .
-	@.venv/bin/python3 -m pip install flake8 mypy pytest
+install: setup-cache
+	@rm -rf .venv 2>/dev/null || true
+	@VENV_PATH="/tmp/eva_venv_$$(date +%s)"; \
+	uv venv $$VENV_PATH --python 3.10 --seed; \
+	uv pip install --python $$VENV_PATH/bin/python --upgrade pip; \
+	uv pip install --python $$VENV_PATH/bin/python -e ./llm_sdk; \
+	uv pip install --python $$VENV_PATH/bin/python -e .; \
+	uv pip install --python $$VENV_PATH/bin/python accelerate flake8 mypy pytest; \
+	ln -sfn $$VENV_PATH .venv
 
 run: install
-	.venv/bin/python3 -m src \
+	@uv run python -m src \
 		--functions_definition data/input/functions_definition.json \
 		--input data/input/function_calling_tests.json \
 		--output data/output/function_calling_results.json
 
 test: install
-	.venv/bin/python3 -m pytest tests/ -v
+	@uv run pytest tests/ -v
 
 debug: install
-	.venv/bin/python3 -m pdb -m src --functions_definition data/input/functions_definition.json --input data/input/function_calling_tests.json --output data/output/function_calling_results.json
+	@uv run python -m pdb -m src \
+		--functions_definition data/input/functions_definition.json \
+		--input data/input/function_calling_tests.json \
+		--output data/output/function_calling_results.json
 
 clean:
-	@rm -rf .venv __pycache__ .mypy_cache .pytest_cache .ruff_cache
+	@rm -rf __pycache__ .mypy_cache .pytest_cache .ruff_cache
 	@find . -type d -name '__pycache__' -prune -exec rm -rf {} +
 	@find . -type f -name '*.pyc' -delete
+	@rm -rf .venv 2>/dev/null || true
 
 fclean: clean
-	@rm -rf $(VENV) .venv
 	@rm -rf data/output
+	@rm -rf .venv 2>/dev/null || true
+	@rm -f uv.lock
 
 lint: install
-	.venv/bin/python3 -m flake8 src tests
-	.venv/bin/python3 -m mypy src tests \
+	@uv run flake8 src tests
+	@uv run mypy src tests \
 		--warn-return-any --warn-unused-ignores \
 		--ignore-missing-imports --disallow-untyped-defs \
 		--check-untyped-defs
 
 lint-strict: install
-	.venv/bin/python3 -m flake8 src tests
-	.venv/bin/python3 -m mypy src tests --strict
+	@uv run flake8 src tests
+	@uv run mypy src tests --strict
 
 re: clean
 	$(MAKE) install
