@@ -28,8 +28,6 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re test test-pq codexion_asan asan-run norm install-norminette
-
 test: $(NAME)
 	sh ./tests/run_tests.sh
 
@@ -46,3 +44,5 @@ asan-run: codexion_asan
 norm: all
 	@if [ ! -x "$(NORMINNETTE)" ]; then $(MAKE) install-norminette; fi
 	@$(NORMINNETTE) $(NORM_PATHS)
+
+.PHONY: all clean fclean re test test-pq codexion_asan asan-run norm install-norminette

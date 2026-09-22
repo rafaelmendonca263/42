@@ -105,10 +105,20 @@ int	pq_pop(t_pq *pq, t_pq_item *out)
 		left = 2 * index + 1;
 		right = 2 * index + 2;
 		smallest = index;
-		if (left < pq->size && pq->items[left].arrival < pq->items[smallest].arrival)
-			smallest = left;
-		if (right < pq->size && pq->items[right].arrival < pq->items[smallest].arrival)
-			smallest = right;
+		if (pq->mode == 0)
+		{
+			if (left < pq->size && pq->items[left].arrival < pq->items[smallest].arrival)
+				smallest = left;
+			if (right < pq->size && pq->items[right].arrival < pq->items[smallest].arrival)
+				smallest = right;
+		}
+		else
+		{
+			if (left < pq->size && pq->items[left].deadline < pq->items[smallest].deadline)
+				smallest = left;
+			if (right < pq->size && pq->items[right].deadline < pq->items[smallest].deadline)
+				smallest = right;
+		}
 		if (smallest == index)
 			break ;
 		swap_items(&pq->items[index], &pq->items[smallest]);

@@ -21,20 +21,20 @@ void	*monitor_thread(void *arg)
 	long long	deadline;
 
 	sim = (t_sim *)arg;
-	while (!sim->stop)
+	while (!get_sim_stop(sim))
 	{
 		index = 0;
 		while (index < sim->number_of_coders)
 		{
 			now = timestamp_ms();
-			deadline = sim->coders[index].last_compile_start
+			deadline = get_coder_last_compile(sim, index)
 				+ sim->time_to_burnout;
 			if (now > deadline)
 			{
 				pthread_mutex_lock(&sim->print_mutex);
 				print_log(sim, sim->coders[index].id, "burned out");
 				pthread_mutex_unlock(&sim->print_mutex);
-				sim->stop = 1;
+				set_sim_stop(sim, 1);
 				return (NULL);
 			}
 			index++;

@@ -13,145 +13,171 @@
 #include "../include/codexion.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-int	sim_init_resources(t_sim *sim)
+/* Getters e Setters Seguros (Protegidos por state_mutex) */
+int get_sim_stop(t_sim *sim)
 {
-	int		index;
-	int		ok;
+	int stop;
+	pthread_mutex_lock(&sim->state_mutex);
+	stop = sim->stop;
+	pthread_mutex_unlock(&sim->state_mutex);
+	return (stop);
+}
 
-	if (!sim)
-		return (-1);
-	sim->dongles = malloc(sizeof(t_dongle) * sim->number_of_coders);
-	sim->coders = malloc(sizeof(t_coder) * sim->number_of_coders);
-	sim->threads = malloc(sizeof(pthread_t) * sim->number_of_coders);
-	if (!sim->dongles || !sim->coders || !sim->threads)
-	{
-		free(sim->dongles);
-		free(sim->coders);
-		free(sim->threads);
-		return (-1);
-	}
-	ok = pthread_mutex_init(&sim->print_mutex, NULL);
-	if (ok != 0)
-		return (-1);
-	ok = pthread_mutex_init(&sim->state_mutex, NULL);
-	if (ok != 0)
-		return (-1);
+void set_sim_stop(t_sim *sim, int val)
+{
+	pthread_mutex_lock(&sim->state_mutex);
+	sim->stop = val;
+	pthread_mutex_unlock(&sim->state_mutex);
+}
+
+long long get_coder_last_compile(t_sim *sim, int index)
+{
+	long long last;
+	pthread_mutex_lock(&sim->state_mutex);
+	last = sim->coders[index].last_compile_start;
+	pthread_mutex_unlock(&sim->state_mutex);
+	return (last);
+}
+
+void set_coder_last_compile(t_sim *sim, int index, long long val)
+{
+	pthread_mutex_lock(&sim->state_mutex);
+	sim->coders[index].last_compile_start = val;
+	pthread_mutex_unlock(&sim->state_mutex);
+}
+
+int get_coder_compile_count(t_sim *sim, int index)
+{
+	int count;
+	pthread_mutex_lock(&sim->state_mutex);
+	count = sim->coders[index].compile_count;
+	pthread_mutex_unlock(&sim->state_mutex);
+	return (count);
+}
+
+/* Inicialização de Recursos da Simulação */
+int sim_init_resources(t_sim *sim)
+{
+	int i;
+
 	sim->stop = 0;
 	sim->finished_count = 0;
-	index = 0;
-	while (index < sim->number_of_coders)
+	if (pthread_mutex_init(&sim->print_mutex, NULL) != 0)
+		return (1);
+	if (pthread_mutex_init(&sim->state_mutex, NULL) != 0)
 	{
-		ok = pthread_mutex_init(&sim->dongles[index].mutex, NULL);
-		if (ok != 0)
-			return (-1);
-		ok = pthread_cond_init(&sim->dongles[index].cond, NULL);
-		if (ok != 0)
-			return (-1);
-		sim->dongles[index].available = 1;
-		sim->dongles[index].last_release_ts = sim->start_ts;
-		if (strcmp(sim->scheduler, "fifo") == 0)
-			sim->dongles[index].queue = pq_create(0);
-		else
-			sim->dongles[index].queue = pq_create(1);
-		if (!sim->dongles[index].queue)
-			return (-1);
-		sim->coders[index].id = index + 1;
-		sim->coders[index].left = index;
-		sim->coders[index].right = (index + 1) % sim->number_of_coders;
-		sim->coders[index].last_compile_start = sim->start_ts;
-		sim->coders[index].compile_count = 0;
-		sim->coders[index].sim = sim;
-		index++;
+		pthread_mutex_destroy(&sim->print_mutex);
+		return (1);
+	}
+
+	sim->coders = malloc(sizeof(t_coder) * sim->number_of_coders);
+	sim->threads = malloc(sizeof(pthread_t) * sim->number_of_coders);
+	sim->dongles = malloc(sizeof(t_dongle) * sim->number_of_coders);
+
+	if (!sim->coders || !sim->threads || !sim->dongles)
+	{
+		free(sim->coders);
+		free(sim->threads);
+		free(sim->dongles);
+		pthread_mutex_destroy(&sim->print_mutex);
+		pthread_mutex_destroy(&sim->state_mutex);
+		return (1);
+	}
+
+	i = 0;
+	while (i < sim->number_of_coders)
+	{
+		sim->coders[i].id = i + 1;
+		sim->coders[i].left = i;
+		sim->coders[i].right = (i + 1) % sim->number_of_coders;
+		sim->coders[i].last_compile_start = sim->start_ts;
+		sim->coders[i].compile_count = 0;
+		sim->coders[i].sim = sim;
+
+		if (pthread_mutex_init(&sim->dongles[i].mutex, NULL) != 0)
+		{
+			while (--i >= 0)
+				pthread_mutex_destroy(&sim->dongles[i].mutex);
+			free(sim->coders);
+			free(sim->threads);
+			free(sim->dongles);
+			pthread_mutex_destroy(&sim->print_mutex);
+			pthread_mutex_destroy(&sim->state_mutex);
+			return (1);
+		}
+		sim->dongles[i].available = 1;
+		sim->dongles[i].last_release_ts = 0;
+		sim->dongles[i].queue = pq_create(sim->scheduler[0] == 'e' ? 1 : 0);
+		i++;
 	}
 	return (0);
 }
 
-void	sim_destroy_resources(t_sim *sim)
+/* Libertação de Recursos */
+void sim_destroy_resources(t_sim *sim)
 {
-	int		index;
+	int i;
 
-	if (!sim)
-		return ;
-	index = 0;
-	while (index < sim->number_of_coders)
+	if (sim->dongles)
 	{
-		pthread_mutex_destroy(&sim->dongles[index].mutex);
-		pthread_cond_destroy(&sim->dongles[index].cond);
-		pq_free(sim->dongles[index].queue);
-		index++;
+		i = 0;
+		while (i < sim->number_of_coders)
+		{
+			pthread_mutex_destroy(&sim->dongles[i].mutex);
+			pq_free(sim->dongles[i].queue);
+			i++;
+		}
+		free(sim->dongles);
 	}
 	pthread_mutex_destroy(&sim->print_mutex);
 	pthread_mutex_destroy(&sim->state_mutex);
-	free(sim->dongles);
 	free(sim->coders);
 	free(sim->threads);
 }
 
-int	request_dongles(t_sim *sim, t_coder *coder)
+/* Gestão de Aquisição de Dongles (Prevenção de Deadlocks por ordem de índices) */
+int request_dongles(t_sim *sim, t_coder *coder)
 {
-	int		left;
-	int		right;
-	t_pq_item	item;
-	long long	now;
-	t_pq_item	peek_left;
-	t_pq_item	peek_right;
-	int		ready_left;
-	int		ready_right;
+	int first = coder->left;
+	int second = coder->right;
 
-	left = coder->left;
-	right = coder->right;
-	now = timestamp_ms();
-	item.id = coder->id;
-	item.arrival = now;
-	item.deadline = coder->last_compile_start + sim->time_to_burnout;
-	pthread_mutex_lock(&sim->dongles[left].mutex);
-	pq_push(sim->dongles[left].queue, item);
-	pthread_mutex_unlock(&sim->dongles[left].mutex);
-	pthread_mutex_lock(&sim->dongles[right].mutex);
-	pq_push(sim->dongles[right].queue, item);
-	pthread_mutex_unlock(&sim->dongles[right].mutex);
-	while (!sim->stop)
+	if (first > second)
 	{
-		ready_left = pq_peek(sim->dongles[left].queue, &peek_left) == 0
-			&& peek_left.id == coder->id;
-		ready_right = pq_peek(sim->dongles[right].queue, &peek_right) == 0
-			&& peek_right.id == coder->id;
-		if (ready_left && ready_right && sim->dongles[left].available
-			&& sim->dongles[right].available && now - sim->dongles[left].last_release_ts
-			>= sim->dongle_cooldown && now - sim->dongles[right].last_release_ts
-			>= sim->dongle_cooldown)
-		{
-			pq_pop(sim->dongles[left].queue, NULL);
-			pq_pop(sim->dongles[right].queue, NULL);
-			sim->dongles[left].available = 0;
-			sim->dongles[right].available = 0;
-			return (0);
-		}
-		msleep(1);
-		now = timestamp_ms();
+		first = coder->right;
+		second = coder->left;
 	}
-	return (-1);
+
+	pthread_mutex_lock(&sim->dongles[first].mutex);
+	if (get_sim_stop(sim))
+	{
+		pthread_mutex_unlock(&sim->dongles[first].mutex);
+		return (1);
+	}
+
+	pthread_mutex_lock(&sim->dongles[second].mutex);
+	if (get_sim_stop(sim))
+	{
+		pthread_mutex_unlock(&sim->dongles[second].mutex);
+		pthread_mutex_unlock(&sim->dongles[first].mutex);
+		return (1);
+	}
+
+	return (0);
 }
 
-void	release_dongles(t_sim *sim, t_coder *coder)
+/* Libertação de Dongles */
+void release_dongles(t_sim *sim, t_coder *coder)
 {
-	int		left;
-	int		right;
-	long long	now;
+	int first = coder->left;
+	int second = coder->right;
 
-	left = coder->left;
-	right = coder->right;
-	now = timestamp_ms();
-	pthread_mutex_lock(&sim->dongles[left].mutex);
-	sim->dongles[left].available = 1;
-	sim->dongles[left].last_release_ts = now;
-	pthread_cond_broadcast(&sim->dongles[left].cond);
-	pthread_mutex_unlock(&sim->dongles[left].mutex);
-	pthread_mutex_lock(&sim->dongles[right].mutex);
-	sim->dongles[right].available = 1;
-	sim->dongles[right].last_release_ts = now;
-	pthread_cond_broadcast(&sim->dongles[right].cond);
-	pthread_mutex_unlock(&sim->dongles[right].mutex);
+	if (first > second)
+	{
+		first = coder->right;
+		second = coder->left;
+	}
+
+	pthread_mutex_unlock(&sim->dongles[second].mutex);
+	pthread_mutex_unlock(&sim->dongles[first].mutex);
 }

@@ -1,6 +1,6 @@
 # Codexion
 
-_This project has been created as part of the 42 curriculum by <login1>[_ , <login2>][_]._
+This project has been created as part of the 42 curriculum by rmedonca.
 
 ## Description
 
