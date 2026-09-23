@@ -34,12 +34,12 @@ typedef struct s_pq
 
 typedef struct s_dongle
 {
-	pthread_mutex_t mutex;
-	pthread_cond_t cond;
-	int available;
-	long long last_release_ts;
-	t_pq *queue;
-} t_dongle;
+    pthread_mutex_t mutex;
+    pthread_cond_t  cond;
+    int             available;  
+    long long       last_release_ts;
+    t_pq            *queue;
+}   t_dongle;
 
 typedef struct s_coder
 {

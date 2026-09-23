@@ -9,7 +9,7 @@ NORM_PATHS = src include
 
 .DEFAULT_GOAL := all
 
-all: $(NAME)
+all: $(NAME) clean
 
 $(NAME): $(SRCS)
 	$(CC) $(CFLAGS) -o $(NAME) $(SRCS)
@@ -20,26 +20,26 @@ install-norminette:
 	@$(VENV)/bin/pip install norminette
 
 clean:
-	rm -f *.o
+	@rm -f *.o
 
 fclean: clean
-	rm -f $(NAME)
-	rm -rf $(VENV)
+	@rm -f $(NAME)
+	@rm -rf $(VENV)
 
 re: fclean all
 
 test: $(NAME)
-	sh ./tests/run_tests.sh
+	@sh ./tests/run_tests.sh
 
 test-pq:
-	$(CC) $(CFLAGS) -o test_pq $(TEST_PQ) src/scheduler.c
-	./test_pq
+	@$(CC) $(CFLAGS) -o test_pq $(TEST_PQ) src/scheduler.c
+	@./test_pq
 
 codexion_asan: $(SRCS)
-	$(CC) -g -fsanitize=address -fno-omit-frame-pointer -I include -pthread -o $@ $(SRCS)
+	@$(CC) -g -fsanitize=address -fno-omit-frame-pointer -I include -pthread -o $@ $(SRCS)
 
 asan-run: codexion_asan
-	./codexion_asan 3 200 50 50 50 1 10 fifo
+	@./codexion_asan 3 200 50 50 50 1 10 fifo
 
 norm: all
 	@if [ ! -x "$(NORMINNETTE)" ]; then $(MAKE) install-norminette; fi

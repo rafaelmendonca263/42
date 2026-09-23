@@ -29,7 +29,7 @@ t_pq	*pq_create(int mode)
 	pq = malloc(sizeof(*pq));
 	if (!pq)
 		return (NULL);
-	pq->capacity = 16;
+	pq->capacity = 256; // Capacidade fixa segura (elimina o realloc)
 	pq->size = 0;
 	pq->mode = mode;
 	pq->items = malloc(sizeof(t_pq_item) * pq->capacity);
@@ -53,20 +53,12 @@ int	pq_push(t_pq *pq, t_pq_item item)
 {
 	int		parent;
 	int		index;
-	t_pq_item	*new_items;
-	int		new_capacity;
 
 	if (!pq)
 		return (-1);
 	if (pq->size + 1 > pq->capacity)
-	{
-		new_capacity = pq->capacity * 2;
-		new_items = realloc(pq->items, sizeof(t_pq_item) * new_capacity);
-		if (!new_items)
-			return (-1);
-		pq->items = new_items;
-		pq->capacity = new_capacity;
-	}
+		return (-1); // Proteção contra overflow sem realloc
+
 	index = pq->size;
 	pq->items[index] = item;
 	pq->size++;

@@ -26,9 +26,5 @@ void msleep(long long ms)
 {
 	if (ms <= 0)
 		return;
-	struct timespec req;
-	req.tv_sec = ms / 1000;
-	req.tv_nsec = (ms % 1000) * 1000000L;
-	while (nanosleep(&req, &req) == -1)
-		;
+	usleep((useconds_t)(ms * 1000));
 }

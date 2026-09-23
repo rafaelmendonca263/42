@@ -37,7 +37,7 @@ static void	join_threads(t_sim *sim)
 		pthread_join(sim->threads[i], NULL);
 		i++;
 	}
-	sim->stop = 1;
+	set_sim_stop(sim, 1);
 	pthread_join(sim->monitor_thread, NULL);
 }
 
