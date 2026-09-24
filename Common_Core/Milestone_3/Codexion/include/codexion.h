@@ -19,58 +19,58 @@
 
 typedef struct s_pq_item
 {
-	int id;
-	long long deadline;
-	long long arrival;
-} t_pq_item;
+	int			id;
+	long long	deadline;
+	long long	arrival;
+}				t_pq_item;
 
 typedef struct s_pq
 {
-	t_pq_item *items;
-	int size;
-	int capacity;
-	int mode;
-} t_pq;
+	t_pq_item	*items;
+	int			size;
+	int			capacity;
+	int			mode;
+}				t_pq;
 
 typedef struct s_dongle
 {
-    pthread_mutex_t mutex;
-    pthread_cond_t  cond;
-    int             available;  
-    long long       last_release_ts;
-    t_pq            *queue;
-}   t_dongle;
+	pthread_mutex_t	mutex;
+	pthread_cond_t	cond;
+	int				available;
+	long long		last_release_ts;
+	t_pq			*queue;
+}				t_dongle;
 
 typedef struct s_coder
 {
-	int id;
-	int left;
-	int right;
-	long long last_compile_start;
-	int compile_count;
-	struct s_sim *sim;
-} t_coder;
+	int				id;
+	int				left;
+	int				right;
+	long long		last_compile_start;
+	int				compile_count;
+	struct s_sim	*sim;
+}				t_coder;
 
 typedef struct s_sim
 {
-	int number_of_coders;
-	long long time_to_burnout;
-	long long time_to_compile;
-	long long time_to_debug;
-	long long time_to_refactor;
-	int number_of_compiles_required;
-	long long dongle_cooldown;
-	char scheduler[8];
-	long long start_ts;
-	pthread_mutex_t print_mutex;
-	int stop;
-	pthread_mutex_t state_mutex;
-	int finished_count;
-	t_dongle *dongles;
-	t_coder *coders;
-	pthread_t *threads;
-	pthread_t monitor_thread;
-} t_sim;
+	int				number_of_coders;
+	long long		time_to_burnout;
+	long long		time_to_compile;
+	long long		time_to_debug;
+	long long		time_to_refactor;
+	int				number_of_compiles_required;
+	long long		dongle_cooldown;
+	char			scheduler[8];
+	long long		start_ts;
+	pthread_mutex_t	print_mutex;
+	int				stop;
+	pthread_mutex_t	state_mutex;
+	int				finished_count;
+	t_dongle		*dongles;
+	t_coder			*coders;
+	pthread_t		*threads;
+	pthread_t		monitor_thread;
+}				t_sim;
 
 /* Funções Gerais e Utilitárias */
 t_sim		*init_sim(int argc, char **argv);
@@ -84,7 +84,6 @@ int			get_sim_stop(t_sim *sim);
 void		set_sim_stop(t_sim *sim, int val);
 long long	get_coder_last_compile(t_sim *sim, int index);
 void		set_coder_last_compile(t_sim *sim, int index, long long val);
-int			get_coder_compile_count(t_sim *sim, int index);
 
 /* Fila de Prioridade (Priority Queue) */
 t_pq		*pq_create(int mode);

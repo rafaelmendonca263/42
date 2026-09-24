@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                           :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafa <rafa@student.42.fr>                 +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/08/21 12:01:18 by rafa            #+#    #+#             */
-/*   Updated: 2026/08/21 12:01:18 by rafa           ###   ########.fr       */
+/*   Created: 2026/09/24 17:25:26 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/09/24 17:25:29 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,13 @@
 
 static void	start_threads(t_sim *sim)
 {
-	int		i;
+	int	i;
 
 	i = 0;
 	while (i < sim->number_of_coders)
 	{
-		pthread_create(&sim->threads[i], NULL, coder_thread, &sim->coders[i]);
+		pthread_create(&sim->threads[i], NULL,
+			coder_thread, &sim->coders[i]);
 		i++;
 	}
 	pthread_create(&sim->monitor_thread, NULL, monitor_thread, sim);
@@ -29,7 +30,7 @@ static void	start_threads(t_sim *sim)
 
 static void	join_threads(t_sim *sim)
 {
-	int		i;
+	int	i;
 
 	i = 0;
 	while (i < sim->number_of_coders)
@@ -50,8 +51,8 @@ int	main(int argc, char **argv)
 		fprintf(stderr,
 			"Usage: %s number_of_coders time_to_burnout "
 			"time_to_compile time_to_debug time_to_refactor "
-			"number_of_compiles_required dongle_cooldown scheduler\n",
-			argv[0]);
+			"number_of_compiles_required dongle_cooldown "
+			"scheduler\n", argv[0]);
 		return (1);
 	}
 	sim = init_sim(argc, argv);

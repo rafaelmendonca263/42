@@ -11,10 +11,10 @@ dependencies = [
     "pydantic",
     "llm-sdk",
     "flake8",
-    "mypy"
+    "mypy",
+    "pytest"
 ]
 
-# Informar o uv onde encontrar o pacote local llm_sdk
 [tool.uv.sources]
 llm-sdk = { path = "llm_sdk" }
 

@@ -1,30 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   time_utils.c                                       :+:      :+:    :+:   */
+/*   pq_init.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/24 17:24:52 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/09/24 17:24:55 by rmedonca         ###   ########.fr       */
+/*   Created: 2026/09/24 17:37:33 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/09/24 17:37:36 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
-#include <time.h>
-#include <unistd.h>
+#include <stdlib.h>
 
-long long	timestamp_ms(void)
+t_pq	*pq_create(int mode)
 {
-	struct timespec	ts;
+	t_pq	*pq;
 
-	clock_gettime(CLOCK_MONOTONIC, &ts);
-	return ((long long)ts.tv_sec * 1000LL + (ts.tv_nsec / 1000000));
+	pq = malloc(sizeof(*pq));
+	if (!pq)
+		return (NULL);
+	pq->capacity = 256;
+	pq->size = 0;
+	pq->mode = mode;
+	pq->items = malloc(sizeof(t_pq_item) * pq->capacity);
+	if (!pq->items)
+	{
+		free(pq);
+		return (NULL);
+	}
+	return (pq);
 }
 
-void	msleep(long long ms)
+void	pq_free(t_pq *pq)
 {
-	if (ms <= 0)
+	if (!pq)
 		return ;
-	usleep((useconds_t)(ms * 1000));
+	free(pq->items);
+	free(pq);
 }

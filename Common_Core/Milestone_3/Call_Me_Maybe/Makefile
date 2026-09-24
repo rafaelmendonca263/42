@@ -16,26 +16,19 @@ setup-cache:
 	fi
 
 install: setup-cache
-	@rm -rf .venv 2>/dev/null || true
-	@VENV_PATH="/tmp/eva_venv_$$(date +%s)"; \
-	uv venv $$VENV_PATH --python 3.10 --seed; \
-	uv pip install --python $$VENV_PATH/bin/python --upgrade pip; \
-	uv pip install --python $$VENV_PATH/bin/python -e ./llm_sdk; \
-	uv pip install --python $$VENV_PATH/bin/python -e .; \
-	uv pip install --python $$VENV_PATH/bin/python accelerate flake8 mypy pytest; \
-	ln -sfn $$VENV_PATH .venv
+	@uv sync --python 3.10
 
 run: install
-	@uv run python -m src \
+	@.venv/bin/python -m src \
 		--functions_definition data/input/functions_definition.json \
 		--input data/input/function_calling_tests.json \
 		--output data/output/function_calling_results.json
 
 test: install
-	@uv run pytest tests/ -v
+	@.venv/bin/pytest tests/ -v
 
 debug: install
-	@uv run python -m pdb -m src \
+	@.venv/bin/python -m pdb -m src \
 		--functions_definition data/input/functions_definition.json \
 		--input data/input/function_calling_tests.json \
 		--output data/output/function_calling_results.json
@@ -50,17 +43,18 @@ fclean: clean
 	@rm -rf data/output
 	@rm -rf .venv 2>/dev/null || true
 	@rm -f uv.lock
+	@rm -rf llm_sdk/uv.lock
 
 lint: install
-	@uv run flake8 src tests
-	@uv run mypy src tests \
+	@.venv/bin/flake8 src tests
+	@.venv/bin/mypy src tests \
 		--warn-return-any --warn-unused-ignores \
 		--ignore-missing-imports --disallow-untyped-defs \
 		--check-untyped-defs
 
 lint-strict: install
-	@uv run flake8 src tests
-	@uv run mypy src tests --strict
+	@.venv/bin/flake8 src tests
+	@.venv/bin/mypy src tests --strict
 
-re: clean
-	$(MAKE) install
+re: fclean
+	@$(MAKE) install
