@@ -6,7 +6,7 @@
 /*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/24 17:25:26 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/09/24 17:25:29 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/09/24 19:41:15 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,6 @@ int	main(int argc, char **argv)
 	}
 	start_threads(sim);
 	join_threads(sim);
-	sim_destroy_resources(sim);
 	free_sim(sim);
 	return (0);
 }

@@ -6,12 +6,11 @@
 /*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/24 17:25:10 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/09/24 17:43:17 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/09/24 19:48:02 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
-#include <stdio.h>
 
 static int	check_coder_burnout(t_sim *sim, int index)
 {
@@ -47,7 +46,7 @@ void	*monitor_thread(void *arg)
 				return (NULL);
 			index++;
 		}
-		msleep(1);
+		usleep(200);
 	}
 	return (NULL);
 }

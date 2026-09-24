@@ -16,6 +16,8 @@
 # include <pthread.h>
 # include <stdint.h>
 # include <sys/time.h>
+# include <stdio.h>
+# include <unistd.h>
 
 typedef struct s_pq_item
 {
