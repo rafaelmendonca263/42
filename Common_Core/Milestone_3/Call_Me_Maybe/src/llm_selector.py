@@ -64,14 +64,16 @@ class ConstrainedFunctionSelector:
             [f"- {fn.name}: {fn.description}" for fn in functions]
         )
 
-        # Refined prompt to better guide the Small LLM in making the choice
         prompt_text = (
-            f"Analyze the user request carefully and select the"
-            f"best matching function.\n\n"
+            f"Analyze the user request and choose the single most "
+            f"appropriate function.\n\n"
             f"Available functions:\n{function_list}\n\n"
             f"User request: {prompt}\n\n"
-            f"Instructions: Output ONLY the exact name of "
-            f"the correct function.\n"
+            f"Rules:\n"
+            f"- Match financial calculations strictly to "
+            f"math/interest functions.\n"
+            f"- Match database operations strictly to SQL functions.\n"
+            f"Output ONLY the exact function name:\n"
             f"Function name:"
         )
 
@@ -106,7 +108,6 @@ class ConstrainedFunctionSelector:
 
             input_ids.append(best_token_id)
 
-        # Fallback para correspondência parcial mais próxima
         for name, fn in fn_map.items():
             if selected_name and name.startswith(selected_name):
                 return fn

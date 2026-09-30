@@ -16,7 +16,7 @@ setup-cache:
 	fi
 
 install: setup-cache
-	@uv sync --python 3.10
+	uv sync --python 3.10 --link-mode=copy
 
 run: install
 	@.venv/bin/python -m src \
