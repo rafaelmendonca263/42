@@ -3,17 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rafa <rafa@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/24 17:42:46 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/09/24 17:46:44 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/10/06 16:22:23 by rafa             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 static int	is_positive_number(const char *s)
 {
@@ -63,7 +60,7 @@ static int	validate_args_extra(char **argv)
 		fprintf(stderr, "Error: invalid time_to_refactor\n");
 		return (0);
 	}
-	if (!is_positive_number(argv[6]) || atoi(argv[6]) <= 0)
+	if (!is_positive_number(argv[6]) || atoi(argv[6]) < 0)
 	{
 		fprintf(stderr, "Error: invalid number_of_compiles\n");
 		return (0);
@@ -97,7 +94,11 @@ t_sim	*init_sim(int argc, char **argv)
 	t_sim	*sim;
 	int		i;
 
-	(void)argc;
+	if (argc != 9)
+	{
+		fprintf(stderr, "Error: invalid number of arguments\n");
+		return (NULL);
+	}
 	sim = malloc(sizeof(*sim));
 	if (!sim)
 		return (NULL);
@@ -107,12 +108,9 @@ t_sim	*init_sim(int argc, char **argv)
 		return (NULL);
 	}
 	fill_sim(sim, argv);
-	i = 0;
-	while (argv[8][i] && i < (int) sizeof(sim ->scheduler) - 1)
-	{
+	i = -1;
+	while (argv[8][++i] && i < (int)sizeof(sim->scheduler) - 1)
 		sim->scheduler[i] = argv[8][i];
-		i++;
-	}
 	sim->scheduler[i] = '\0';
 	sim->start_ts = timestamp_ms();
 	return (sim);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rafa <rafa@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/24 17:25:26 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/09/24 19:41:15 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/10/06 16:24:46 by rafa             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,10 @@ int	main(int argc, char **argv)
 		free_sim(sim);
 		return (1);
 	}
+	sim->start_ts = timestamp_ms();
 	start_threads(sim);
 	join_threads(sim);
+	sim_destroy_resources(sim);
 	free_sim(sim);
 	return (0);
 }

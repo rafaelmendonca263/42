@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   sim_init.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rafa <rafa@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/24 17:24:15 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/09/24 17:36:42 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/10/06 16:29:22 by rafa             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
 #include <stdlib.h>
+#include <string.h>
 
 static int	sim_init_dongles(t_sim *sim, int i)
 {
@@ -31,6 +32,12 @@ static int	sim_init_dongles(t_sim *sim, int i)
 	sim->dongles[i].available = 1;
 	sim->dongles[i].last_release_ts = 0;
 	sim->dongles[i].queue = pq_create(mode);
+	if (!sim->dongles[i].queue)
+	{
+		pthread_cond_destroy(&sim->dongles[i].cond);
+		pthread_mutex_destroy(&sim->dongles[i].mutex);
+		return (1);
+	}
 	return (0);
 }
 
@@ -51,10 +58,14 @@ static int	sim_alloc_resources(t_sim *sim)
 		free(sim->coders);
 		free(sim->threads);
 		free(sim->dongles);
+		sim->coders = NULL;
+		sim->threads = NULL;
+		sim->dongles = NULL;
 		pthread_mutex_destroy(&sim->print_mutex);
 		pthread_mutex_destroy(&sim->state_mutex);
 		return (1);
 	}
+	memset(sim->dongles, 0, sizeof(t_dongle) * sim->number_of_coders);
 	return (0);
 }
 
@@ -97,11 +108,14 @@ void	sim_destroy_resources(t_sim *sim)
 			i++;
 		}
 		free(sim->dongles);
+		sim->dongles = NULL;
 	}
 	pthread_mutex_destroy(&sim->print_mutex);
 	pthread_mutex_destroy(&sim->state_mutex);
 	free(sim->coders);
+	sim->coders = NULL;
 	free(sim->threads);
+	sim->threads = NULL;
 }
 
 void	free_sim(t_sim *sim)

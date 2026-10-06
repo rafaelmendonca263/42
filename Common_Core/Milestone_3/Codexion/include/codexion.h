@@ -74,27 +74,27 @@ typedef struct s_sim
 	pthread_t		monitor_thread;
 }				t_sim;
 
-/* Funções Gerais e Utilitárias */
+/* General Utilities */
 t_sim		*init_sim(int argc, char **argv);
 void		free_sim(t_sim *sim);
 long long	timestamp_ms(void);
 void		msleep(long long ms);
 void		print_log(t_sim *sim, int id, const char *msg);
 
-/* Getters e Setters Seguros */
+/* Thread-safe Getters and Setters */
 int			get_sim_stop(t_sim *sim);
 void		set_sim_stop(t_sim *sim, int val);
 long long	get_coder_last_compile(t_sim *sim, int index);
 void		set_coder_last_compile(t_sim *sim, int index, long long val);
 
-/* Fila de Prioridade (Priority Queue) */
+/* Priority Queue */
 t_pq		*pq_create(int mode);
 void		pq_free(t_pq *pq);
 int			pq_push(t_pq *pq, t_pq_item item);
 int			pq_pop(t_pq *pq, t_pq_item *out);
 int			pq_peek(t_pq *pq, t_pq_item *out);
 
-/* Gestão da Simulação e Threads */
+/* Simulation and Thread Management */
 int			sim_init_resources(t_sim *sim);
 void		sim_destroy_resources(t_sim *sim);
 int			request_dongles(t_sim *sim, t_coder *coder);

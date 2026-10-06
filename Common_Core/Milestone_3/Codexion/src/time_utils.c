@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   time_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rafa <rafa@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/24 17:24:52 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/09/24 17:24:55 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/10/06 16:32:34 by rafa             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,11 @@ long long	timestamp_ms(void)
 
 void	msleep(long long ms)
 {
+	long long	start;
+
 	if (ms <= 0)
 		return ;
-	usleep((useconds_t)(ms * 1000));
+	start = timestamp_ms();
+	while ((timestamp_ms() - start) < ms)
+		usleep(500);
 }

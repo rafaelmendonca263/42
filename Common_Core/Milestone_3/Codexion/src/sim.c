@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   sim.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rafa <rafa@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/24 17:24:48 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/09/24 17:43:38 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/10/06 16:30:57 by rafa             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ static int	check_dongles_ready(t_sim *sim, t_coder *coder, int f, int s)
 	t_pq_item	ts;
 	long long	now;
 
+	if (!sim->dongles[f].available || !sim->dongles[s].available)
+		return (0);
 	if (pq_peek(sim->dongles[f].queue, &tf) != 0 || tf.id != coder->id)
 		return (0);
 	if (pq_peek(sim->dongles[s].queue, &ts) != 0 || ts.id != coder->id)
@@ -31,6 +33,8 @@ static int	check_dongles_ready(t_sim *sim, t_coder *coder, int f, int s)
 		return (0);
 	pq_pop(sim->dongles[f].queue, &tf);
 	pq_pop(sim->dongles[s].queue, &ts);
+	sim->dongles[f].available = 0;
+	sim->dongles[s].available = 0;
 	return (1);
 }
 
@@ -79,7 +83,11 @@ int	request_dongles(t_sim *sim, t_coder *coder)
 		pthread_mutex_lock(&sim->dongles[f].mutex);
 		pthread_mutex_lock(&sim->dongles[s].mutex);
 		if (check_dongles_ready(sim, coder, f, s))
+		{
+			pthread_mutex_unlock(&sim->dongles[s].mutex);
+			pthread_mutex_unlock(&sim->dongles[f].mutex);
 			return (0);
+		}
 		pthread_mutex_unlock(&sim->dongles[s].mutex);
 		pthread_mutex_unlock(&sim->dongles[f].mutex);
 		msleep(1);
@@ -95,17 +103,18 @@ void	release_dongles(t_sim *sim, t_coder *coder)
 	f = coder->left;
 	s = coder->right;
 	if (f == s)
-	{
-		pthread_mutex_unlock(&sim->dongles[f].mutex);
 		return ;
-	}
 	if (f > s)
 	{
 		f = coder->right;
 		s = coder->left;
 	}
+	pthread_mutex_lock(&sim->dongles[f].mutex);
+	pthread_mutex_lock(&sim->dongles[s].mutex);
+	sim->dongles[f].available = 1;
+	sim->dongles[f].last_release_ts = timestamp_ms();
+	sim->dongles[s].available = 1;
 	sim->dongles[s].last_release_ts = timestamp_ms();
 	pthread_mutex_unlock(&sim->dongles[s].mutex);
-	sim->dongles[f].last_release_ts = timestamp_ms();
 	pthread_mutex_unlock(&sim->dongles[f].mutex);
 }

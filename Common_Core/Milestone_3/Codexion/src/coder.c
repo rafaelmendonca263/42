@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   coder.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rafa <rafa@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/24 17:25:52 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/09/24 17:25:54 by rmedonca         ###   ########.fr       */
+/*   Updated: 2026/10/06 16:18:48 by rafa             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
-#include <stdio.h>
 
 static int	check_coder_compiles(t_sim *sim, t_coder *coder)
 {
@@ -28,11 +27,9 @@ static int	check_coder_compiles(t_sim *sim, t_coder *coder)
 
 static void	coder_compile_action(t_sim *sim, t_coder *coder)
 {
-	pthread_mutex_lock(&sim->print_mutex);
 	print_log(sim, coder->id, "has taken a dongle");
 	print_log(sim, coder->id, "has taken a dongle");
 	print_log(sim, coder->id, "is compiling");
-	pthread_mutex_unlock(&sim->print_mutex);
 	set_coder_last_compile(sim, coder->id - 1, timestamp_ms());
 	msleep(sim->time_to_compile);
 	pthread_mutex_lock(&sim->state_mutex);
@@ -42,7 +39,7 @@ static void	coder_compile_action(t_sim *sim, t_coder *coder)
 	{
 		sim->finished_count++;
 		if (sim->finished_count >= sim->number_of_coders)
-			sim->stop = 1;
+			set_sim_stop(sim, 1);
 	}
 	pthread_mutex_unlock(&sim->state_mutex);
 	release_dongles(sim, coder);
@@ -52,15 +49,11 @@ static int	coder_debug_refactor(t_sim *sim, t_coder *coder)
 {
 	if (get_sim_stop(sim))
 		return (1);
-	pthread_mutex_lock(&sim->print_mutex);
 	print_log(sim, coder->id, "is debugging");
-	pthread_mutex_unlock(&sim->print_mutex);
 	msleep(sim->time_to_debug);
 	if (get_sim_stop(sim))
 		return (1);
-	pthread_mutex_lock(&sim->print_mutex);
 	print_log(sim, coder->id, "is refactoring");
-	pthread_mutex_unlock(&sim->print_mutex);
 	msleep(sim->time_to_refactor);
 	return (0);
 }
