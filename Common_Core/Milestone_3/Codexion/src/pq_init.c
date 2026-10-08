@@ -3,28 +3,41 @@
 /*                                                        :::      ::::::::   */
 /*   pq_init.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafa <rafa@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/24 17:25:02 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/10/06 16:28:26 by rafa             ###   ########.fr       */
+/*   Created: 2026/10/08 12:24:36 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/10/08 13:01:13 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
 
-static int	is_higher_priority(t_pq_item *a, t_pq_item *b, int mode)
+t_pq	*pq_create(int mode)
 {
-	if (mode == 0)
+	t_pq	*pq;
+
+	pq = malloc(sizeof(t_pq));
+	if (!pq)
+		return (NULL);
+	pq->capacity = 16;
+	pq->size = 0;
+	pq->mode = mode;
+	pq->items = malloc(sizeof(t_pq_item) * pq->capacity);
+	if (!pq->items)
 	{
-		if (a->arrival != b->arrival)
-			return (a->arrival < b->arrival);
-		return (a->id < b->id);
+		free(pq);
+		return (NULL);
 	}
-	if (a->deadline != b->deadline)
-		return (a->deadline < b->deadline);
-	if (a->arrival != b->arrival)
-		return (a->arrival < b->arrival);
-	return (a->id < b->id);
+	return (pq);
+}
+
+void	pq_free(t_pq *pq)
+{
+	if (!pq)
+		return ;
+	if (pq->items)
+		free(pq->items);
+	free(pq);
 }
 
 int	pq_push(t_pq *pq, t_pq_item item)
@@ -50,22 +63,6 @@ int	pq_push(t_pq *pq, t_pq_item item)
 		index = parent;
 	}
 	return (0);
-}
-
-static int	get_smallest_child(t_pq *pq, int index, int left, int right)
-{
-	int	smallest;
-
-	smallest = index;
-	if (left < pq->size
-		&& is_higher_priority(&pq->items[left],
-			&pq->items[smallest], pq->mode))
-		smallest = left;
-	if (right < pq->size
-		&& is_higher_priority(&pq->items[right],
-			&pq->items[smallest], pq->mode))
-		smallest = right;
-	return (smallest);
 }
 
 int	pq_pop(t_pq *pq, t_pq_item *out)

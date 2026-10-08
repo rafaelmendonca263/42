@@ -3,16 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafa <rafa@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/24 17:25:26 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/10/06 16:24:46 by rafa             ###   ########.fr       */
+/*   Created: 2026/10/08 12:24:28 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/10/08 13:26:02 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 static void	start_threads(t_sim *sim)
 {
@@ -42,23 +40,9 @@ static void	join_threads(t_sim *sim)
 	pthread_join(sim->monitor_thread, NULL);
 }
 
-int	main(int argc, char **argv)
+static int	start_simulation(t_sim *sim)
 {
-	t_sim	*sim;
-
-	if (argc != 9)
-	{
-		fprintf(stderr,
-			"Usage: %s number_of_coders time_to_burnout "
-			"time_to_compile time_to_debug time_to_refactor "
-			"number_of_compiles_required dongle_cooldown "
-			"scheduler\n", argv[0]);
-		return (1);
-	}
-	sim = init_sim(argc, argv);
-	if (!sim)
-		return (1);
-	if (sim_init_resources(sim) != 0)
+	if (!sim_init_resources(sim))
 	{
 		fprintf(stderr, "Failed to init resources\n");
 		free_sim(sim);
@@ -67,7 +51,26 @@ int	main(int argc, char **argv)
 	sim->start_ts = timestamp_ms();
 	start_threads(sim);
 	join_threads(sim);
-	sim_destroy_resources(sim);
 	free_sim(sim);
 	return (0);
+}
+
+int	main(int argc, char **argv)
+{
+	t_sim	*sim;
+
+	if (argc != 9)
+	{
+		fprintf(stderr,
+			"Usage: %s number_of_coders "
+			"time_to_burnout time_to_compile "
+			"time_to_debug time_to_refactor "
+			"number_of_compiles_required "
+			"dongle_cooldown scheduler\n", argv[0]);
+		return (1);
+	}
+	sim = init_sim(argc, argv);
+	if (!sim)
+		return (1);
+	return (start_simulation(sim));
 }

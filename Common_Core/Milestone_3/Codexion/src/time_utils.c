@@ -3,16 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   time_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafa <rafa@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/24 17:24:52 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/10/06 16:32:34 by rafa             ###   ########.fr       */
+/*   Created: 2026/10/08 12:24:48 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/10/08 12:43:29 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
-#include <time.h>
-#include <unistd.h>
 
 long long	timestamp_ms(void)
 {

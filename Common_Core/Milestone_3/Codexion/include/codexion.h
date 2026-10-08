@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   codexion.h                                       :+:      :+:    :+:   */
+/*   codexion.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafa <rafa@student.42.fr>                 +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/08/21 12:01:18 by rafa            #+#    #+#             */
-/*   Updated: 2026/08/21 12:01:18 by rafa           ###   ########.fr       */
+/*   Created: 2026/10/08 12:24:11 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/10/08 18:47:22 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 # include <sys/time.h>
 # include <stdio.h>
 # include <unistd.h>
+# include <stdlib.h>
+# include <string.h>
 
 typedef struct s_pq_item
 {
@@ -37,7 +39,6 @@ typedef struct s_pq
 typedef struct s_dongle
 {
 	pthread_mutex_t	mutex;
-	pthread_cond_t	cond;
 	int				available;
 	long long		last_release_ts;
 	t_pq			*queue;
@@ -80,6 +81,8 @@ void		free_sim(t_sim *sim);
 long long	timestamp_ms(void);
 void		msleep(long long ms);
 void		print_log(t_sim *sim, int id, const char *msg);
+void		get_dongle_indices(t_coder *coder, int *f, int *s);
+int			check_cooldown(t_sim *sim, int f, int s);
 
 /* Thread-safe Getters and Setters */
 int			get_sim_stop(t_sim *sim);
@@ -87,12 +90,14 @@ void		set_sim_stop(t_sim *sim, int val);
 long long	get_coder_last_compile(t_sim *sim, int index);
 void		set_coder_last_compile(t_sim *sim, int index, long long val);
 
-/* Priority Queue */
+/* Priority Queue & Scheduler Helpers */
 t_pq		*pq_create(int mode);
 void		pq_free(t_pq *pq);
 int			pq_push(t_pq *pq, t_pq_item item);
 int			pq_pop(t_pq *pq, t_pq_item *out);
 int			pq_peek(t_pq *pq, t_pq_item *out);
+int			is_higher_priority(t_pq_item *a, t_pq_item *b, int mode);
+int			get_smallest_child(t_pq *pq, int index, int left, int right);
 
 /* Simulation and Thread Management */
 int			sim_init_resources(t_sim *sim);

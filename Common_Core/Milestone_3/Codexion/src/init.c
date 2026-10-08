@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafa <rafa@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/24 17:42:46 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/10/06 16:22:23 by rafa             ###   ########.fr       */
+/*   Created: 2026/10/08 12:24:22 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/10/08 13:49:22 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,10 @@ static void	fill_sim(t_sim *sim, char **argv)
 	sim->time_to_refactor = (long long)atoi(argv[5]);
 	sim->number_of_compiles_required = atoi(argv[6]);
 	sim->dongle_cooldown = (long long)atoi(argv[7]);
+	sim->stop = 0;
+	sim->finished_count = 0;
+	if (sim->number_of_compiles_required == 0)
+		sim->stop = 1;
 }
 
 t_sim	*init_sim(int argc, char **argv)
@@ -109,7 +113,7 @@ t_sim	*init_sim(int argc, char **argv)
 	}
 	fill_sim(sim, argv);
 	i = -1;
-	while (argv[8][++i] && i < (int)sizeof(sim->scheduler) - 1)
+	while (argv[8][++i] && i < (int) sizeof(sim->scheduler) - 1)
 		sim->scheduler[i] = argv[8][i];
 	sim->scheduler[i] = '\0';
 	sim->start_ts = timestamp_ms();

@@ -3,80 +3,89 @@
 /*                                                        :::      ::::::::   */
 /*   sim_init.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafa <rafa@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/24 17:24:15 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/10/06 16:29:22 by rafa             ###   ########.fr       */
+/*   Created: 2026/10/08 12:24:41 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/10/08 18:47:37 by rmedonca         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   sim_init.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/08 12:24:25 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/10/08 13:40:00 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
-#include <stdlib.h>
-#include <string.h>
 
-static int	sim_init_dongles(t_sim *sim, int i)
-{
-	int	mode;
-
-	if (sim->scheduler[0] == 'e')
-		mode = 1;
-	else
-		mode = 0;
-	if (pthread_mutex_init(&sim->dongles[i].mutex, NULL) != 0)
-		return (1);
-	if (pthread_cond_init(&sim->dongles[i].cond, NULL) != 0)
-	{
-		pthread_mutex_destroy(&sim->dongles[i].mutex);
-		return (1);
-	}
-	sim->dongles[i].available = 1;
-	sim->dongles[i].last_release_ts = 0;
-	sim->dongles[i].queue = pq_create(mode);
-	if (!sim->dongles[i].queue)
-	{
-		pthread_cond_destroy(&sim->dongles[i].cond);
-		pthread_mutex_destroy(&sim->dongles[i].mutex);
-		return (1);
-	}
-	return (0);
-}
-
-static int	sim_alloc_resources(t_sim *sim)
-{
-	if (pthread_mutex_init(&sim->print_mutex, NULL) != 0)
-		return (1);
-	if (pthread_mutex_init(&sim->state_mutex, NULL) != 0)
-	{
-		pthread_mutex_destroy(&sim->print_mutex);
-		return (1);
-	}
-	sim->coders = malloc(sizeof(t_coder) * sim->number_of_coders);
-	sim->threads = malloc(sizeof(pthread_t) * sim->number_of_coders);
-	sim->dongles = malloc(sizeof(t_dongle) * sim->number_of_coders);
-	if (!sim->coders || !sim->threads || !sim->dongles)
-	{
-		free(sim->coders);
-		free(sim->threads);
-		free(sim->dongles);
-		sim->coders = NULL;
-		sim->threads = NULL;
-		sim->dongles = NULL;
-		pthread_mutex_destroy(&sim->print_mutex);
-		pthread_mutex_destroy(&sim->state_mutex);
-		return (1);
-	}
-	memset(sim->dongles, 0, sizeof(t_dongle) * sim->number_of_coders);
-	return (0);
-}
-
-int	sim_init_resources(t_sim *sim)
+void	sim_destroy_resources(t_sim *sim)
 {
 	int	i;
 
-	sim->stop = 0;
-	sim->finished_count = 0;
-	if (sim_alloc_resources(sim) != 0)
-		return (1);
+	if (!sim)
+		return ;
+	if (sim->dongles)
+	{
+		i = -1;
+		while (++i < sim->number_of_coders)
+		{
+			pthread_mutex_destroy(&sim->dongles[i].mutex);
+			if (sim->dongles[i].queue)
+				pq_free(sim->dongles[i].queue);
+		}
+		free(sim->dongles);
+		sim->dongles = NULL;
+	}
+	pthread_mutex_destroy(&sim->print_mutex);
+	pthread_mutex_destroy(&sim->state_mutex);
+	if (sim->coders)
+		free(sim->coders);
+	if (sim->threads)
+		free(sim->threads);
+}
+
+void	free_sim(t_sim *sim)
+{
+	if (!sim)
+		return ;
+	sim_destroy_resources(sim);
+	free(sim);
+}
+
+static int	sim_init_dongles(t_sim *sim)
+{
+	int	i;
+	int	mode;
+
+	mode = (strcmp(sim->scheduler, "edf") == 0);
+	sim->dongles = malloc(sizeof(t_dongle) * sim->number_of_coders);
+	if (!sim->dongles)
+		return (0);
+	i = 0;
+	while (i < sim->number_of_coders)
+	{
+		if (pthread_mutex_init(&sim->dongles[i].mutex, NULL) != 0)
+			return (0);
+		sim->dongles[i].available = 1;
+		sim->dongles[i].last_release_ts = 0;
+		sim->dongles[i].queue = pq_create(mode);
+		if (!sim->dongles[i].queue)
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+static void	sim_init_coders(t_sim *sim)
+{
+	int	i;
+
 	i = 0;
 	while (i < sim->number_of_coders)
 	{
@@ -86,42 +95,28 @@ int	sim_init_resources(t_sim *sim)
 		sim->coders[i].last_compile_start = sim->start_ts;
 		sim->coders[i].compile_count = 0;
 		sim->coders[i].sim = sim;
-		if (sim_init_dongles(sim, i) != 0)
-			return (1);
 		i++;
 	}
-	return (0);
 }
 
-void	sim_destroy_resources(t_sim *sim)
+int	sim_init_resources(t_sim *sim)
 {
-	int	i;
-
-	if (sim->dongles)
+	if (pthread_mutex_init(&sim->print_mutex, NULL) != 0)
+		return (0);
+	if (pthread_mutex_init(&sim->state_mutex, NULL) != 0)
+		return (0);
+	sim->coders = malloc(sizeof(t_coder) * sim->number_of_coders);
+	sim->threads = malloc(sizeof(pthread_t) * sim->number_of_coders);
+	if (!sim->coders || !sim->threads)
 	{
-		i = 0;
-		while (i < sim->number_of_coders)
-		{
-			pthread_mutex_destroy(&sim->dongles[i].mutex);
-			pthread_cond_destroy(&sim->dongles[i].cond);
-			pq_free(sim->dongles[i].queue);
-			i++;
-		}
-		free(sim->dongles);
-		sim->dongles = NULL;
+		sim_destroy_resources(sim);
+		return (0);
 	}
-	pthread_mutex_destroy(&sim->print_mutex);
-	pthread_mutex_destroy(&sim->state_mutex);
-	free(sim->coders);
-	sim->coders = NULL;
-	free(sim->threads);
-	sim->threads = NULL;
-}
-
-void	free_sim(t_sim *sim)
-{
-	if (!sim)
-		return ;
-	sim_destroy_resources(sim);
-	free(sim);
+	if (!sim_init_dongles(sim))
+	{
+		sim_destroy_resources(sim);
+		return (0);
+	}
+	sim_init_coders(sim);
+	return (1);
 }

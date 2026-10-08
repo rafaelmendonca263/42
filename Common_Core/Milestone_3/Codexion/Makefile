@@ -2,17 +2,18 @@ NAME        = codexion
 CC          = cc
 CFLAGS      = -Wall -Wextra -Werror -pthread -I include
 
-SRCS        = src/main.c \
-              src/init.c \
-              src/time_utils.c \
-              src/log.c \
-              src/scheduler.c \
-              src/sim.c \
-              src/sim_init.c \
-              src/getters.c \
-              src/coder.c \
-              src/pq_init.c \
-              src/monitor.c
+SRCS = src/main.c \
+       src/init.c \
+       src/time_utils.c \
+       src/log.c \
+       src/scheduler.c \
+       src/sim.c \
+       src/sim_utils.c \
+       src/sim_init.c \
+       src/getters.c \
+       src/coder.c \
+       src/pq_init.c \
+       src/monitor.c
 
 OBJS        = $(SRCS:.c=.o)
 
@@ -26,14 +27,14 @@ $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS)
+	@rm -f $(OBJS)
 
 fclean: clean
-	rm -f $(NAME)
-	rm -rf $(VENV)
+	@rm -f $(NAME)
+	@rm -rf $(VENV)
 
 re: fclean all
 

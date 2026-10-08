@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   sim.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafa <rafa@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: rmedonca <rmedonca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/24 17:24:48 by rmedonca          #+#    #+#             */
-/*   Updated: 2026/10/06 16:30:57 by rafa             ###   ########.fr       */
+/*   Created: 2026/10/08 12:24:44 by rmedonca          #+#    #+#             */
+/*   Updated: 2026/10/08 12:50:49 by rmedonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,20 +16,13 @@ static int	check_dongles_ready(t_sim *sim, t_coder *coder, int f, int s)
 {
 	t_pq_item	tf;
 	t_pq_item	ts;
-	long long	now;
 
 	if (!sim->dongles[f].available || !sim->dongles[s].available)
 		return (0);
-	if (pq_peek(sim->dongles[f].queue, &tf) != 0 || tf.id != coder->id)
+	if (pq_peek(sim->dongles[f].queue, &tf) || tf.id != coder->id
+		|| pq_peek(sim->dongles[s].queue, &ts) || ts.id != coder->id)
 		return (0);
-	if (pq_peek(sim->dongles[s].queue, &ts) != 0 || ts.id != coder->id)
-		return (0);
-	now = timestamp_ms();
-	if (sim->dongles[f].last_release_ts != 0
-		&& now - sim->dongles[f].last_release_ts < sim->dongle_cooldown)
-		return (0);
-	if (sim->dongles[s].last_release_ts != 0
-		&& now - sim->dongles[s].last_release_ts < sim->dongle_cooldown)
+	if (check_cooldown(sim, f, s))
 		return (0);
 	pq_pop(sim->dongles[f].queue, &tf);
 	pq_pop(sim->dongles[s].queue, &ts);
@@ -67,29 +60,21 @@ int	request_dongles(t_sim *sim, t_coder *coder)
 {
 	int	f;
 	int	s;
+	int	got;
 
-	f = coder->left;
-	s = coder->right;
-	if (f == s)
-		return (request_single_dongle(sim, f));
-	if (f > s)
-	{
-		f = coder->right;
-		s = coder->left;
-	}
+	if (coder->left == coder->right)
+		return (request_single_dongle(sim, coder->left));
+	get_dongle_indices(coder, &f, &s);
 	push_dongles(sim, coder, f, s);
 	while (!get_sim_stop(sim))
 	{
 		pthread_mutex_lock(&sim->dongles[f].mutex);
 		pthread_mutex_lock(&sim->dongles[s].mutex);
-		if (check_dongles_ready(sim, coder, f, s))
-		{
-			pthread_mutex_unlock(&sim->dongles[s].mutex);
-			pthread_mutex_unlock(&sim->dongles[f].mutex);
-			return (0);
-		}
+		got = check_dongles_ready(sim, coder, f, s);
 		pthread_mutex_unlock(&sim->dongles[s].mutex);
 		pthread_mutex_unlock(&sim->dongles[f].mutex);
+		if (got)
+			return (0);
 		msleep(1);
 	}
 	return (1);
@@ -100,15 +85,9 @@ void	release_dongles(t_sim *sim, t_coder *coder)
 	int	f;
 	int	s;
 
-	f = coder->left;
-	s = coder->right;
-	if (f == s)
+	if (coder->left == coder->right)
 		return ;
-	if (f > s)
-	{
-		f = coder->right;
-		s = coder->left;
-	}
+	get_dongle_indices(coder, &f, &s);
 	pthread_mutex_lock(&sim->dongles[f].mutex);
 	pthread_mutex_lock(&sim->dongles[s].mutex);
 	sim->dongles[f].available = 1;
