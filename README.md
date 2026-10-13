@@ -37,7 +37,9 @@ Projects are organized by **programming language**, and each project follows the
 |    |      ├── Python_Modules
 |    |
 |    ├── Milestone_3
-|          ├── Fly_in
+|           ├── Fly_in
+|           |── Call_Me_Maybe
+|           |── Codexion
 |
 ├── Piscine/                # Projects 
 |      ├── C
@@ -62,9 +64,11 @@ Projects are organized by **programming language**, and each project follows the
 | [Get_Next_Line](./Common_Core/Milestone_1/Get_next_line) | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
 | [ft_printf](./Common_Core/Milestone_1/Printf)    | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
 | [Push_Swap](./Common_Core/Milestone_2/Push_swap) | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
-| [Python_Modules](./Common_Core/Milestone_2/Python_Modules) | ![Python](https://img.shields.io/badge/Language-Python-yellow) | ![In Progress](https://img.shields.io/badge/Status-In%20Progress-orange) |
+| [Python_Modules](./Common_Core/Milestone_2/Python_Modules) | ![Python](https://img.shields.io/badge/Language-Python-yellow) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
 |[A-Maze-ing](./Common_Core/Milestone_2/A-Maze-ing/)|![Python](https://img.shields.io/badge/Language-Python-yellow) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen)|
-|[Fly-in](./Common_Core/Milestone_2/A-Maze-ing/)|![Python](https://img.shields.io/badge/Language-Python-yellow) | ![In Progress](https://img.shields.io/badge/Status-In%20Progress-orange)|
+|[Fly-in](./Common_Core/Milestone_2/Fly-in/)|![Python](https://img.shields.io/badge/Language-Python-yellow) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen)|
+|[Call_Me_Maybe](./Common_Core/Milestone_3/Call_Me_Maybe/)|![Python](https://img.shields.io/badge/Language-Python-yellow) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen)|
+| [Codexion](./Common_Core/Milestone_3/Codexion) | ![C](https://img.shields.io/badge/Language-C-blue) | ![Completed](https://img.shields.io/badge/Status-Completed-brightgreen) |
 
 
 ## Key Skills
