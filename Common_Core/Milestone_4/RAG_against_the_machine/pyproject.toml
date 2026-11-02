@@ -1,0 +1,26 @@
+[project]
+name = "rag"
+version = "2.0"
+description = "Retrieval-Augmented Generation project for 42"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic>=2.0",
+    "fire>=0.5.0",
+    "tqdm>=4.6.0",
+    "rank-bm25>=0.2.2",
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "accelerate>=0.20.0"
+]
+
+[dependency-groups]
+dev = [
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "pytest>=7.0.0"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
