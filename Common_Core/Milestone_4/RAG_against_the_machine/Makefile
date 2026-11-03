@@ -13,11 +13,11 @@ setup-cache:
 		mkdir -p $$HOME/.cache; \
 	fi
 
-install: setup-cache
+install:
 	uv sync --python 3.10 --link-mode=copy
 
 run: install
-	uv run python -m src
+	uv run python -m src search_dataset --dataset_path data/datasets/UnansweredQuestions/dataset_docs_public.json --k 10 --save_directory data/output/search_results/UnansweredQuestions
 
 test: install
 	uv run pytest tests/ -v
@@ -30,6 +30,7 @@ clean:
 	@find . -type d -name '__pycache__' -prune -exec rm -rf {} +
 	@find . -type f -name '*.pyc' -delete
 	@rm -rf .venv 2>/dev/null || true
+	@rm -rf uv.lock
 
 fclean: clean
 	@rm -rf data/output data/processed
